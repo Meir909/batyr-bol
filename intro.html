@@ -1,0 +1,1137 @@
+<html lang="ru"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATYR BOL - Learn History Through Play</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b', // Primary Gold
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                            950: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+        }
+        
+        /* Language Toggling Logic */
+        body[data-language="ru"] .lang-kz { display: none !important; }
+        body[data-language="kz"] .lang-ru { display: none !important; }
+        
+        /* Subtle Pattern Overlay */
+        .bg-pattern {
+            background-image: radial-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46; 
+        }
+    </style>
+</head>
+<body class="bg-black text-zinc-300 antialiased selection:bg-gold-500/30 selection:text-gold-200" data-language="ru">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/70 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <img src="/logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
+                <span class="text-lg font-semibold tracking-tighter text-white">BATYR BOL</span>
+            </div>
+            
+            <!-- Menu Items -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#about" class="text-sm font-medium text-zinc-300"><span class="lang-ru">О нас</span><span class="lang-kz">Біз туралы</span></a>
+                <a href="#how-it-works" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Как это работает</span><span class="lang-kz">Қалай жұмыс істейді</span></a>
+                <a href="#features" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Функции</span><span class="lang-kz">Мүмкіндіктер</span></a>
+                <a href="/investors.html" target="_blank" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Для инвесторов</span><span class="lang-kz">Инвесторларға</span></a>
+                <a href="#roadmap" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Дорожная карта</span><span class="lang-kz">Жоспар</span></a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Language Switcher -->
+                <div class="flex items-center gap-1 bg-zinc-900/80 p-1 rounded-lg border border-white/10">
+                    <button onclick="switchLanguage('ru')" id="btn-ru" class="px-3 py-1 text-xs font-medium rounded-md text-black bg-white">RU</button>
+                    <button onclick="switchLanguage('kz')" id="btn-kz" class="px-3 py-1 text-xs font-medium rounded-md text-zinc-400">KZ</button>
+                </div>
+                
+                <!-- CTA Button -->
+                <button class="px-4 py-1.5 text-sm font-medium bg-white text-black rounded-full">
+                    <span class="lang-ru">Ранний доступ</span>
+                    <span class="lang-kz">Ерте қол жеткізу</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold-500/10 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]"></div>
+            <div class="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[80px]"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 text-center z-10 relative">
+            
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-400 text-xs font-medium mb-8">
+                <span class="relative flex h-2 w-2">
+                  <span class="absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-gold-500"></span>
+                </span>
+                <span class="lang-ru">Образовательная платформа нового поколения</span>
+                <span class="lang-kz">Жаңа буын білім беру платформасы</span>
+            </div>
+
+            <!-- Main Title -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-gradient mb-6">
+                BATYR BOL
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="lang-ru text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Изучай историю Казахстана и развивай язык через эпические игровые миссии. Стань настоящим батыром своей эпохи.
+            </p>
+            <p class="lang-kz text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Қазақстан тарихын зерттеп, эпикалық ойын тапсырмалары арқылы тілді дамыт. Өз заманыңның нағыз батыры бол.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="/game" class="px-8 py-3 bg-white text-black font-medium rounded-full">
+                    <span class="flex items-center gap-2">
+                        <span class="lang-ru">Начать играть в браузере</span>
+                        <span class="lang-kz">Браузерде ойнауды бастау</span>
+                        <iconify-icon icon="lucide:play" width="18" height="18" stroke-width="1.5"></iconify-icon>
+                    </span>
+                </a>
+                <a href="https://t.me/BatyrBolBot" target="_blank" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
+                    <iconify-icon icon="lucide:message-circle" width="18" height="18"></iconify-icon>
+                    <span class="lang-ru">Играть в Telegram</span>
+                    <span class="lang-kz">Telegram-да ойнау</span>
+                </a>
+            </div>
+            
+            <!-- Additional Navigation -->
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#about" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
+                    <iconify-icon icon="lucide:info" width="18" height="18"></iconify-icon>
+                    <span class="lang-ru">О проекте</span>
+                    <span class="lang-kz">Жоба туралы</span>
+                </a>
+                <a href="#how-it-works" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
+                    <iconify-icon icon="lucide:help-circle" width="18" height="18"></iconify-icon>
+                    <span class="lang-ru">Как это работает</span>
+                    <span class="lang-kz">Бұл қалай жұмыс істейді</span>
+                </a>
+                <a href="/investors.html" target="_blank" class="px-8 py-3 border border-gold-500/30 bg-gold-500/10 text-gold-400 font-medium rounded-full flex items-center gap-2">
+                    <iconify-icon icon="lucide:trending-up" width="18" height="18"></iconify-icon>
+                    <span class="lang-ru">Для инвесторов</span>
+                    <span class="lang-kz">Инвесторларға</span>
+                </a>
+            </div>
+            
+            <!-- Interactive Visual Elements -->
+            <div class="mt-16 flex justify-center gap-8 flex-wrap">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gold-500/20 to-transparent border border-gold-500/10 flex items-center justify-center">
+                    <iconify-icon icon="lucide:sword" width="24" height="24" class="text-gold-400"></iconify-icon>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/20 to-transparent border border-blue-500/10 flex items-center justify-center">
+                    <iconify-icon icon="lucide:book-open" width="24" height="24" class="text-blue-400"></iconify-icon>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-transparent border border-purple-500/10 flex items-center justify-center">
+                    <iconify-icon icon="lucide:medal" width="24" height="24" class="text-purple-400"></iconify-icon>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500/20 to-transparent border border-green-500/10 flex items-center justify-center">
+                    <iconify-icon icon="lucide:mic" width="24" height="24" class="text-green-400"></iconify-icon>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ornamental Divider -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mt-24 opacity-50"></div>
+    </header>
+
+    <!-- Social Proof / Trust Section -->
+    <section class="py-16 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <p class="text-zinc-500 text-sm max-w-2xl mx-auto">
+                    <span class="lang-ru">Создано с участием педагогов, историков и современных технологий</span>
+                    <span class="lang-kz">Педагогтар, тарихшылар және заманауи технологиялар қатысуымен жасалған</span>
+                </p>
+                <p class="text-zinc-600 text-xs mt-2">
+                    <span class="lang-ru">Разработано для поддержки школьного образования, а не для его замены</span>
+                    <span class="lang-kz">Мектеп білімін алмастыру үшін емес, қолдау көрсету үшін әзірленді</span>
+                </p>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-12 md:gap-20">
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-gold-400 mb-3">
+                        <iconify-icon icon="lucide:graduation-cap" width="24" height="24"></iconify-icon>
+                    </div>
+                    <span class="text-zinc-400 text-sm"><span class="lang-ru">Образование</span><span class="lang-kz">Білім</span></span>
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-gold-400 mb-3">
+                        <iconify-icon icon="lucide:hourglass" width="24" height="24"></iconify-icon>
+                    </div>
+                    <span class="text-zinc-400 text-sm"><span class="lang-ru">История</span><span class="lang-kz">Тарих</span></span>
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-gold-400 mb-3">
+                        <iconify-icon icon="lucide:cpu" width="24" height="24"></iconify-icon>
+                    </div>
+                    <span class="text-zinc-400 text-sm"><span class="lang-ru">ИИ</span><span class="lang-kz">ЖИ</span></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-pattern relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                    <span class="lang-ru">О Проекте</span>
+                    <span class="lang-kz">Жоба туралы</span>
+                </h2>
+                <p class="text-zinc-500 max-w-xl mx-auto">
+                    <span class="lang-ru">Мы объединили образование и геймификацию, чтобы сделать изучение культуры захватывающим.</span>
+                    <span class="lang-kz">Мәдениетті зерттеуді қызықты ету үшін біз білім мен ойынды біріктірдік.</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:gamepad-2" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Обучение через игру</span>
+                        <span class="lang-kz">Ойын арқылы оқу</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Скучные учебники в прошлом. Проходи уровни и запоминай факты без зубрежки.</span>
+                        <span class="lang-kz">Іш пыстыратын оқулықтар артта қалды. Деңгейлерден өтіп, фактілерді жаттамай есте сақта.</span>
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:scroll" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">История и Герои</span>
+                        <span class="lang-kz">Тарих және Батырлар</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Погружение в реальные исторические эпохи и знакомство с великими личностями.</span>
+                        <span class="lang-kz">Нақты тарихи кезеңдерге шолу және ұлы тұлғалармен танысу.</span>
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:languages" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Казахский язык</span>
+                        <span class="lang-kz">Қазақ тілі</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Интерактивные диалоги и задания для повышения уровня владения языком.</span>
+                        <span class="lang-kz">Тілді меңгеру деңгейін арттыруға арналған интерактивті диалогтар мен тапсырмалар.</span>
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:trophy" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Миссии и Рейтинги</span>
+                        <span class="lang-kz">Миссиялар мен Рейтинг</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Соревнуйся с друзьями, выполняй ежедневные челленджи и получай награды.</span>
+                        <span class="lang-kz">Достарыңмен жарыс, күнделікті челлендждерді орындап, жүлделерге ие бол.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Educational Depth Section -->
+    <section id="features" class="py-24 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                    <span class="lang-ru">Глубокое обучение</span>
+                    <span class="lang-kz">Терең оқыту</span>
+                </h2>
+                <p class="text-zinc-500 max-w-xl mx-auto">
+                    <span class="lang-ru">Игра не поверхностна – она основана на глубоком понимании истории и культуры.</span>
+                    <span class="lang-kz">Ойын жүзлік емес – тарих пен мәдениетті терең түсіну негізінде жасалған.</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:book-check" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Историческая точность</span>
+                        <span class="lang-kz">Тарихи дәлдік</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Все события и персонажи основаны на достоверных исторических источниках.</span>
+                        <span class="lang-kz">Барлық оқиғалар мен тұлғалар нақты тарихи дереккөздерге негізделген.</span>
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:route" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Пути обучения</span>
+                        <span class="lang-kz">Оқыту жолдары</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Программы адаптированы под возрастные группы с учетом особенностей восприятия.</span>
+                        <span class="lang-kz">Бағдарламалар қабылдау ерекшеліктерін ескере отырып, жас ерекшеліктеріне бейімделген.</span>
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:whole-word" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Язык и словарь</span>
+                        <span class="lang-kz">Тіл мен сөздік</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Развитие лексики и языковых навыков через игровой контекст.</span>
+                        <span class="lang-kz">Ойын контексті арқылы лексика мен тілдік дағдыларды дамыту.</span>
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:globe" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Культурный контекст</span>
+                        <span class="lang-kz">Мәдени контекст</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Не только факты, но и понимание культурных традиций и ценностей.</span>
+                        <span class="lang-kz">Фактілер ғана емес, сонымен қатар мәдени дәстүрлер мен құндылықтарды түсіну.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience Section -->
+    <section class="py-24 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-12 text-center">
+                <span class="lang-ru">Для кого создан BATYR BOL?</span>
+                <span class="lang-kz">BATYR BOL кімге арналған?</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Kids -->
+                <div class="flex flex-col items-center text-center p-8 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-3xl border border-white/5">
+                    <div class="w-16 h-16 rounded-full bg-zinc-800/80 flex items-center justify-center text-gold-500 mb-6 shadow-lg shadow-gold-500/5">
+                        <iconify-icon icon="lucide:users-2" width="32" height="32" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">
+                        <span class="lang-ru">Дети и Подростки</span>
+                        <span class="lang-kz">Балалар мен Жасөспірімдер</span>
+                    </h3>
+                    <p class="text-zinc-500 text-sm">
+                        <span class="lang-ru">Возраст 8–14 лет. Те, кто любит игры и хочет узнать больше о своих корнях в современном формате.</span>
+                        <span class="lang-kz">8–14 жас аралығы. Ойындарды жақсы көретін және өз тарихын заманауи форматта білгісі келетіндер.</span>
+                    </p>
+                </div>
+
+                <!-- Parents -->
+                <div class="flex flex-col items-center text-center p-8 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-3xl border border-white/5">
+                    <div class="w-16 h-16 rounded-full bg-zinc-800/80 flex items-center justify-center text-gold-500 mb-6 shadow-lg shadow-gold-500/5">
+                        <iconify-icon icon="lucide:heart-handshake" width="32" height="32" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">
+                        <span class="lang-ru">Родители</span>
+                        <span class="lang-kz">Ата-аналар</span>
+                    </h3>
+                    <p class="text-zinc-500 text-sm">
+                        <span class="lang-ru">Которые ищут качественный, безопасный и полезный контент для развития своих детей.</span>
+                        <span class="lang-kz">Өз балаларының дамуы үшін сапалы, қауіпсіз әрі пайдалы контент іздейтіндер.</span>
+                    </p>
+                </div>
+
+                <!-- Schools -->
+                <div class="flex flex-col items-center text-center p-8 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-3xl border border-white/5">
+                    <div class="w-16 h-16 rounded-full bg-zinc-800/80 flex items-center justify-center text-gold-500 mb-6 shadow-lg shadow-gold-500/5">
+                        <iconify-icon icon="lucide:school-2" width="32" height="32" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-3">
+                        <span class="lang-ru">Школы и Учителя</span>
+                        <span class="lang-kz">Мектептер мен Мұғалімдер</span>
+                    </h3>
+                    <p class="text-zinc-500 text-sm">
+                        <span class="lang-ru">Инструмент для геймификации уроков истории и казахской литературы.</span>
+                        <span class="lang-kz">Тарих және қазақ әдебиеті сабақтарын ойынға айналдыруға арналған құрал.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game World & Eras Section -->
+    <section class="py-24 bg-zinc-950 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                    <span class="lang-ru">Мир игры и эпохи</span>
+                    <span class="lang-kz">Ойын әлемі мен кезеңдер</span>
+                </h2>
+                <p class="text-zinc-500 max-w-xl mx-auto">
+                    <span class="lang-ru">Исследуйте обширный мир казахской истории — от древних степных цивилизаций до национальных героев.</span>
+                    <span class="lang-kz">Ежелгі далалық цивилизациялардан бастап ұлттық батырларға дейін Қазақстан тарихының кең әлемін зерттеңіз.</span>
+                </p>
+            </div>
+
+            <div class="relative">
+                <!-- Timeline -->
+                <div class="flex flex-col md:flex-row justify-between gap-8 md:gap-4 relative before:absolute before:top-8 before:left-0 before:h-[calc(100%-4rem)] before:w-0.5 before:bg-gold-500/20 md:before:top-1/2 md:before:left-8 md:before:h-0.5 md:before:w-[calc(100%-4rem)]">
+                    <!-- Era 1 -->
+                    <div class="relative pl-8 md:pl-0 md:pt-8 flex-1">
+                        <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-gold-500 md:left-6 md:top-1/2 md:-translate-y-1/2"></div>
+                        <div class="p-5 bg-zinc-900/40 border border-white/5 rounded-xl">
+                            <h3 class="font-medium text-white mb-2">
+                                <span class="lang-ru">Степные цивилизации</span>
+                                <span class="lang-kz">Далалық цивилизациялар</span>
+                            </h3>
+                            <p class="text-sm text-zinc-500">
+                                <span class="lang-ru">Древние поселения и культуры предков на евразийских просторах.</span>
+                                <span class="lang-kz">Еуразия жеріндегі ата-бабалардың ежелгі тұрғылықтары мен мәдениеттері.</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Era 2 -->
+                    <div class="relative pl-8 md:pl-0 md:pt-8 flex-1">
+                        <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-gold-500 md:left-6 md:top-1/2 md:-translate-y-1/2"></div>
+                        <div class="p-5 bg-zinc-900/40 border border-white/5 rounded-xl">
+                            <h3 class="font-medium text-white mb-2">
+                                <span class="lang-ru">Тюркские каганаты</span>
+                                <span class="lang-kz">Түрік қағанаттары</span>
+                            </h3>
+                            <p class="text-sm text-zinc-500">
+                                <span class="lang-ru">Великие империи, связавшие Восток и Запад в Средние века.</span>
+                                <span class="lang-kz">Орта ғасырларда Шығыс пен Батысты байланыстырған ұлы империялар.</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Era 3 -->
+                    <div class="relative pl-8 md:pl-0 md:pt-8 flex-1">
+                        <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-gold-500 md:left-6 md:top-1/2 md:-translate-y-1/2"></div>
+                        <div class="p-5 bg-zinc-900/40 border border-white/5 rounded-xl">
+                            <h3 class="font-medium text-white mb-2">
+                                <span class="lang-ru">Казахское ханство</span>
+                                <span class="lang-kz">Қазақ хандығы</span>
+                            </h3>
+                            <p class="text-sm text-zinc-500">
+                                <span class="lang-ru">Основание независимого государства и формирование казахской нации.</span>
+                                <span class="lang-kz">Тәуелсіз мемлекеттің құрылуы мен қазақ ұлтының қалыптасуы.</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Era 4 -->
+                    <div class="relative pl-8 md:pl-0 md:pt-8 flex-1">
+                        <div class="absolute left-0 top-0 w-4 h-4 rounded-full bg-gold-500 md:left-6 md:top-1/2 md:-translate-y-1/2"></div>
+                        <div class="p-5 bg-zinc-900/40 border border-white/5 rounded-xl">
+                            <h3 class="font-medium text-white mb-2">
+                                <span class="lang-ru">Герои и легенды</span>
+                                <span class="lang-kz">Батырлар мен аңыздар</span>
+                            </h3>
+                            <p class="text-sm text-zinc-500">
+                                <span class="lang-ru">Великие личности, вдохновлявшие народ на подвиги и сохранение традиций.</span>
+                                <span class="lang-kz">Халықты ерлікке шақырған және дәстүрлерді сақтауға ынталандырған ұлы тұлғалар.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section id="how-it-works" class="py-24 bg-zinc-950 relative overflow-hidden">
+        <!-- Abstract Shapes -->
+        <div class="absolute top-1/4 left-0 w-64 h-64 bg-gold-600/5 rounded-full blur-[80px]"></div>
+        <div class="absolute bottom-1/4 right-0 w-64 h-64 bg-zinc-700/10 rounded-full blur-[80px]"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-16 text-center">
+                <span class="lang-ru">Как это работает?</span>
+                <span class="lang-kz">Бұл қалай жұмыс істейді?</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="relative group">
+                    <div class="text-6xl font-bold text-zinc-900 group-hover:text-zinc-800 transition-colors absolute -top-8 -left-2 select-none z-0">01</div>
+                    <div class="relative z-10 pt-4">
+                        <div class="mb-4 text-gold-400">
+                            <iconify-icon icon="lucide:user-plus" width="24" height="24"></iconify-icon>
+                        </div>
+                        <h4 class="text-lg font-medium text-white mb-2">
+                            <span class="lang-ru">Выбери батыра</span>
+                            <span class="lang-kz">Батырды таңда</span>
+                        </h4>
+                        <p class="text-sm text-zinc-500">
+                            <span class="lang-ru">Создай своего персонажа и выбери его происхождение.</span>
+                            <span class="lang-kz">Өз кейіпкеріңді жасап, оның шыққан тегін таңда.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative group">
+                    <div class="text-6xl font-bold text-zinc-900 group-hover:text-zinc-800 transition-colors absolute -top-8 -left-2 select-none z-0">02</div>
+                    <div class="relative z-10 pt-4">
+                        <div class="mb-4 text-gold-400">
+                            <iconify-icon icon="lucide:swords" width="24" height="24"></iconify-icon>
+                        </div>
+                        <h4 class="text-lg font-medium text-white mb-2">
+                            <span class="lang-ru">Выполняй миссии</span>
+                            <span class="lang-kz">Миссияларды орында</span>
+                        </h4>
+                        <p class="text-sm text-zinc-500">
+                            <span class="lang-ru">Участвуй в исторических битвах и квестах.</span>
+                            <span class="lang-kz">Тарихи шайқастар мен квесттерге қатыс.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative group">
+                    <div class="text-6xl font-bold text-zinc-900 group-hover:text-zinc-800 transition-colors absolute -top-8 -left-2 select-none z-0">03</div>
+                    <div class="relative z-10 pt-4">
+                        <div class="mb-4 text-gold-400">
+                            <iconify-icon icon="lucide:book-open" width="24" height="24"></iconify-icon>
+                        </div>
+                        <h4 class="text-lg font-medium text-white mb-2">
+                            <span class="lang-ru">Изучай культуру</span>
+                            <span class="lang-kz">Мәдениетті зертте</span>
+                        </h4>
+                        <p class="text-sm text-zinc-500">
+                            <span class="lang-ru">Узнавай факты о быте, традициях и языке.</span>
+                            <span class="lang-kz">Тұрмыс, салт-дәстүр және тіл туралы деректерді біл.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative group">
+                    <div class="text-6xl font-bold text-zinc-900 group-hover:text-zinc-800 transition-colors absolute -top-8 -left-2 select-none z-0">04</div>
+                    <div class="relative z-10 pt-4">
+                        <div class="mb-4 text-gold-400">
+                            <iconify-icon icon="lucide:medal" width="24" height="24"></iconify-icon>
+                        </div>
+                        <h4 class="text-lg font-medium text-white mb-2">
+                            <span class="lang-ru">Получай достижения</span>
+                            <span class="lang-kz">Жетістіктерге жет</span>
+                        </h4>
+                        <p class="text-sm text-zinc-500">
+                            <span class="lang-ru">Зарабатывай золото, ранги и уникальные артефакты.</span>
+                            <span class="lang-kz">Алтын, атақтар және бірегей жәдігерлер жина.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress & Motivation Section -->
+    <section class="py-24 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                    <span class="lang-ru">Прогресс и мотивация</span>
+                    <span class="lang-kz">Прогресс пен мотивация</span>
+                </h2>
+                <p class="text-zinc-500 max-w-xl mx-auto">
+                    <span class="lang-ru">Система вознаграждений и прогресса, которая мотивирует учиться каждый день.</span>
+                    <span class="lang-kz">Күн сайын оқуға шақыратын марапаттау мен прогресс жүйесі.</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:target" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Ежедневные миссии</span>
+                        <span class="lang-kz">Күнделікті миссиялар</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Новые задачи каждый день, чтобы поддерживать интерес и прогресс.</span>
+                        <span class="lang-kz">Қызығушылықты және прогресті қолдау үшін күн сайын жаңа тапсырмалар.</span>
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:bar-chart-3" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Очки опыта</span>
+                        <span class="lang-kz">Тәжірибе ұпайлары</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Зарабатывайте XP за выполнение заданий и повышайте свой уровень.</span>
+                        <span class="lang-kz">Тапсырмаларды орындау арқылы XP жинаңыз және деңгейіңізді көтеріңіз.</span>
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:trending-up" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Рейтинги и таблицы лидеров</span>
+                        <span class="lang-kz">Рейтингтер мен көшбасшылар кестесі</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Соревнуйтесь с друзьями и другими игроками в национальном рейтинге.</span>
+                        <span class="lang-kz">Достарыңызбен және басқа ойыншылармен ұлттық рейтингте жарысыңыз.</span>
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:award" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Достижения и отслеживание прогресса</span>
+                        <span class="lang-kz">Жетістіктер мен прогресті бақылау</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Отслеживайте свой путь батыра и собирайте коллекции артефактов.</span>
+                        <span class="lang-kz">Батыр жолыңызды бақылаңыз және жәдігерлер жинақтаңыз.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Values -->
+    <section id="values" class="py-24 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+                    <span class="lang-ru">Наши ценности</span>
+                    <span class="lang-kz">Біздің құндылықтар</span>
+                </h2>
+                <p class="text-zinc-400 mb-8 leading-relaxed">
+                    <span class="lang-ru">BATYR BOL — это не просто игра. Это проект, призванный сохранить национальный код и передать его будущим поколениям через технологии.</span>
+                    <span class="lang-kz">BATYR BOL — жай ғана ойын емес. Бұл — ұлттық кодты сақтап, оны технологиялар арқылы болашақ ұрпаққа жеткізуге арналған жоба.</span>
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <iconify-icon icon="lucide:check-circle-2" class="text-gold-500 mt-1 flex-shrink-0" width="18"></iconify-icon>
+                        <div>
+                            <strong class="block text-white text-sm"><span class="lang-ru">Национальная идентичность</span><span class="lang-kz">Ұлттық бірегейлік</span></strong>
+                            <span class="text-zinc-500 text-xs"><span class="lang-ru">Любовь к родине через знание.</span><span class="lang-kz">Білім арқылы отанға деген сүйіспеншілік.</span></span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <iconify-icon icon="lucide:check-circle-2" class="text-gold-500 mt-1 flex-shrink-0" width="18"></iconify-icon>
+                        <div>
+                            <strong class="block text-white text-sm"><span class="lang-ru">Полезный досуг</span><span class="lang-kz">Пайдалы бос уақыт</span></strong>
+                            <span class="text-zinc-500 text-xs"><span class="lang-ru">Гаджеты на пользу развития.</span><span class="lang-kz">Гаджеттер даму игілігі үшін.</span></span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <iconify-icon icon="lucide:check-circle-2" class="text-gold-500 mt-1 flex-shrink-0" width="18"></iconify-icon>
+                        <div>
+                            <strong class="block text-white text-sm"><span class="lang-ru">Инновации</span><span class="lang-kz">Инновациялар</span></strong>
+                            <span class="text-zinc-500 text-xs"><span class="lang-ru">Современный подход к традициям.</span><span class="lang-kz">Дәстүрге заманауи көзқарас.</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative bg-zinc-900/50 border border-white/5 rounded-2xl p-8 aspect-video flex items-center justify-center overflow-hidden">
+                <!-- Decorative Element simulating game screen or art -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-gold-900/10 to-transparent"></div>
+                <div class="text-center z-10">
+                   <iconify-icon icon="lucide:shield" width="64" height="64" class="text-gold-500/80 mb-4 mx-auto"></iconify-icon>
+                   <p class="text-gold-200/50 text-sm tracking-widest uppercase font-semibold">Batyr Bol</p>
+                </div>
+                <!-- Ornamental border pattern via CSS masking or borders could go here -->
+                <div class="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-gold-500/50"></div>
+                <div class="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-gold-500/50"></div>
+                <div class="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-gold-500/50"></div>
+                <div class="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-gold-500/50"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parent-Focused Section -->
+    <section class="py-24 bg-zinc-950 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                    <span class="lang-ru">Для родителей</span>
+                    <span class="lang-kz">Ата-аналарға</span>
+                </h2>
+                <p class="text-zinc-500 max-w-xl mx-auto">
+                    <span class="lang-ru">Мы создали безопасную и обучающую среду, где дети могут исследовать историю с пользой.</span>
+                    <span class="lang-kz">Балалар тарихты пайдалы зерттей алатын қауіпсіз және оқу ортасын жасадық.</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:shield-check" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Безопасная среда</span>
+                        <span class="lang-kz">Қауіпсіз орта</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Никакой рекламы, никаких скрытых платежей. Только образовательный контент.</span>
+                        <span class="lang-kz">Ешқандай жарнама, ешқандай жасырын төлемдер жоқ. Тек білім беру контенті.</span>
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:coins" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Никакой агрессивной монетизации</span>
+                        <span class="lang-kz">Агрессивті монетизация жоқ</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Игра не требует покупок для полноценного прохождения. Все функции доступны бесплатно.</span>
+                        <span class="lang-kz">Ойынды толықтай өту үшін сатып алу қажет емес. Барлық функциялар тегін қолжетімді.</span>
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:graduation-cap" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Обучение прежде всего</span>
+                        <span class="lang-kz">Алдымен оқыту</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Каждый элемент игры продуман с точки зрения образовательной ценности.</span>
+                        <span class="lang-kz">Ойынның әрбір элементі білім беру құндылығы тұрғысынан ойластырылған.</span>
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="p-6 rounded-2xl bg-zinc-900/40 border border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-gold-400 mb-4">
+                        <iconify-icon icon="lucide:eye" width="20" height="20" stroke-width="1.5"></iconify-icon>
+                    </div>
+                    <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <span class="lang-ru">Прозрачность прогресса</span>
+                        <span class="lang-kz">Ашық прогресс</span>
+                    </h3>
+                    <p class="text-sm text-zinc-500 leading-relaxed">
+                        <span class="lang-ru">Отслеживайте успехи вашего ребенка и помогайте ему в развитии.</span>
+                        <span class="lang-kz">Балаңыздың жетістіктерін бақылаңыз және дамуына көмектесіңіз.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section class="py-24 bg-black relative overflow-hidden" id="roadmap">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-gold-500/5 rounded-full blur-[100px] -z-10"></div>
+        <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px] -z-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-2">
+                        <span class="lang-ru">Дорожная карта</span>
+                        <span class="lang-kz">Жоспар</span>
+                    </h2>
+                    <p class="text-zinc-500">
+                        <span class="lang-ru">Наши планы по развитию проекта в ближайшее время.</span>
+                        <span class="lang-kz">Жобаны жақын арада дамыту бойынша жоспарларымыз.</span>
+                    </p>
+                </div>
+                <div class="px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900 text-xs text-zinc-400">
+                    Roadmap 2024
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Milestone 1 -->
+                <div class="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+                    <iconify-icon icon="lucide:rocket" class="text-gold-400 mb-3" width="24"></iconify-icon>
+                    <h4 class="text-sm font-medium text-white mb-1"><span class="lang-ru">MVP запуск</span><span class="lang-kz">MVP шығару</span></h4>
+                    <p class="text-xs text-zinc-500 mt-2"><span class="lang-ru">Базовая версия игры с ключевыми функциями</span><span class="lang-kz">Негізгі ойын функциялары бар базалық нұсқа</span></p>
+                </div>
+                
+                <!-- Milestone 2 -->
+                <div class="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+                    <iconify-icon icon="lucide:smartphone" class="text-gold-400 mb-3" width="24"></iconify-icon>
+                    <h4 class="text-sm font-medium text-white mb-1"><span class="lang-ru">Мобильное приложение</span><span class="lang-kz">Мобильді қосымша</span></h4>
+                    <p class="text-xs text-zinc-500 mt-2"><span class="lang-ru">Полнофункциональное приложение для iOS и Android</span><span class="lang-kz">iOS және Android үшін толық функциялы қосымша</span></p>
+                </div>
+                
+                <!-- Milestone 3 -->
+                <div class="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+                    <iconify-icon icon="lucide:bot" class="text-gold-400 mb-3" width="24"></iconify-icon>
+                    <h4 class="text-sm font-medium text-white mb-1"><span class="lang-ru">AI-ассистент</span><span class="lang-kz">AI көмекшісі</span></h4>
+                    <p class="text-xs text-zinc-500 mt-2"><span class="lang-ru">Персонализированный помощник для обучения</span><span class="lang-kz">Оқыту үшін жекелендірілген көмекші</span></p>
+                </div>
+                
+                <!-- Milestone 4 -->
+                <div class="p-6 bg-zinc-900/30 border border-white/5 rounded-xl">
+                    <iconify-icon icon="lucide:microphone" class="text-gold-400 mb-3" width="24"></iconify-icon>
+                    <h4 class="text-sm font-medium text-white mb-1"><span class="lang-ru">Голосовые миссии и турниры</span><span class="lang-kz">Дауыстық миссиялар мен турнирлер</span></h4>
+                    <p class="text-xs text-zinc-500 mt-2"><span class="lang-ru">Интерактивные голосовые задания и соревнования</span><span class="lang-kz">Интерактивті дауыстық тапсырмалар мен жарыстар</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Early Access / Newsletter Section -->
+    <section class="py-24 border-t border-white/5 bg-gradient-to-b from-zinc-950 to-black">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-400 text-xs font-medium mb-6">
+                <iconify-icon icon="lucide:sparkles" width="16" height="16"></iconify-icon>
+                <span class="lang-ru">Ранний доступ</span>
+                <span class="lang-kz">Ерте қол жеткізу</span>
+            </div>
+            
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <span class="lang-ru">Станьте одним из первых батыров</span>
+                <span class="lang-kz">Алғашқы батырлардың бірі болыңыз</span>
+            </h2>
+            
+            <p class="text-zinc-500 mb-8 max-w-xl mx-auto">
+                <span class="lang-ru">Подпишитесь на нашу рассылку, чтобы быть в курсе запуска и получить эксклюзивные преимущества для ранних пользователей.</span>
+                <span class="lang-kz">Жөнелтуді білу үшін жазылыңыз және ерте пайдаланушылар үшін эксклюзивті артықшылықтар алыңыз.</span>
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input type="email" placeholder="your@email.com" class="flex-1 px-4 py-3 bg-zinc-900/50 border border-white/10 rounded-full text-white placeholder-zinc-600 focus:outline-none focus:border-gold-500/50">
+                <button class="px-6 py-3 bg-white text-black font-medium rounded-full whitespace-nowrap">
+                    <span class="lang-ru">Получить ранний доступ</span>
+                    <span class="lang-kz">Ерте қол жеткізу</span>
+                </button>
+            </div>
+            
+            <p class="text-zinc-600 text-xs mt-4">
+                <span class="lang-ru">Мы уважаем вашу конфиденциальность. Отписаться можно в любое время.</span>
+                <span class="lang-kz">Біз сіздің құпиялылығыңызды құрметтейміз. Кез келген уақытта жазылымнан шығуға болады.</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-24 bg-zinc-950">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-gold-400 text-sm font-medium tracking-wider uppercase">
+                    <span class="lang-ru">Отзывы</span>
+                    <span class="lang-kz">Пікірлер</span>
+                </span>
+                <h2 class="text-4xl md:text-5xl font-bold text-white mt-4 tracking-tight">
+                    <span class="lang-ru">Что говорят пользователи</span>
+                    <span class="lang-kz">Пайдаланушылар не дейді</span>
+                </h2>
+            </div>
+            
+            <!-- Reviews Grid -->
+            <div class="grid md:grid-cols-3 gap-6 mb-12" id="reviews-grid">
+                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                    </div>
+                    <p class="text-zinc-300 mb-4">"Балама өте ұнады! Ойын арқылы тарихты үйрену керемет идея. Енді ол батырлар туралы көп біледі."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">А</div>
+                        <div>
+                            <div class="text-white font-medium">Айгүл М.</div>
+                            <div class="text-zinc-500 text-sm">Ата-ана</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                    </div>
+                    <p class="text-zinc-300 mb-4">"ЕНТ-ге дайындалуға көмектесті. Сұрақтар нақты ЕНТ форматында. Рахмет!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">Е</div>
+                        <div>
+                            <div class="text-white font-medium">Ерлан К.</div>
+                            <div class="text-zinc-500 text-sm">11-сынып оқушысы</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-zinc-600" width="16"></iconify-icon>
+                    </div>
+                    <p class="text-zinc-300 mb-4">"Отличное приложение для изучения истории Казахстана. Дети играют и учатся одновременно!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">М</div>
+                        <div>
+                            <div class="text-white font-medium">Марина С.</div>
+                            <div class="text-zinc-500 text-sm">Учитель истории</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Review Form -->
+            <div class="max-w-2xl mx-auto bg-zinc-900/50 border border-white/5 rounded-2xl p-8">
+                <h3 class="text-xl font-bold text-white mb-6 text-center">
+                    <span class="lang-ru">Оставить отзыв</span>
+                    <span class="lang-kz">Пікір қалдыру</span>
+                </h3>
+                <form id="review-form" class="space-y-4">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <input type="text" id="review-name" required placeholder="Аты-жөні / Имя" 
+                            class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
+                        <input type="email" id="review-email" placeholder="Email (міндетті емес)" 
+                            class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-zinc-400 text-sm">
+                            <span class="lang-ru">Оценка:</span>
+                            <span class="lang-kz">Баға:</span>
+                        </span>
+                        <div class="flex gap-1" id="star-rating">
+                            <button type="button" onclick="setRating(1)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(2)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(3)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(4)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(5)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                        </div>
+                    </div>
+                    <textarea id="review-text" required rows="4" placeholder="Пікіріңізді жазыңыз... / Напишите ваш отзыв..."
+                        class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none resize-none"></textarea>
+                    <button type="submit" class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-xl transition-colors">
+                        <span class="lang-ru">Отправить отзыв</span>
+                        <span class="lang-kz">Пікір жіберу</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-12">
+                <div>
+                    <h3 class="text-2xl font-bold text-white tracking-tight mb-2">BATYR BOL</h3>
+                    <p class="text-zinc-500 text-sm max-w-xs">
+                        <span class="lang-ru">Воспитание будущего через великое прошлое.</span>
+                        <span class="lang-kz">Ұлы өткен арқылы болашақты тәрбиелеу.</span>
+                    </p>
+                </div>
+                <div class="flex gap-6 mt-8 md:mt-0">
+                    <a href="#" class="text-zinc-500"><iconify-icon icon="lucide:instagram" width="20"></iconify-icon></a>
+                    <a href="#" class="text-zinc-500"><iconify-icon icon="lucide:twitter" width="20"></iconify-icon></a>
+                    <a href="#" class="text-zinc-500"><iconify-icon icon="lucide:youtube" width="20"></iconify-icon></a>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 text-xs text-zinc-600">
+                <p>© 2024 BATYR BOL. All rights reserved.</p>
+                <div class="flex gap-2 items-center mt-4 md:mt-0">
+                    <span class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                    <span class="lang-ru">Проект в активной разработке</span>
+                    <span class="lang-kz">Жоба белсенді әзірленуде</span>
+    </footer>
+
+    <script>
+        // Language Switcher Logic
+        function switchLanguage(lang) {
+            console.log('Switching language to:', lang);
+            document.body.setAttribute('data-language', lang);
+            console.log('data-language set to:', document.body.getAttribute('data-language'));
+            
+            // Toggle Button Styles
+            const btnRu = document.getElementById('btn-ru');
+            const btnKz = document.getElementById('btn-kz');
+
+            if (lang === 'ru') {
+                if (btnRu) {
+                    btnRu.classList.remove('text-zinc-400', 'hover:text-white');
+                    btnRu.classList.add('bg-white', 'text-black');
+                }
+                
+                if (btnKz) {
+                    btnKz.classList.remove('bg-white', 'text-black');
+                    btnKz.classList.add('text-zinc-400', 'hover:text-white');
+                }
+            } else {
+                if (btnKz) {
+                    btnKz.classList.remove('text-zinc-400', 'hover:text-white');
+                    btnKz.classList.add('bg-white', 'text-black');
+                }
+                
+                if (btnRu) {
+                    btnRu.classList.remove('bg-white', 'text-black');
+                    btnRu.classList.add('text-zinc-400', 'hover:text-white');
+                }
+            }
+        }
+
+        // Initialize default state
+        document.addEventListener('DOMContentLoaded', function() {
+            switchLanguage('kz');
+        });
+        
+        // Review form functionality
+        let currentRating = 5;
+        
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((star, i) => {
+                if (i < rating) {
+                    star.classList.remove('text-zinc-600');
+                    star.classList.add('text-gold-400');
+                } else {
+                    star.classList.remove('text-gold-400');
+                    star.classList.add('text-zinc-600');
+                }
+            });
+        }
+        
+        document.getElementById('review-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('review-name').value;
+            const email = document.getElementById('review-email').value;
+            const text = document.getElementById('review-text').value;
+            
+            // Save review to localStorage
+            const reviews = JSON.parse(localStorage.getItem('batyrbol_reviews') || '[]');
+            reviews.push({
+                name,
+                email,
+                text,
+                rating: currentRating,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('batyrbol_reviews', JSON.stringify(reviews));
+            
+            // Show success message
+            const form = document.getElementById('review-form');
+            form.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-5xl mb-4">🎉</div>
+                    <h3 class="text-xl font-bold text-white mb-2">
+                        <span class="lang-ru">Спасибо за отзыв!</span>
+                        <span class="lang-kz">Пікіріңіз үшін рахмет!</span>
+                    </h3>
+                    <p class="text-zinc-400">
+                        <span class="lang-ru">Ваш отзыв очень важен для нас.</span>
+                        <span class="lang-kz">Сіздің пікіріңіз біз үшін өте маңызды.</span>
+                    </p>
+                </div>
+            `;
+        });
+    </script>
+
+</body></html>

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#f59e0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BATYR BOL">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/logo.png">
+<title>BATYR BOL — Игра</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="game_integration.js"></script>
+<script src="voice_recognition.js"></script>
+<script src="achievements.js"></script>
+<script src="game_engine.js"></script>
+<script src="features.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        gold: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+          950: '#451a03',
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style>
+* { box-sizing: border-box; }
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0a0a0a 100%);
+  color: #e4e4e7;
+  min-height: 100vh;
+}
+
+body[data-language="ru"] .lang-kz { display: none !important; }
+body[data-language="kz"] .lang-ru { display: none !important; }
+
+.glass {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.glow {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+}
+.pulse-gold { animation: pulse-gold 2s infinite; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.float { animation: float 3s ease-in-out infinite; }
+</style>
+</head>
+
+<body class="antialiased" data-language="kz">
+
+<!-- AUTH SCREEN -->
+<section id="auth" class="min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md">
+    <!-- Logo -->
+    <div class="text-center mb-10">
+      <div class="inline-block float">
+        <img src="/logo.png" alt="BATYR BOL" class="w-24 h-24 mx-auto rounded-2xl glow">
+      </div>
+      <h1 class="text-3xl font-bold text-white mt-6 tracking-tight">BATYR BOL</h1>
+      <p class="text-zinc-500 mt-2">
+        <span class="lang-ru">Изучай историю играя</span>
+        <span class="lang-kz">Ойнай отырып тарихты үйрен</span>
+      </p>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="glass rounded-3xl p-8">
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-8 p-1 bg-zinc-900/50 rounded-xl">
+        <button onclick="showTab('login')" id="tab-login" class="flex-1 py-2.5 text-sm font-medium rounded-lg bg-gold-500 text-black transition-all">
+          <span class="lang-ru">Вход</span>
+          <span class="lang-kz">Кіру</span>
+        </button>
+        <button onclick="showTab('register')" id="tab-register" class="flex-1 py-2.5 text-sm font-medium rounded-lg text-zinc-400 transition-all">
+          <span class="lang-ru">Регистрация</span>
+          <span class="lang-kz">Тіркелу</span>
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="space-y-5">
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">Email</label>
+          <input type="email" id="login-email" required
+            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+            placeholder="email@example.com">
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">
+            <span class="lang-ru">Пароль</span>
+            <span class="lang-kz">Құпия сөз</span>
+          </label>
+          <input type="password" id="login-password" required
+            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+            placeholder="••••••••">
+        </div>
+        <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base">
+          <span class="lang-ru">Войти в игру</span>
+          <span class="lang-kz">Ойынға кіру</span>
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="space-y-5 hidden">
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">
+            <span class="lang-ru">Имя батыра</span>
+            <span class="lang-kz">Батыр аты</span>
+          </label>
+          <input type="text" id="register-name" required
+            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+            placeholder="Абылай">
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">Email</label>
+          <input type="email" id="register-email" required
+            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+            placeholder="email@example.com">
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-2">
+            <span class="lang-ru">Пароль</span>
+            <span class="lang-kz">Құпия сөз</span>
+          </label>
+          <input type="password" id="register-password" required
+            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+            placeholder="••••••••">
+        </div>
+        <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base">
+          <span class="lang-ru">Создать аккаунт</span>
+          <span class="lang-kz">Аккаунт жасау</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Language Switch -->
+    <div class="flex justify-center gap-2 mt-8">
+      <button onclick="switchLanguage('ru')" id="btn-ru" class="px-4 py-2 text-sm font-medium rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors">RU</button>
+      <button onclick="switchLanguage('kz')" id="btn-kz" class="px-4 py-2 text-sm font-medium rounded-lg bg-gold-500 text-black">KZ</button>
+    </div>
+  </div>
+</section>
+
+<!-- GAME SCREEN -->
+<section id="game" class="hidden min-h-screen">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-xl">
+        <span class="text-xl font-bold text-white tracking-tight">BATYR BOL</span>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <!-- Energy Bar -->
+        <div id="energy-container" class="hidden md:flex items-center gap-3 mr-4 px-4 py-2 bg-zinc-900/80 rounded-xl border border-white/10">
+          <iconify-icon icon="lucide:battery-charging" class="text-green-400" width="18"></iconify-icon>
+          <div class="w-24 h-2 bg-zinc-800 rounded-full overflow-hidden">
+            <div id="energy-bar" class="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-300" style="width: 100%"></div>
+          </div>
+          <span id="energy-text" class="text-white text-sm font-semibold">20/20</span>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="hidden md:flex items-center gap-4 mr-2">
+          <div class="flex items-center gap-2">
+            <iconify-icon icon="lucide:zap" class="text-gold-400" width="18"></iconify-icon>
+            <span id="header-xp" class="text-white font-semibold">0</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <iconify-icon icon="lucide:flame" class="text-orange-400" width="18"></iconify-icon>
+            <span id="header-streak" class="text-white font-semibold">0</span>
+          </div>
+        </div>
+        
+        <!-- Language -->
+        <div class="flex gap-1 p-1 bg-zinc-900/80 rounded-lg border border-white/10">
+          <button onclick="switchLanguage('ru')" id="btn-ru-game" class="px-3 py-1.5 text-xs font-medium rounded-md text-zinc-400 hover:text-white transition-colors">RU</button>
+          <button onclick="switchLanguage('kz')" id="btn-kz-game" class="px-3 py-1.5 text-xs font-medium rounded-md bg-gold-500 text-black">KZ</button>
+        </div>
+        
+        <!-- Profile -->
+        <button onclick="openProfileModal()" class="w-10 h-10 rounded-xl overflow-hidden border-2 border-gold-500/50 hover:border-gold-500 transition-colors">
+          <img id="header-avatar" src="/logo.png" alt="Avatar" class="w-full h-full object-cover">
+        </button>
+        
+        <button onclick="logout()" class="p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors">
+          <iconify-icon icon="lucide:log-out" class="text-zinc-400" width="18"></iconify-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <div class="grid lg:grid-cols-12 gap-8">
+      
+      <!-- Sidebar -->
+      <aside class="lg:col-span-3 space-y-6">
+        <!-- Profile Card -->
+        <div class="glass rounded-2xl p-6 card-hover">
+          <div class="text-center">
+            <div class="relative inline-block">
+              <div class="w-20 h-20 rounded-2xl overflow-hidden border-2 border-gold-500/50 mx-auto">
+                <img id="user-avatar" src="/logo.png" alt="Avatar" class="w-full h-full object-cover">
+              </div>
+              <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-gold-500 rounded-lg flex items-center justify-center text-black text-xs font-bold" id="user-level-badge">1</div>
+            </div>
+            <h3 id="user-name" class="text-white font-bold text-lg mt-4">Батыр</h3>
+            <p class="text-gold-400 text-sm mt-1">
+              <span class="lang-ru">Уровень</span>
+              <span class="lang-kz">Деңгей</span>
+              <span id="user-level">1</span>
+            </p>
+          </div>
+          
+          <!-- XP Progress -->
+          <div class="mt-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-zinc-500">XP</span>
+              <span class="text-gold-400 font-medium"><span id="user-xp">0</span> / 100</span>
+            </div>
+            <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+              <div id="xp-bar" class="h-full progress-bar rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="glass rounded-xl p-4 text-center card-hover">
+            <iconify-icon icon="lucide:target" class="text-gold-400" width="24"></iconify-icon>
+            <div id="stat-missions" class="text-white text-xl font-bold mt-2">0</div>
+            <div class="text-zinc-500 text-xs mt-1">
+              <span class="lang-ru">Миссий</span>
+              <span class="lang-kz">Миссия</span>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4 text-center card-hover">
+            <iconify-icon icon="lucide:check-circle" class="text-green-400" width="24"></iconify-icon>
+            <div id="stat-correct" class="text-white text-xl font-bold mt-2">0</div>
+            <div class="text-zinc-500 text-xs mt-1">
+              <span class="lang-ru">Верных</span>
+              <span class="lang-kz">Дұрыс</span>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4 text-center card-hover">
+            <iconify-icon icon="lucide:flame" class="text-orange-400" width="24"></iconify-icon>
+            <div id="stat-streak" class="text-white text-xl font-bold mt-2">0</div>
+            <div class="text-zinc-500 text-xs mt-1">
+              <span class="lang-ru">Серия</span>
+              <span class="lang-kz">Серия</span>
+            </div>
+          </div>
+          <div class="glass rounded-xl p-4 text-center card-hover">
+            <iconify-icon icon="lucide:trophy" class="text-purple-400" width="24"></iconify-icon>
+            <div id="stat-achievements" class="text-white text-xl font-bold mt-2">0</div>
+            <div class="text-zinc-500 text-xs mt-1">
+              <span class="lang-ru">Награды</span>
+              <span class="lang-kz">Марапат</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass rounded-2xl p-4 space-y-2">
+          <button onclick="dailyRewards.showRewardModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <iconify-icon icon="lucide:gift" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Ежедневная награда</span>
+              <span class="lang-kz">Күнделікті сыйлық</span>
+            </span>
+          </button>
+          <button onclick="leaderboard.showLeaderboardModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <iconify-icon icon="lucide:trophy" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Лидерборд</span>
+              <span class="lang-kz">Үздіктер тізімі</span>
+            </span>
+          </button>
+          <button onclick="userStats.showStatsModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <iconify-icon icon="lucide:bar-chart-2" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Статистика</span>
+              <span class="lang-kz">Статистика</span>
+            </span>
+          </button>
+          <button onclick="gameEngine.showLevelSelection()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <iconify-icon icon="lucide:settings-2" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Сменить уровень</span>
+              <span class="lang-kz">Деңгейді өзгерту</span>
+            </span>
+          </button>
+          <button onclick="toggleAchievementsPanel()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <iconify-icon icon="lucide:award" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Достижения</span>
+              <span class="lang-kz">Жетістіктер</span>
+            </span>
+          </button>
+          <button onclick="soundEffects.toggle(); this.querySelector('iconify-icon').setAttribute('icon', soundEffects.enabled ? 'lucide:volume-2' : 'lucide:volume-x')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <iconify-icon icon="lucide:volume-2" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Звуки</span>
+              <span class="lang-kz">Дыбыстар</span>
+            </span>
+          </button>
+          <a href="/investors.html" target="_blank" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors">
+            <iconify-icon icon="lucide:briefcase" class="text-gold-400" width="20"></iconify-icon>
+            <span class="text-white text-sm font-medium">
+              <span class="lang-ru">Инвесторам</span>
+              <span class="lang-kz">Инвесторларға</span>
+            </span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Area -->
+      <div class="lg:col-span-9 space-y-6">
+        <!-- Welcome Banner -->
+        <div class="glass rounded-2xl p-8 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div class="relative">
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
+              <span class="lang-ru">Добро пожаловать, Батыр!</span>
+              <span class="lang-kz">Қош келдің, Батыр!</span>
+            </h2>
+            <p class="text-zinc-400 mb-6 max-w-xl">
+              <span class="lang-ru">Изучай историю Казахстана через увлекательные миссии и становись настоящим героем степи.</span>
+              <span class="lang-kz">Қызықты миссиялар арқылы Қазақстан тарихын үйреніп, даланың нағыз батыры бол.</span>
+            </p>
+            <button id="missions-btn" onclick="window.gameIntegration && window.gameIntegration.getMissions()" class="btn-primary px-8 py-4 rounded-xl text-base flex items-center gap-3 pulse-gold">
+              <iconify-icon icon="lucide:play" width="20"></iconify-icon>
+              <span class="lang-ru">Начать миссию</span>
+              <span class="lang-kz">Миссияны бастау</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mission Content Area -->
+        <div id="mission-content" class="glass rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
+          <div class="text-center">
+            <iconify-icon icon="lucide:compass" class="text-zinc-600" width="64"></iconify-icon>
+            <p class="text-zinc-500 mt-4">
+              <span class="lang-ru">Нажмите "Начать миссию" чтобы начать обучение</span>
+              <span class="lang-kz">"Миссияны бастау" батырмасын басыңыз</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Questions Area -->
+        <div id="questions-container" class="hidden glass rounded-2xl p-8">
+          <h3 class="text-xl font-bold text-white mb-6">
+            <span class="lang-ru">Вопросы по теме</span>
+            <span class="lang-kz">Тақырып бойынша сұрақтар</span>
+          </h3>
+          <div id="questions-list" class="space-y-4"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 p-4">
+  <div class="glass rounded-2xl max-w-md w-full p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold text-white">
+        <span class="lang-ru">Редактировать профиль</span>
+        <span class="lang-kz">Профильді өңдеу</span>
+      </h3>
+      <button onclick="closeProfileModal()" class="text-zinc-400 hover:text-white">
+        <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+      </button>
+    </div>
+    <form id="profile-edit-form" class="space-y-4">
+      <div>
+        <label class="block text-sm text-zinc-400 mb-2">
+          <span class="lang-ru">Имя</span>
+          <span class="lang-kz">Аты</span>
+        </label>
+        <input type="text" id="profile-name" class="w-full px-4 py-3 bg-zinc-900/50 border border-white/10 rounded-xl text-white focus:border-gold-500/50 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-sm text-zinc-400 mb-2">Email</label>
+        <input type="email" id="profile-email" class="w-full px-4 py-3 bg-zinc-900/50 border border-white/10 rounded-xl text-white focus:border-gold-500/50 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-sm text-zinc-400 mb-2">
+          <span class="lang-ru">Новый пароль</span>
+          <span class="lang-kz">Жаңа құпия сөз</span>
+        </label>
+        <input type="password" id="profile-password" class="w-full px-4 py-3 bg-zinc-900/50 border border-white/10 rounded-xl text-white focus:border-gold-500/50 focus:outline-none" placeholder="••••••••">
+      </div>
+      <button type="submit" class="w-full py-3 btn-primary rounded-xl">
+        <span class="lang-ru">Сохранить</span>
+        <span class="lang-kz">Сақтау</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Message Toast -->
+<div id="message-toast" class="fixed bottom-6 right-6 z-50 hidden">
+  <div class="glass rounded-xl px-6 py-4 flex items-center gap-3">
+    <iconify-icon id="toast-icon" icon="lucide:check-circle" class="text-green-400" width="24"></iconify-icon>
+    <span id="toast-text" class="text-white"></span>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function showTab(tab) {
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const tabLogin = document.getElementById('tab-login');
+  const tabRegister = document.getElementById('tab-register');
+  
+  if (tab === 'login') {
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+    tabLogin.classList.add('bg-gold-500', 'text-black');
+    tabLogin.classList.remove('text-zinc-400');
+    tabRegister.classList.remove('bg-gold-500', 'text-black');
+    tabRegister.classList.add('text-zinc-400');
+  } else {
+    loginForm.classList.add('hidden');
+    registerForm.classList.remove('hidden');
+    tabRegister.classList.add('bg-gold-500', 'text-black');
+    tabRegister.classList.remove('text-zinc-400');
+    tabLogin.classList.remove('bg-gold-500', 'text-black');
+    tabLogin.classList.add('text-zinc-400');
+  }
+}
+
+// Language switching
+function switchLanguage(lang) {
+  document.body.dataset.language = lang;
+  
+  // Update all language buttons
+  const ruBtns = document.querySelectorAll('[id^="btn-ru"]');
+  const kzBtns = document.querySelectorAll('[id^="btn-kz"]');
+  
+  ruBtns.forEach(btn => {
+    if (lang === 'ru') {
+      btn.classList.add('bg-gold-500', 'text-black');
+      btn.classList.remove('text-zinc-400', 'bg-zinc-800');
+    } else {
+      btn.classList.remove('bg-gold-500', 'text-black');
+      btn.classList.add('text-zinc-400');
+    }
+  });
+  
+  kzBtns.forEach(btn => {
+    if (lang === 'kz') {
+      btn.classList.add('bg-gold-500', 'text-black');
+      btn.classList.remove('text-zinc-400', 'bg-zinc-800');
+    } else {
+      btn.classList.remove('bg-gold-500', 'text-black');
+      btn.classList.add('text-zinc-400');
+    }
+  });
+  
+  if (window.gameIntegration) {
+    window.gameIntegration.userProfile.language = lang === 'kz' ? 'kk' : 'ru';
+  }
+}
+
+// Auth functions
+function showGame() {
+  document.getElementById('auth').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  updateStats();
+  
+  // Проверяем, выбран ли уровень сложности
+  if (typeof gameEngine !== 'undefined') {
+    const savedLevel = localStorage.getItem('batyrbol_difficulty');
+    if (!savedLevel) {
+      // Показываем экран выбора уровня
+      setTimeout(() => gameEngine.showLevelSelection(), 300);
+    }
+  }
+}
+
+function logout() {
+  localStorage.removeItem('batyrbol_user');
+  document.getElementById('auth').classList.remove('hidden');
+  document.getElementById('game').classList.add('hidden');
+}
+
+function openProfileModal() {
+  document.getElementById('profile-modal').classList.remove('hidden');
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-modal').classList.add('hidden');
+}
+
+function showMessage(text, type = 'success') {
+  const toast = document.getElementById('message-toast');
+  const icon = document.getElementById('toast-icon');
+  const textEl = document.getElementById('toast-text');
+  
+  textEl.textContent = text;
+  icon.setAttribute('icon', type === 'success' ? 'lucide:check-circle' : 'lucide:alert-circle');
+  icon.className = type === 'success' ? 'text-green-400' : 'text-red-400';
+  
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+function updateStats() {
+  if (typeof achievementsInstance !== 'undefined' && achievementsInstance) {
+    const stats = achievementsInstance.userStats;
+    
+    document.getElementById('user-xp').textContent = stats.total_points;
+    document.getElementById('header-xp').textContent = stats.total_points;
+    document.getElementById('user-level').textContent = stats.level;
+    document.getElementById('user-level-badge').textContent = stats.level;
+    document.getElementById('header-streak').textContent = stats.current_streak;
+    document.getElementById('stat-missions').textContent = stats.missions_completed;
+    document.getElementById('stat-correct').textContent = stats.correct_answers;
+    document.getElementById('stat-streak').textContent = stats.best_streak;
+    document.getElementById('stat-achievements').textContent = achievementsInstance.userAchievements.length;
+    
+    const xpProgress = Math.min(100, (stats.total_points % 100));
+    document.getElementById('xp-bar').style.width = xpProgress + '%';
+  }
+}
+
+// Form handlers
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  
+  if (window.gameIntegration) {
+    try {
+      await window.gameIntegration.login(email, password);
+      showGame();
+      showMessage('Добро пожаловать!');
+    } catch (err) {
+      showMessage(err.message, 'error');
+    }
+  }
+});
+
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('register-name').value;
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+  
+  if (window.gameIntegration) {
+    try {
+      await window.gameIntegration.register(name, email, password);
+      showGame();
+      showMessage('Аккаунт создан!');
+    } catch (err) {
+      showMessage(err.message, 'error');
+    }
+  }
+});
+
+document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('profile-name').value;
+  const email = document.getElementById('profile-email').value;
+  const password = document.getElementById('profile-password').value;
+  
+  if (window.gameIntegration) {
+    try {
+      await window.gameIntegration.updateUserProfile(name, email, password);
+      document.getElementById('user-name').textContent = name;
+      closeProfileModal();
+      showMessage('Профиль обновлен!');
+    } catch (err) {
+      showMessage(err.message, 'error');
+    }
+  }
+});
+
+// Achievements panel
+function toggleAchievementsPanel() {
+  let panel = document.getElementById('achievements-modal');
+  
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'achievements-modal';
+    panel.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4';
+    panel.innerHTML = `
+      <div class="glass rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 glass">
+          <h2 class="text-xl font-bold text-white">🏆 <span class="lang-ru">Достижения</span><span class="lang-kz">Жетістіктер</span></h2>
+          <button onclick="closeAchievementsPanel()" class="text-zinc-400 hover:text-white">
+            <iconify-icon icon="lucide:x" width="24"></iconify-icon>
+          </button>
+        </div>
+        <div id="achievements-content" class="p-6"></div>
+      </div>
+    `;
+    document.body.appendChild(panel);
+  } else {
+    panel.classList.toggle('hidden');
+  }
+  
+  if (typeof AchievementsUI !== 'undefined' && achievementsInstance) {
+    const ui = new AchievementsUI(achievementsInstance);
+    ui.render('achievements-content');
+  }
+}
+
+function closeAchievementsPanel() {
+  const panel = document.getElementById('achievements-modal');
+  if (panel) panel.classList.add('hidden');
+}
+
+// Initialize
+let achievementsInstance = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  switchLanguage('kz');
+  
+  if (typeof initAchievements === 'function') {
+    const { achievementsSystem } = initAchievements();
+    achievementsInstance = achievementsSystem;
+  }
+  
+  // Check for saved session
+  const savedUser = localStorage.getItem('batyrbol_user');
+  if (savedUser) {
+    showGame();
+  }
+  
+  setTimeout(updateStats, 500);
+  
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW error:', err));
+  }
+});
+</script>
+
+</body>
+</html>

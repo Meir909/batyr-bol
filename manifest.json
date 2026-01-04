@@ -1,0 +1,37 @@
+{
+  "name": "BATYR BOL - Қазақстан тарихын үйрен",
+  "short_name": "BATYR BOL",
+  "description": "Ойнай отырып Қазақстан тарихын үйрен. Изучай историю Казахстана играя.",
+  "start_url": "/game",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "games"],
+  "lang": "kk",
+  "dir": "ltr",
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Ойынды бастау",
+      "short_name": "Ойын",
+      "description": "Миссияларды бастау",
+      "url": "/game",
+      "icons": [{ "src": "/logo.png", "sizes": "96x96" }]
+    }
+  ]
+}
