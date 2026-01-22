@@ -598,8 +598,8 @@ document.getElementById('login-form').addEventListener('submit', async function(
   
   if (window.gameIntegration) {
     try {
-      await window.gameIntegration.login(email, password);
-      showGame();
+      await window.gameIntegration.loginUser(email, password);
+      window.gameIntegration.showGameScreen();
       showMessage('Добро пожаловать!');
     } catch (err) {
       showMessage(err.message, 'error');
@@ -615,8 +615,8 @@ document.getElementById('register-form').addEventListener('submit', async functi
   
   if (window.gameIntegration) {
     try {
-      await window.gameIntegration.register(name, email, password);
-      showGame();
+      await window.gameIntegration.registerUser(name, email, password);
+      window.gameIntegration.showGameScreen();
       showMessage('Аккаунт создан!');
     } catch (err) {
       showMessage(err.message, 'error');
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Check for saved session
   const savedUser = localStorage.getItem('batyrbol_user');
   if (savedUser) {
-    showGame();
+    window.gameIntegration.showGameScreen();
   }
   
   setTimeout(updateStats, 500);
