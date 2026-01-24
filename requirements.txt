@@ -2,3 +2,7 @@ python-telegram-bot==21.0.1
 flask==2.3.2
 requests==2.31.0
 python-dotenv==1.0.0
+supabase==2.27.2
+httpx==0.26.0
+websockets==15.0
+werkzeug==2.3.6

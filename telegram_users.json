@@ -149,6 +149,19 @@
           ]
         }
       ]
+    },
+    "6536973374": {
+      "id": 6536973374,
+      "name": "Hithemighty",
+      "email": null,
+      "xp": 0,
+      "level": 1,
+      "lang": "kz",
+      "done": [],
+      "last_day": "2026-01-22",
+      "streak": 1,
+      "current_mission": null,
+      "registered_at": "2026-01-22"
     }
   },
   "leaderboard": {
