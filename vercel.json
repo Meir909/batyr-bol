@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/test.py",
+      "src": "api/flask_handler.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/test.py"
+      "dest": "api/flask_handler.py"
     }
   ],
   "env": {
