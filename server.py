@@ -200,6 +200,10 @@ def _translate_kz_to_ru(text_kz: str):
 def index():
     return send_from_directory('.', 'intro.html')
 
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy', 'service': 'BATYR BOL'})
+
 @app.route('/game')
 def game():
     return send_from_directory('.', 'igra.html')
