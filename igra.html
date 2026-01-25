@@ -140,11 +140,19 @@ body[data-language="kz"] .lang-ru { display: none !important; }
 
       <!-- Login Form -->
       <form id="login-form" class="space-y-5">
+        <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3 mb-4">
+          <p class="text-blue-300 text-sm">
+            <span class="lang-ru">🔓 Тестовый аккаунт:</span>
+            <span class="lang-kz">🔓 Сынақ аккаунт:</span><br>
+            <code class="text-blue-200">test@batyrbol.kz</code><br>
+            <code class="text-blue-200">batyr123</code>
+          </p>
+        </div>
         <div>
           <label class="block text-sm text-zinc-400 mb-2">Email</label>
           <input type="email" id="login-email" required
             class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="email@example.com">
+            placeholder="test@batyrbol.kz" value="test@batyrbol.kz">
         </div>
         <div>
           <label class="block text-sm text-zinc-400 mb-2">
@@ -153,7 +161,7 @@ body[data-language="kz"] .lang-ru { display: none !important; }
           </label>
           <input type="password" id="login-password" required
             class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="••••••••">
+            placeholder="batyr123" value="batyr123">
         </div>
         <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base">
           <span class="lang-ru">Войти в игру</span>
@@ -609,19 +617,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
 
 document.getElementById('register-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const name = document.getElementById('register-name').value;
-  const email = document.getElementById('register-email').value;
-  const password = document.getElementById('register-password').value;
-  
-  if (window.gameIntegration) {
-    try {
-      await window.gameIntegration.registerUser(name, email, password);
-      window.gameIntegration.showGameScreen();
-      showMessage('Аккаунт создан!');
-    } catch (err) {
-      showMessage(err.message, 'error');
-    }
-  }
+  showMessage('Регистрация отключена. Используйте тестовый аккаунт: test@batyrbol.kz / batyr123', 'error');
 });
 
 document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
