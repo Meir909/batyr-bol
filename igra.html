@@ -126,6 +126,16 @@ body[data-language="kz"] .lang-ru { display: none !important; }
 
     <!-- Auth Card -->
     <div class="glass rounded-3xl p-8">
+      <!-- Important Notice -->
+      <div class="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4 mb-6">
+        <p class="text-yellow-300 text-sm font-medium text-center">
+          <span class="lang-ru">⚠️ ВНИМАНИЕ: Регистрация временно отключена</span>
+          <span class="lang-kz">⚠️ ЕСКЕРТУ: Тіркелу уақытша өшірілген</span><br>
+          <span class="lang-ru">Используйте только тестовый аккаунт для входа</span>
+          <span class="lang-kz">Тек сынақ аккаунтын ғана пайдаланыңыз</span>
+        </p>
+      </div>
+
       <!-- Tabs -->
       <div class="flex gap-2 mb-8 p-1 bg-zinc-900/50 rounded-xl">
         <button onclick="showTab('login')" id="tab-login" class="flex-1 py-2.5 text-sm font-medium rounded-lg bg-gold-500 text-black transition-all">
@@ -140,19 +150,28 @@ body[data-language="kz"] .lang-ru { display: none !important; }
 
       <!-- Login Form -->
       <form id="login-form" class="space-y-5">
-        <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3 mb-4">
-          <p class="text-blue-300 text-sm">
-            <span class="lang-ru">🔓 Тестовый аккаунт:</span>
-            <span class="lang-kz">🔓 Сынақ аккаунт:</span><br>
-            <code class="text-blue-200">test@batyrbol.kz</code><br>
-            <code class="text-blue-200">batyr123</code>
+        <div class="bg-green-900/30 border border-green-500/30 rounded-lg p-4 mb-4">
+          <p class="text-green-300 text-sm font-medium">
+            <span class="lang-ru">✅ ДОСТУПНЫЙ АККАУТ:</span>
+            <span class="lang-kz">✚ ҚОЛЖЕТІН АККАУНТ:</span><br>
+            <div class="mt-2 space-y-1">
+              <div><span class="lang-ru">Email:</span> <code class="text-green-200 font-mono">test@batyrbol.kz</code></div>
+              <div><span class="lang-ru">Пароль:</span> <code class="text-green-200 font-mono">batyr123</code></div>
+            </div>
+            <p class="text-xs text-green-400 mt-2">
+              <span class="lang-ru">📝 Поля уже заполнены - просто нажмите "Войти"</span>
+              <span class="lang-kz">📝 Өрістер толтырылған - тек "Кіруді" басыңыз</span>
+            </p>
           </p>
         </div>
         <div>
-          <label class="block text-sm text-zinc-400 mb-2">Email</label>
+          <label class="block text-sm text-zinc-400 mb-2">
+            <span class="lang-ru">Email</span>
+            <span class="lang-kz">Email</span>
+          </label>
           <input type="email" id="login-email" required
             class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="test@batyrbol.kz" value="test@batyrbol.kz">
+            placeholder="test@batyrbol.kz" value="test@batyrbol.kz" readonly>
         </div>
         <div>
           <label class="block text-sm text-zinc-400 mb-2">
@@ -161,44 +180,35 @@ body[data-language="kz"] .lang-ru { display: none !important; }
           </label>
           <input type="password" id="login-password" required
             class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="batyr123" value="batyr123">
+            placeholder="batyr123" value="batyr123" readonly>
         </div>
-        <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base">
-          <span class="lang-ru">Войти в игру</span>
-          <span class="lang-kz">Ойынға кіру</span>
+        <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base font-medium">
+          <span class="lang-ru">🎮 Войти в игру</span>
+          <span class="lang-kz">🎮 Ойынға кіру</span>
         </button>
       </form>
 
       <!-- Register Form -->
       <form id="register-form" class="space-y-5 hidden">
-        <div>
-          <label class="block text-sm text-zinc-400 mb-2">
-            <span class="lang-ru">Имя батыра</span>
-            <span class="lang-kz">Батыр аты</span>
-          </label>
-          <input type="text" id="register-name" required
-            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="Абылай">
+        <div class="bg-red-900/30 border border-red-500/30 rounded-lg p-4 mb-4">
+          <p class="text-red-300 text-sm font-medium text-center">
+            <span class="lang-ru">❌ РЕГИСТРАЦИЯ ОТКЛЮЧЕНА</span>
+            <span class="lang-kz">❌ ТІРКЕЛУ ӨШІРІЛГЕН</span><br>
+            <span class="lang-ru">Пожалуйста, используйте тестовый аккаунт для входа</span>
+            <span class="lang-kz">Кіру үшін сынақ аккаунтын пайдаланыңыз</span>
+          </p>
         </div>
-        <div>
-          <label class="block text-sm text-zinc-400 mb-2">Email</label>
-          <input type="email" id="register-email" required
-            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="email@example.com">
+        
+        <div class="text-center py-8">
+          <div class="text-zinc-500 text-lg mb-4">
+            <span class="lang-ru">🔒 Создание новых аккаунтов временно недоступно</span>
+            <span class="lang-kz">🔒 Жаңа аккаунттарды жасау уақытша қол жетімсіз</span>
+          </div>
+          <button type="button" onclick="showTab('login')" class="px-6 py-3 bg-gold-500 text-black rounded-lg font-medium hover:bg-gold-400 transition-colors">
+            <span class="lang-ru">🔄 Перейти ко входу</span>
+            <span class="lang-kz">🔄 Кіруге өту</span>
+          </button>
         </div>
-        <div>
-          <label class="block text-sm text-zinc-400 mb-2">
-            <span class="lang-ru">Пароль</span>
-            <span class="lang-kz">Құпия сөз</span>
-          </label>
-          <input type="password" id="register-password" required
-            class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
-            placeholder="••••••••">
-        </div>
-        <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base">
-          <span class="lang-ru">Создать аккаунт</span>
-          <span class="lang-kz">Аккаунт жасау</span>
-        </button>
       </form>
     </div>
 

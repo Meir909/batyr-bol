@@ -548,19 +548,8 @@ document.getElementById('login-form').addEventListener('submit', async function(
 
 document.getElementById('register-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const name = document.getElementById('register-name').value;
-  const email = document.getElementById('register-email').value;
-  const password = document.getElementById('register-password').value;
-  
-  if (window.gameIntegration) {
-    try {
-      await window.gameIntegration.register(name, email, password);
-      showGame();
-      showMessage('Аккаунт создан!');
-    } catch (err) {
-      showMessage(err.message, 'error');
-    }
-  }
+  showMessage('Регистрация отключена. Используйте тестовый аккаунт: test@batyrbol.kz / batyr123', 'error');
+  showTab('login');
 });
 
 document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
