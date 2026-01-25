@@ -537,8 +537,8 @@ document.getElementById('login-form').addEventListener('submit', async function(
   
   if (window.gameIntegration) {
     try {
-      await window.gameIntegration.login(email, password);
-      showGame();
+      await window.gameIntegration.loginUser(email, password);
+      window.gameIntegration.showGameScreen();
       showMessage('Добро пожаловать!');
     } catch (err) {
       showMessage(err.message, 'error');

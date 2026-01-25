@@ -116,6 +116,11 @@ class GameIntegration {
         return true;
     }
 
+    // Alias for backward compatibility
+    async login(email, password) {
+        return await this.loginUser(email, password);
+    }
+
     logoutUser() {
         this.userProfile = {
             id: null,
