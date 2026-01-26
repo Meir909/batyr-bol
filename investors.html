@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,57 +37,73 @@
             background-color: #050505;
             color: #e4e4e7;
         }
-        
+
         /* Subtle Pattern Overlay */
         .bg-pattern {
             background-image: radial-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px);
             background-size: 32px 32px;
         }
-        
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
-            background: #09090b; 
+            background: #09090b;
         }
+
         ::-webkit-scrollbar-thumb {
-            background: #27272a; 
+            background: #27272a;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
-            background: #3f3f46; 
+            background: #3f3f46;
         }
-        
+
         /* Simplified styles without animations */
         body {
             font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #050505;
             color: #e4e4e7;
         }
-        
+
         /* Subtle Pattern Overlay */
         .bg-pattern {
             background-image: radial-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px);
             background-size: 32px 32px;
         }
-        
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
-            background: #09090b; 
+            background: #09090b;
         }
+
         ::-webkit-scrollbar-thumb {
-            background: #27272a; 
+            background: #27272a;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
-            background: #3f3f46; 
+            background: #3f3f46;
+        }
+
+        /* Language visibility */
+        html[data-language="ru"] .lang-kz {
+            display: none !important;
+        }
+
+        html[data-language="kz"] .lang-ru {
+            display: none !important;
         }
     </style>
 </head>
+
 <body class="bg-black text-zinc-300 antialiased selection:bg-gold-500/30 selection:text-gold-200">
     <!-- Navbar -->
     <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/70 backdrop-blur-xl">
@@ -96,27 +113,48 @@
                 <img src="/logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
                 <span class="text-lg font-semibold tracking-tighter text-white">BATYR BOL</span>
             </div>
-            
+
             <!-- Menu Items -->
             <div class="hidden md:flex items-center gap-8">
-                <a href="#overview" class="text-sm font-medium text-zinc-300">Обзор</a>
-                <a href="#market" class="text-sm font-medium text-zinc-300">Рынок</a>
-                <a href="#product" class="text-sm font-medium text-zinc-300">Продукт</a>
-                <a href="#metrics" class="text-sm font-medium text-zinc-300">Метрики</a>
-                <a href="#team" class="text-sm font-medium text-zinc-300">Команда</a>
-                <a href="#investment" class="text-sm font-medium text-zinc-300">Инвестиции</a>
+                <a href="#overview" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Обзор</span>
+                    <span class="lang-kz">Шолу</span>
+                </a>
+                <a href="#market" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Рынок</span>
+                    <span class="lang-kz">Нарық</span>
+                </a>
+                <a href="#product" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Продукт</span>
+                    <span class="lang-kz">Өнім</span>
+                </a>
+                <a href="#metrics" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Метрики</span>
+                    <span class="lang-kz">Метрикалар</span>
+                </a>
+                <a href="#team" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Команда</span>
+                    <span class="lang-kz">Команда</span>
+                </a>
+                <a href="#investment" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Инвестиции</span>
+                    <span class="lang-kz">Инвестициялар</span>
+                </a>
             </div>
-            
+
             <div class="flex items-center gap-4">
                 <!-- Language Switcher -->
                 <div class="flex items-center gap-1 bg-zinc-900/80 p-1 rounded-lg border border-white/10">
-                    <button onclick="switchLanguage('ru')" id="btn-ru" class="px-3 py-1 text-xs font-medium rounded-md text-black bg-white">RU</button>
-                    <button onclick="switchLanguage('kz')" id="btn-kz" class="px-3 py-1 text-xs font-medium rounded-md text-zinc-400">KZ</button>
+                    <button onclick="switchLanguage('ru')" id="btn-ru-invest"
+                        class="px-3 py-1 text-xs font-medium rounded-md text-black bg-gold-500">RU</button>
+                    <button onclick="switchLanguage('kz')" id="btn-kz-invest"
+                        class="px-3 py-1 text-xs font-medium rounded-md text-zinc-400">KZ</button>
                 </div>
-                
+
                 <!-- CTA Button -->
                 <a href="#investment" class="px-4 py-1.5 text-sm font-medium bg-gold-500 text-black rounded-full">
-                    Инвестировать
+                    <span class="lang-ru">Инвестировать</span>
+                    <span class="lang-kz">Инвестициялау</span>
                 </a>
             </div>
         </div>
@@ -125,10 +163,12 @@
     <!-- Hero Section -->
     <header id="overview" class="pt-32 pb-20 lg:pt-40 lg:pb-24">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            
+
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-400 text-xs font-medium mb-6">
-                <span>EdTech платформа нового поколения</span>
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-400 text-xs font-medium mb-6">
+                <span class="lang-ru">EdTech платформа нового поколения</span>
+                <span class="lang-kz">Жаңа буын EdTech платформасы</span>
             </div>
 
             <!-- Main Title -->
@@ -138,7 +178,10 @@
 
             <!-- Subtitle -->
             <p class="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-                Революционная образовательная платформа, сочетающая изучение истории Казахстана с геймификацией и искусственным интеллектом
+                <span class="lang-ru">Революционная образовательная платформа, сочетающая изучение истории Казахстана с
+                    геймификацией и искусственным интеллектом</span>
+                <span class="lang-kz">Қазақстан тарихын геймификация мен жасанды интеллект арқылы оқытуды біріктіретін
+                    инновациялық білім беру платформасы</span>
             </p>
 
             <!-- Stats Bar -->
@@ -166,7 +209,8 @@
                 <a href="#investment" class="px-8 py-3 bg-gold-500 text-black font-medium rounded-full">
                     Инвестировать в будущее
                 </a>
-                <a href="/game" target="_blank" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full">
+                <a href="/game" target="_blank"
+                    class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full">
                     Попробовать демо
                 </a>
             </div>
@@ -184,10 +228,11 @@
                     Рынок EdTech в Центральной Азии
                 </h2>
                 <p class="text-zinc-500 max-w-2xl mx-auto">
-                    BATYR BOL занимает уникальную нишу в быстро растущем рынке образовательных технологий Центральной Азии с TAM $5.2 млрд
+                    BATYR BOL занимает уникальную нишу в быстро растущем рынке образовательных технологий Центральной
+                    Азии с TAM $5.2 млрд
                 </p>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-5">
                     <div class="text-3xl font-bold text-gold-500 mb-2">$5.2B</div>
@@ -196,7 +241,7 @@
                         Общий размер EdTech рынка Казахстана, Кыргызстана, Узбекистана и Таджикистана к 2027 году
                     </p>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-5">
                     <div class="text-3xl font-bold text-gold-500 mb-2">32% CAGR</div>
                     <h3 class="text-base font-medium text-white mb-1">Ежегодный рост</h3>
@@ -204,7 +249,7 @@
                         Совокупный среднегодовой рост EdTech рынка Центральной Азии 2023-2027
                     </p>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-5">
                     <div class="text-3xl font-bold text-gold-500 mb-2">7.3M</div>
                     <h3 class="text-base font-medium text-white mb-1">Целевая аудитория</h3>
@@ -213,24 +258,28 @@
                     </p>
                 </div>
             </div>
-            
+
             <div class="mt-12 bg-zinc-900/40 border border-white/5 rounded-2xl p-6">
                 <h3 class="text-xl font-semibold text-white mb-4">Преимущества BATYR BOL:</h3>
                 <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <li class="flex items-start gap-3">
-                        <iconify-icon icon="lucide:check-circle" width="20" height="20" class="text-success-500 mt-0.5"></iconify-icon>
+                        <iconify-icon icon="lucide:check-circle" width="20" height="20"
+                            class="text-success-500 mt-0.5"></iconify-icon>
                         <span>Уникальный фокус на истории и культуре Казахстана</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <iconify-icon icon="lucide:check-circle" width="20" height="20" class="text-success-500 mt-0.5"></iconify-icon>
+                        <iconify-icon icon="lucide:check-circle" width="20" height="20"
+                            class="text-success-500 mt-0.5"></iconify-icon>
                         <span>Двуязычная платформа (казахский/русский)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <iconify-icon icon="lucide:check-circle" width="20" height="20" class="text-success-500 mt-0.5"></iconify-icon>
+                        <iconify-icon icon="lucide:check-circle" width="20" height="20"
+                            class="text-success-500 mt-0.5"></iconify-icon>
                         <span>Адаптивное обучение с ИИ</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <iconify-icon icon="lucide:check-circle" width="20" height="20" class="text-success-500 mt-0.5"></iconify-icon>
+                        <iconify-icon icon="lucide:check-circle" width="20" height="20"
+                            class="text-success-500 mt-0.5"></iconify-icon>
                         <span>Геймифицированный подход к обучению</span>
                     </li>
                 </ul>
@@ -246,23 +295,26 @@
                     Наш Продукт
                 </h2>
                 <p class="text-zinc-500 max-w-2xl mx-auto">
-                    BATYR BOL предлагает инновационный опыт обучения истории Казахстана через геймификацию и адаптивные технологии ИИ
+                    BATYR BOL предлагает инновационный опыт обучения истории Казахстана через геймификацию и адаптивные
+                    технологии ИИ
                 </p>
             </div>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
                     <div class="mb-6">
                         <h3 class="text-2xl font-semibold text-white mb-4">Кроссплатформенная платформа</h3>
                         <p class="text-zinc-400 mb-6">
-                            Наша платформа работает как в веб-браузере, так и в Telegram, обеспечивая максимальную доступность для пользователей без смартфона.
+                            Наша платформа работает как в веб-браузере, так и в Telegram, обеспечивая максимальную
+                            доступность для пользователей без смартфона.
                         </p>
-                        
+
                         <div class="grid grid-cols-2 gap-4">
                             <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-4">
                                 <div class="flex items-center gap-3 mb-3">
                                     <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center">
-                                        <iconify-icon icon="lucide:globe" width="20" height="20" class="text-gold-500"></iconify-icon>
+                                        <iconify-icon icon="lucide:globe" width="20" height="20"
+                                            class="text-gold-500"></iconify-icon>
                                     </div>
                                     <span class="font-medium text-white">Веб-платформа</span>
                                 </div>
@@ -270,11 +322,12 @@
                                     Полнофункциональный веб-интерфейс с адаптивным дизайном
                                 </p>
                             </div>
-                            
+
                             <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-4">
                                 <div class="flex items-center gap-3 mb-3">
                                     <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center">
-                                        <iconify-icon icon="lucide:message-circle" width="20" height="20" class="text-gold-500"></iconify-icon>
+                                        <iconify-icon icon="lucide:message-circle" width="20" height="20"
+                                            class="text-gold-500"></iconify-icon>
                                     </div>
                                     <span class="font-medium text-white">Telegram-бот</span>
                                 </div>
@@ -284,36 +337,42 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-zinc-900/40 border border-white/5 rounded-2xl p-6">
                         <h4 class="font-medium text-white mb-3">Ключевые особенности:</h4>
                         <ul class="space-y-2">
                             <li class="flex items-center gap-2">
-                                <iconify-icon icon="lucide:star" width="16" height="16" class="text-gold-500"></iconify-icon>
+                                <iconify-icon icon="lucide:star" width="16" height="16"
+                                    class="text-gold-500"></iconify-icon>
                                 <span>Адаптивная модель обучения с ИИ</span>
                             </li>
                             <li class="flex items-center gap-2">
-                                <iconify-icon icon="lucide:star" width="16" height="16" class="text-gold-500"></iconify-icon>
+                                <iconify-icon icon="lucide:star" width="16" height="16"
+                                    class="text-gold-500"></iconify-icon>
                                 <span>150+ образовательных миссий</span>
                             </li>
                             <li class="flex items-center gap-2">
-                                <iconify-icon icon="lucide:star" width="16" height="16" class="text-gold-500"></iconify-icon>
+                                <iconify-icon icon="lucide:star" width="16" height="16"
+                                    class="text-gold-500"></iconify-icon>
                                 <span>Голосовые задания и распознавание речи</span>
                             </li>
                             <li class="flex items-center gap-2">
-                                <iconify-icon icon="lucide:star" width="16" height="16" class="text-gold-500"></iconify-icon>
+                                <iconify-icon icon="lucide:star" width="16" height="16"
+                                    class="text-gold-500"></iconify-icon>
                                 <span>Система достижений и рейтингов</span>
                             </li>
                         </ul>
                     </div>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-2xl p-6">
-                    <div class="aspect-video bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                    <div
+                        class="aspect-video bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
                         <img src="/logo.png" alt="BATYR BOL Demo" class="w-48 h-48 object-contain">
                     </div>
                     <div class="text-center">
-                        <a href="/game" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-black rounded-lg font-medium hover:bg-gold-400 transition-colors">
+                        <a href="/game" target="_blank"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-black rounded-lg font-medium hover:bg-gold-400 transition-colors">
                             <iconify-icon icon="lucide:external-link" width="16" height="16"></iconify-icon>
                             Попробовать сейчас
                         </a>
@@ -334,33 +393,33 @@
                     BATYR BOL демонстрирует устойчивый рост с высоким удержанием пользователей и активной вовлеченностью
                 </p>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-4">
                     <div class="text-2xl font-bold text-gold-500 mb-1">15,420</div>
                     <div class="text-white text-sm">Активных пользователей</div>
                     <div class="text-xs text-green-500">+42% за месяц | 68% MoM рост</div>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-4">
                     <div class="text-2xl font-bold text-gold-500 mb-1">89%</div>
                     <div class="text-white text-sm">Удержание пользователей (30 дней)</div>
                     <div class="text-xs text-green-500">Выше среднего по индустрии на 23%</div>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-4">
                     <div class="text-2xl font-bold text-gold-500 mb-1">4.8★</div>
                     <div class="text-white text-sm">Рейтинг приложения</div>
                     <div class="text-xs text-zinc-500">NPS 72 | 1,240 отзывов</div>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-4">
                     <div class="text-2xl font-bold text-gold-500 mb-1">156</div>
                     <div class="text-white text-sm">Образовательных миссий</div>
                     <div class="text-xs text-green-500">12 новых в месяц | 98% завершение</div>
                 </div>
             </div>
-            
+
             <div class="bg-zinc-900/40 border border-white/5 rounded-2xl p-6">
                 <h3 class="text-xl font-semibold text-white mb-6">Прогноз роста (12 месяцев)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -395,10 +454,11 @@
                     Молодая и амбициозная команда, готовая изменить образование в Казахстане
                 </p>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-5 text-center">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-gold-600 to-gold-300 mx-auto mb-3 flex items-center justify-center text-xl font-bold text-black">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-tr from-gold-600 to-gold-300 mx-auto mb-3 flex items-center justify-center text-xl font-bold text-black">
                         Н
                     </div>
                     <h3 class="font-semibold text-white mb-1">Нурдаулет Мейрбек</h3>
@@ -407,9 +467,10 @@
                         Ученик 10 класса НИШ Актау. Учится разрабатывать разные стартапы и проекты.
                     </p>
                 </div>
-                
+
                 <div class="bg-zinc-900/40 border border-white/5 rounded-xl p-5 text-center">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-gold-600/30 to-gold-300/30 mx-auto mb-3 flex items-center justify-center border-2 border-dashed border-gold-500/50">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-tr from-gold-600/30 to-gold-300/30 mx-auto mb-3 flex items-center justify-center border-2 border-dashed border-gold-500/50">
                         <span class="text-gold-500 text-2xl">?</span>
                     </div>
                     <h3 class="font-semibold text-white mb-1">Здесь можете быть вы</h3>
@@ -430,14 +491,15 @@
                     Инвестиционная возможность
                 </h2>
                 <p class="text-zinc-500 max-w-2xl mx-auto">
-                    Уникальная возможность инвестировать в перспективную EdTech платформу с доказанным спросом и высоким потенциалом роста
+                    Уникальная возможность инвестировать в перспективную EdTech платформу с доказанным спросом и высоким
+                    потенциалом роста
                 </p>
             </div>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div>
                     <h3 class="text-2xl font-semibold text-white mb-6">Seed раунд - Уникальное предложение</h3>
-                    
+
                     <div class="space-y-6">
                         <div class="bg-zinc-900/40 border border-white/5 rounded-2xl p-6">
                             <div class="flex justify-between items-start mb-3">
@@ -450,7 +512,7 @@
                                     <div class="text-zinc-500 text-sm">Доля компании</div>
                                 </div>
                             </div>
-                                                
+
                             <div class="grid grid-cols-2 gap-3 mb-3">
                                 <div>
                                     <div class="text-xs text-zinc-500">Пре-мани valuation</div>
@@ -461,7 +523,7 @@
                                     <div class="font-medium text-white text-sm">$150K</div>
                                 </div>
                             </div>
-                            
+
                             <div class="pt-4 border-t border-white/5">
                                 <h4 class="font-medium text-white mb-2">Стратегическое использование средств:</h4>
                                 <div class="space-y-2">
@@ -484,7 +546,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="bg-zinc-900/40 border border-white/5 rounded-2xl p-6">
                             <h4 class="font-medium text-white mb-3">Прогноз ROI и выход:</h4>
                             <ul class="space-y-2 text-sm">
@@ -501,57 +563,67 @@
                                     <span class="text-white">3-5 лет</span>
                                 </li>
                             </ul>
-                            <p class="text-xs text-zinc-500 mt-3">* Прогноз основан на рыночных данных EdTech сектора в развивающихся рынках</p>
+                            <p class="text-xs text-zinc-500 mt-3">* Прогноз основан на рыночных данных EdTech сектора в
+                                развивающихся рынках</p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div>
                     <h3 class="text-2xl font-semibold text-white mb-6">Начните инвестировать сегодня</h3>
-                    
+
                     <div class="bg-zinc-900/40 border border-white/5 rounded-2xl p-6 mb-6">
                         <form class="space-y-4">
                             <div>
                                 <label class="block text-sm text-zinc-400 mb-1">Имя</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white">
+                                <input type="text"
+                                    class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white">
                             </div>
-                            
+
                             <div>
                                 <label class="block text-sm text-zinc-400 mb-1">Email</label>
-                                <input type="email" class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white">
+                                <input type="email"
+                                    class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white">
                             </div>
-                            
+
                             <div>
                                 <label class="block text-sm text-zinc-400 mb-1">Компания</label>
-                                <input type="text" class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white">
+                                <input type="text"
+                                    class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white">
                             </div>
-                            
+
                             <div>
                                 <label class="block text-sm text-zinc-400 mb-1">Сообщение</label>
-                                <textarea rows="4" class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white"></textarea>
+                                <textarea rows="4"
+                                    class="w-full px-4 py-3 rounded-lg bg-zinc-800/50 border border-white/10 outline-none focus:border-gold-500/50 transition-colors text-white"></textarea>
                             </div>
-                            
+
                             <button type="submit" class="w-full py-3 rounded-lg bg-gold-500 text-black font-medium">
                                 Отправить запрос
                             </button>
                         </form>
                     </div>
-                    
-                    <div class="bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/30 rounded-2xl p-6 glow-border">
+
+                    <div
+                        class="bg-gradient-to-br from-gold-500/10 to-transparent border border-gold-500/30 rounded-2xl p-6 glow-border">
                         <h4 class="font-medium text-white mb-2 flex items-center gap-2">
-                            <iconify-icon icon="lucide:info" width="20" height="20" class="text-gold-500"></iconify-icon>
+                            <iconify-icon icon="lucide:info" width="20" height="20"
+                                class="text-gold-500"></iconify-icon>
                             Дополнительная информация
                         </h4>
                         <p class="text-sm text-zinc-400 mb-4">
-                            За дополнительной информацией о бизнес-плане и финансовом моделировании свяжитесь с нами напрямую.
+                            За дополнительной информацией о бизнес-плане и финансовом моделировании свяжитесь с нами
+                            напрямую.
                         </p>
                         <div class="space-y-2 text-sm">
                             <div class="flex items-center gap-2">
-                                <iconify-icon icon="lucide:mail" width="16" height="16" class="text-gold-500"></iconify-icon>
+                                <iconify-icon icon="lucide:mail" width="16" height="16"
+                                    class="text-gold-500"></iconify-icon>
                                 <span>invest@batyrbol.kz</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <iconify-icon icon="lucide:phone" width="16" height="16" class="text-gold-500"></iconify-icon>
+                                <iconify-icon icon="lucide:phone" width="16" height="16"
+                                    class="text-gold-500"></iconify-icon>
                                 <span>+7 (777) 123-45-67</span>
                             </div>
                         </div>
@@ -568,28 +640,29 @@
                 <h2 class="text-3xl font-bold text-white mb-4">Обратная связь</h2>
                 <p class="text-zinc-400">Оставьте ваш отзыв или задайте вопрос нашей команде</p>
             </div>
-            
+
             <form id="investor-feedback-form" class="bg-zinc-900/50 border border-white/5 rounded-2xl p-8 space-y-6">
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm text-zinc-400 mb-2">Имя *</label>
-                        <input type="text" id="feedback-name" required 
+                        <input type="text" id="feedback-name" required
                             class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm text-zinc-400 mb-2">Компания</label>
-                        <input type="text" id="feedback-company" 
+                        <input type="text" id="feedback-company"
                             class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm text-zinc-400 mb-2">Email *</label>
-                    <input type="email" id="feedback-email" required 
+                    <input type="email" id="feedback-email" required
                         class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-sm text-zinc-400 mb-2">Тип обращения</label>
-                    <select id="feedback-type" class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white focus:border-gold-500/50 focus:outline-none">
+                    <select id="feedback-type"
+                        class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white focus:border-gold-500/50 focus:outline-none">
                         <option value="question">Вопрос о проекте</option>
                         <option value="investment">Инвестиционное предложение</option>
                         <option value="partnership">Партнёрство</option>
@@ -598,10 +671,11 @@
                 </div>
                 <div>
                     <label class="block text-sm text-zinc-400 mb-2">Сообщение *</label>
-                    <textarea id="feedback-message" required rows="4" 
+                    <textarea id="feedback-message" required rows="4"
                         class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none resize-none"></textarea>
                 </div>
-                <button type="submit" class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-xl transition-colors">
+                <button type="submit"
+                    class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-xl transition-colors">
                     Отправить
                 </button>
             </form>
@@ -616,11 +690,11 @@
                     <img src="/logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
                     <span class="text-lg font-semibold tracking-tighter text-white">BATYR BOL</span>
                 </div>
-                
+
                 <div class="text-zinc-500 text-sm">
                     2025 BATYR BOL. Все права защищены.
                 </div>
-                
+
                 <div class="flex items-center gap-4">
                     <a href="#" class="text-zinc-500 hover:text-white transition-colors">
                         <iconify-icon icon="lucide:twitter" width="20" height="20"></iconify-icon>
@@ -637,6 +711,26 @@
     </footer>
 
     <script>
+        // Language switching logic
+        function switchLanguage(lang) {
+            document.documentElement.setAttribute('data-language', lang);
+
+            const btnRu = document.getElementById('btn-ru-invest');
+            const btnKz = document.getElementById('btn-kz-invest');
+
+            if (lang === 'ru') {
+                btnRu.classList.add('bg-gold-500', 'text-black');
+                btnRu.classList.remove('text-zinc-400');
+                btnKz.classList.remove('bg-gold-500', 'text-black');
+                btnKz.classList.add('text-zinc-400');
+            } else {
+                btnKz.classList.add('bg-gold-500', 'text-black');
+                btnKz.classList.remove('text-zinc-400');
+                btnRu.classList.remove('bg-gold-500', 'text-black');
+                btnRu.classList.add('text-zinc-400');
+            }
+        }
+
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -650,13 +744,19 @@
                 }
             });
         });
-        
+
         // Simple form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
             alert('Спасибо за ваш интерес! Мы свяжемся с вами в ближайшее время.');
             this.reset();
         });
+
+        // Initialize with default language
+        document.addEventListener('DOMContentLoaded', () => {
+            switchLanguage('kz');
+        });
     </script>
 </body>
+
 </html>
