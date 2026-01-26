@@ -148,6 +148,15 @@
                 </a>
             </div>
             
+            <!-- Feedback Button -->
+            <div class="mt-6 flex justify-center">
+                <button onclick="openFeedbackForm()" class="px-6 py-2 border border-blue-500/30 bg-blue-600/10 text-blue-300 font-medium rounded-full flex items-center gap-2 hover:bg-blue-600/20 transition-colors">
+                    <iconify-icon icon="lucide:message-square" width="16" height="16"></iconify-icon>
+                    <span class="lang-ru">Обратная связь</span>
+                    <span class="lang-kz">Кері байланыс</span>
+                </button>
+            </div>
+            
             <!-- Additional Navigation -->
             <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a href="#about" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
@@ -903,28 +912,123 @@
             
             <p class="text-zinc-600 text-xs mt-4">
                 <span class="lang-ru">Мы уважаем вашу конфиденциальность. Отписаться можно в любое время.</span>
+                <span class="lang-kz">Біз сіздің құпиялылығыңызды құрметтейміз. Кез келген уақытта жазылымнан шығуға болады.</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-24 bg-zinc-950">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-gold-400 text-sm font-medium tracking-wider uppercase">
+                    <span class="lang-ru">Отзывы</span>
+                    <span class="lang-kz">Пікірлер</span>
+                </span>
+                <h2 class="text-4xl md:text-5xl font-bold text-white mt-4 tracking-tight">
+                    <span class="lang-ru">Что говорят пользователи</span>
+                    <span class="lang-kz">Пайдаланушылар не дейді</span>
+                </h2>
+            </div>
+            
+            <!-- Reviews Grid -->
+            <div class="grid md:grid-cols-3 gap-6 mb-12" id="reviews-grid">
+                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                    </div>
+                    <p class="text-zinc-300 mb-4">"Балама өте ұнады! Ойын арқылы тарихты үйрену керемет идея. Енді ол батырлар туралы көп біледі."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">А</div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white tracking-tight mb-2">BATYR BOL</h3>
-                            <p class="text-zinc-500 text-sm max-w-xs">
-                                <span class="lang-ru">Воспитание будущего через великое прошлое.</span>
-                                <span class="lang-kz">Ұлы өткен арқылы болашақты тәрбиелеу.</span>
-                            </p>
-                        </div>
-                        <div class="flex gap-6 mt-8 md:mt-0">
-                            <a href="#" class="text-zinc-500"><iconify-icon icon="lucide:instagram" width="20"></iconify-icon></a>
-                            <a href="#" class="text-zinc-500"><iconify-icon icon="lucide:twitter" width="20"></iconify-icon></a>
-                            <a href="#" class="text-zinc-500"><iconify-icon icon="lucide:youtube" width="20"></iconify-icon></a>
+                            <div class="text-white font-medium">Айгүл М.</div>
+                            <div class="text-zinc-500 text-sm">Ата-ана</div>
                         </div>
                     </div>
-                    
-                    <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 text-xs text-zinc-600">
-                        <p> 2024 BATYR BOL. All rights reserved.</p>
-                        <div class="flex gap-2 items-center mt-4 md:mt-0">
-                            <span class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                </div>
+                
+                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                    </div>
+                    <p class="text-zinc-300 mb-4">"ЕНТ-ге дайындалуға көмектесті. Сұрақтар нақты ЕНТ форматында. Рахмет!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">Е</div>
+                        <div>
+                            <div class="text-white font-medium">Ерлан К.</div>
+                            <div class="text-zinc-500 text-sm">11-сынып оқушысы</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
+                    <div class="flex items-center gap-1 mb-4">
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
+                        <iconify-icon icon="lucide:star" class="text-zinc-600" width="16"></iconify-icon>
+                    </div>
+                    <p class="text-zinc-300 mb-4">"Отличное приложение для изучения истории Казахстана. Дети играют и учатся одновременно!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">М</div>
+                        <div>
+                            <div class="text-white font-medium">Марина С.</div>
+                            <div class="text-zinc-500 text-sm">Учитель истории</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Review Form -->
+            <div class="max-w-2xl mx-auto bg-zinc-900/50 border border-white/5 rounded-2xl p-8">
+                <h3 class="text-xl font-bold text-white mb-6 text-center">
+                    <span class="lang-ru">Оставить отзыв</span>
+                    <span class="lang-kz">Пікір қалдыру</span>
+                </h3>
+                <form id="review-form" class="space-y-4">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <input type="text" id="review-name" required placeholder="Аты-жөні / Имя" 
+                            class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
+                        <input type="email" id="review-email" placeholder="Email (міндетті емес)" 
+                            class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-zinc-400 text-sm">
+                            <span class="lang-ru">Оценка:</span>
+                            <span class="lang-kz">Баға:</span>
+                        </span>
+                        <div class="flex gap-1" id="star-rating">
+                            <button type="button" onclick="setRating(1)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(2)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(3)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(4)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                            <button type="button" onclick="setRating(5)" class="star-btn text-zinc-600 hover:text-gold-400"><iconify-icon icon="lucide:star" width="24"></iconify-icon></button>
+                        </div>
+                    </div>
+                    <textarea id="review-text" required rows="4" placeholder="Пікіріңізді жазыңыз... / Напишите ваш отзыв..."
+                        class="w-full px-4 py-3 bg-zinc-800/50 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-gold-500/50 focus:outline-none resize-none"></textarea>
+                    <button type="submit" class="w-full py-4 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-xl transition-colors">
+                        <span class="lang-ru">Отправить отзыв</span>
+                        <span class="lang-kz">Пікір жіберу</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
 
-    <footer class="py-12 bg-zinc-900">
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black pt-16 pb-8">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-12">
                 <div>
                     <h3 class="text-2xl font-bold text-white tracking-tight mb-2">BATYR BOL</h3>
                     <p class="text-zinc-500 text-sm max-w-xs">
@@ -940,14 +1044,11 @@
             </div>
             
             <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 text-xs text-zinc-600">
-                <p> 2024 BATYR BOL. All rights reserved.</p>
+                <p>© 2024 BATYR BOL. All rights reserved.</p>
                 <div class="flex gap-2 items-center mt-4 md:mt-0">
                     <span class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
                     <span class="lang-ru">Проект в активной разработке</span>
                     <span class="lang-kz">Жоба белсенді әзірленуде</span>
-                </div>
-            </div>
-        </div>
     </footer>
 
     <script>
@@ -988,6 +1089,67 @@
         document.addEventListener('DOMContentLoaded', function() {
             switchLanguage('kz');
         });
+        
+        // Feedback form function
+        function openFeedbackForm() {
+            // Open Google Form in new tab
+            window.open('https://forms.gle/7eoXJwsyR9wMgxiF6', '_blank');
+            
+            // Show confirmation message
+            alert('Спасибо! Опрос откроется в новой вкладке');
+        }
+        
+        // Review form functionality
+        let currentRating = 5;
+        
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((star, i) => {
+                if (i < rating) {
+                    star.classList.remove('text-zinc-600');
+                    star.classList.add('text-gold-400');
+                } else {
+                    star.classList.remove('text-gold-400');
+                    star.classList.add('text-zinc-600');
+                }
+            });
+        }
+        
+        document.getElementById('review-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('review-name').value;
+            const email = document.getElementById('review-email').value;
+            const text = document.getElementById('review-text').value;
+            
+            // Save review to localStorage
+            const reviews = JSON.parse(localStorage.getItem('batyrbol_reviews') || '[]');
+            reviews.push({
+                name,
+                email,
+                text,
+                rating: currentRating,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('batyrbol_reviews', JSON.stringify(reviews));
+            
+            // Show success message
+            const form = document.getElementById('review-form');
+            form.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-5xl mb-4">🎉</div>
+                    <h3 class="text-xl font-bold text-white mb-2">
+                        <span class="lang-ru">Спасибо за отзыв!</span>
+                        <span class="lang-kz">Пікіріңіз үшін рахмет!</span>
+                    </h3>
+                    <p class="text-zinc-400">
+                        <span class="lang-ru">Ваш отзыв очень важен для нас.</span>
+                        <span class="lang-kz">Сіздің пікіріңіз біз үшін өте маңызды.</span>
+                    </p>
+                </div>
+            `;
+        });
     </script>
-</body>
-</html>
+
+</body></html>
