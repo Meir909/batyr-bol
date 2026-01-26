@@ -403,32 +403,7 @@ def challenge_duel():
 def static_files(path):
     return send_from_directory('.', path)
 
-# Telegram bot runner using the full bb_bot logic
-def _run_telegram_bot():
-    try:
-        import asyncio
-        import bb_bot
-        
-        # Create a new event loop for this thread
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
-        print(f"🤖 [BOT] Инициализация Telegram бота с токеном: {bb_bot.TOKEN[:10]}...")
-        # Since bot_app is already built in bb_bot.py, we just run it
-        # run_polling is blocking, so it stays in this thread
-        bb_bot.app.run_polling(drop_pending_updates=True)
-    except Exception as e:
-        print(f"❌ [BOT] Ошибка при запуске Telegram бота: {e}")
-        import traceback
-        traceback.print_exc()
-
 if __name__ == '__main__':
-    # Optimization: Prevent Flask from starting the bot twice in debug mode
-    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true' or os.getenv('FLASK_DEBUG') != '1':
-        print("🚀 [SYSTEM] Запуск фонового процесса бота...")
-        t = threading.Thread(target=_run_telegram_bot, daemon=True)
-        t.start()
-    
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 8000))
     debug = os.getenv('FLASK_ENV', 'development') == 'development'
