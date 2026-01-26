@@ -21,7 +21,7 @@ class GameIntegration {
         this.currentContent = null;
         this.currentQuestions = [];
         this.adaptiveModel = null;
-        
+
         this.geminiApiKey = '';
         this.geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
@@ -232,11 +232,15 @@ class GameIntegration {
         ];
 
         const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+        const level = (typeof gameEngine !== 'undefined') ? gameEngine.difficultyLevel : 1;
 
         const response = await fetch('/api/content/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic: randomTopic })
+            body: JSON.stringify({
+                topic: randomTopic,
+                level: level
+            })
         });
 
         const data = await response.json();
@@ -305,7 +309,7 @@ class GameIntegration {
             });
             return;
         }
-        
+
         // Fallback к старому методу
         const contentContainer = document.getElementById('mission-content');
         if (contentContainer) {
@@ -422,12 +426,12 @@ class GameIntegration {
         const avatarFileInput = document.getElementById('profile-avatar-file');
         const previewImg = document.getElementById('profile-avatar-preview');
         const fallbackIcon = document.getElementById('profile-avatar-fallback');
-        
+
         if (!avatarFileInput || !previewImg || !fallbackIcon) return;
-        
+
         const file = avatarFileInput.files && avatarFileInput.files[0];
         if (!file) return;
-        
+
         const objectUrl = URL.createObjectURL(file);
         previewImg.src = objectUrl;
         previewImg.classList.remove('hidden');
@@ -493,21 +497,20 @@ class GameIntegration {
             this.showMessage(error.message || 'Ошибка генерации аватара', 'error');
         }
     }
-    
+
     showMessage(message, type = 'info') {
         const messageContainer = document.getElementById('game-messages');
         if (messageContainer) {
             const messageElement = document.createElement('div');
-            messageElement.className = `p-3 rounded-lg mb-2 ${
-                type === 'success' ? 'bg-green-900/50 border border-green-500/30' :
-                type === 'error' ? 'bg-red-900/50 border border-red-500/30' :
-                type === 'achievement' ? 'bg-purple-900/50 border border-purple-500/30' :
-                'bg-blue-900/50 border border-blue-500/30'
-            }`;
+            messageElement.className = `p-3 rounded-lg mb-2 ${type === 'success' ? 'bg-green-900/50 border border-green-500/30' :
+                    type === 'error' ? 'bg-red-900/50 border border-red-500/30' :
+                        type === 'achievement' ? 'bg-purple-900/50 border border-purple-500/30' :
+                            'bg-blue-900/50 border border-blue-500/30'
+                }`;
             messageElement.textContent = message;
-            
+
             messageContainer.appendChild(messageElement);
-            
+
             setTimeout(() => {
                 if (messageElement.parentNode) {
                     messageElement.parentNode.removeChild(messageElement);
@@ -515,7 +518,7 @@ class GameIntegration {
             }, 5000);
         }
     }
-    
+
     saveGameState() {
         const gameState = {
             userProfile: this.userProfile,
@@ -524,7 +527,7 @@ class GameIntegration {
         };
         localStorage.setItem('batyrBolGameState', JSON.stringify(gameState));
     }
-    
+
     loadGameState() {
         const savedState = localStorage.getItem('batyrBolGameState');
         if (savedState) {
@@ -532,15 +535,15 @@ class GameIntegration {
             this.userProfile = state.userProfile || this.userProfile;
             this.currentContent = state.currentContent || null;
             this.currentQuestions = state.currentQuestions || [];
-            
+
             if (this.currentContent) {
                 this.displayContent(this.currentContent);
             }
-            
+
             if (this.currentQuestions.length > 0) {
                 this.displayQuestions(this.currentQuestions);
             }
-            
+
             this.updateUI();
         }
     }

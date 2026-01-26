@@ -4,6 +4,7 @@ import json
 import hashlib
 import uuid
 import re
+import random
 from html.parser import HTMLParser
 from urllib.parse import urlparse
 import requests
@@ -17,7 +18,8 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 # Load environment variables
 load_dotenv()
 
-data_file = 'users_data.json'
+# Unified data file for both Web and Telegram
+data_file = 'unified_users.json'
 uploads_dir = 'uploads'
 
 allowed_avatar_extensions = {'.png', '.jpg', '.jpeg', '.webp', '.svg'}
@@ -26,13 +28,17 @@ allowed_avatar_extensions = {'.png', '.jpg', '.jpeg', '.webp', '.svg'}
 def load_users():
     if os.path.exists(data_file):
         with open(data_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {}
+            data = json.load(f)
+            # Ensure proper structure
+            if 'web_users' not in data:
+                return {'web_users': data, 'tg_links': {}, 'clans': {}}
+            return data
+    return {'web_users': {}, 'tg_links': {}, 'clans': {}}
 
 # Helper function to save users data
-def save_users(users):
+def save_users(users_data):
     with open(data_file, 'w', encoding='utf-8') as f:
-        json.dump(users, f, ensure_ascii=False, indent=2)
+        json.dump(users_data, f, ensure_ascii=False, indent=2)
 
 app = Flask(__name__)
 
@@ -161,16 +167,61 @@ def _get_fallback_mission(topic):
             'image_prompt': 'Абылай хан в батырских доспехах на фоне казахских степей, исторический портрет'
         }
     }
-    
     return fallback_content.get(topic)
 
-def _generate_image_url(prompt):
-    return None
+def _generate_learning_content_kz(topic: str, source_urls=None, level=1):
+    # Level 1: Kazakh folk tales and legends
+    if level == 1:
+        folktales = {
+            "Ертөстік": {
+                "text_kz": "Ертөстік — қазақ ертегілерінің ең танымал батыры. Ол жер асты патшалығына түсіп, айдаһармен шайқасады. Оның аты — Шалқұйрық, ол иесіне әрқашан көмектеседі. Ертегіде достық, батылдық пен адалдық туралы айтылады.",
+                "questions_kz": ["Ертөстіктің аты кім?", "Ол кіммен шайқасты?", "Ертөстіктің тұлпарының аты қандай?", "Бұл ертегі не туралы?", "Ертөстік қайда барды?"],
+                "options_count": 2,
+                "topic": "Ертөстік батыр",
+                "level": 1
+            },
+            "Алдар Көсе": {
+                "text_kz": "Алдар Көсе — қазақ ауыз әдебиетінің кейіпкері. Ол өте ақылды және қу адам болған. Ол байларды алдап, кедейлерге көмектескен. Оның тоны жыртық болса да, ол ешқашан мұңаймаған. Алдар Көсе халықтың сүйікті кейіпкері.",
+                "questions_kz": ["Алдар Көсе қандай адам?", "Ол кімдерге көмектесті?", "Оның тоны қандай болды?", "Алдар Көсе несімен танымал?", "Халық оны жақсы көре ме?"],
+                "options_count": 2,
+                "topic": "Алдар Көсе хикаялары",
+                "level": 1
+            }
+        }
+        content = folktales.get(topic) or random.choice(list(folktales.values()))
+        return content
 
-def _generate_image_prompt(topic, text):
-    return f"Историческая иллюстрация: {topic}. Казахстан, средневековье."
+    # Level 4: Official texts (long, hard)
+    if level == 4:
+        official_sources = {
+            "Қазақ хандығының құрылуы (Ресми)": {
+                "text_kz": "Қазақ хандығының құрылуы — Орталық Азия тарихындағы бетбұрысты кезең. XV ғасырдың ортасында (1465 ж.) Керей мен Жәнібек сұлтандар Әбілқайыр хандығынан бөлініп, Моғолстанның батысындағы Шу мен Қозыбасы өңіріне қоныс аударды. Бұл оқиға қазақ этносының бірігуіне және дербес мемлекеттілігінің қалыптасуына негіз болды. Тарихи деректерге сүйенсек, «қазақ» атауы еркіндікті сүйетін, өз алдына ел болғысы келетін халықтың рухын білдіреді. Хандық құрылғаннан кейін оның шекарасы кеңейіп, Сырдария бойындағы қалалар үшін күрес басталды. Бұл процесс бірнеше онжылдыққа созылып, Қасым ханның тұсында мемлекет қуатты державаға айналды.",
+                "questions_kz": [
+                    "Қазақ хандығының құрылуына қандай саяси жағдай түрткі болды?",
+                    "Керей мен Жәнібек қай өңірге алғаш қоныс аударды?",
+                    "«Қазақ» сөзінің тарихи контекстегі мағынасы қандай?",
+                    "Хандықтың нығаюына қай ханның үлесі зор болды?",
+                    "Әбілқайыр хандығынан бөлінудің басты себебі не?",
+                    "XV ғасырдағы Моғолстанның рөлі қандай болды?",
+                    "Хандық шекарасының кеңеюі қай бағытта жүрді?",
+                    "Сырдария қалаларының стратегиялық маңызы неде?",
+                    "Қазақ этносының қалыптасуы қай кезеңде аяқталды?",
+                    "Мемлекеттің халықаралық деңгейдегі беделі қашан артты?",
+                    "Хандық құрылымындағы ұлыстық жүйенің ерекшелігі?",
+                    "Шу мен Қозбасы өңірлерінің таңдалу себебі?",
+                    "Керей мен Жәнібектің Әбілқайырмен конфликтісінің сипаты?",
+                    "Хандықтың туы мен рәміздері туралы деректер бар ма?",
+                    "Қазақ хандығының Орта Азиядағы көршілерімен қарым-қатынасы?"
+                ],
+                "options_count": 4,
+                "topic": "Қазақ хандығының құрылу тарихы",
+                "level": 4
+            }
+        }
+        content = official_sources.get(topic) or list(official_sources.values())[0]
+        return content
 
-def _generate_learning_content_kz(topic: str, source_urls=None):
+    # Default / Other levels
     fallback = _get_fallback_mission(topic)
     if fallback:
         return fallback
@@ -215,8 +266,18 @@ def login_user():
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
+        
+        all_data = load_users()
+        web_users = all_data.get('web_users', {})
 
-        # Test account only
+        # Check in unified data
+        if email in web_users:
+            user = web_users[email]
+            # Simple password check (in production use real hash)
+            if user.get('password') == password or (email == 'test@batyrbol.kz' and password == 'batyr123'):
+                return jsonify({'success': True, 'user': user})
+
+        # Hardcoded test account fallback
         if email == 'test@batyrbol.kz' and password == 'batyr123':
             user_data = {
                 'id': 'test_user',
@@ -233,7 +294,7 @@ def login_user():
             }
             return jsonify({'success': True, 'user': user_data})
         
-        return jsonify({'success': False, 'message': 'Неверный email или пароль. Используйте: test@batyrbol.kz / batyr123'}), 401
+        return jsonify({'success': False, 'message': 'Неверный email или пароль.'}), 401
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -249,11 +310,18 @@ def generate_learning_content():
         payload = request.get_json() or {}
         topic = (payload.get('topic') or '').strip()
         source_urls = payload.get('source_urls')
+        level = int(payload.get('level', 1))
+
+        if not topic and level == 1:
+            topic = random.choice(["Ертөстік", "Алдар Көсе"])
+        elif not topic and level == 4:
+            topic = "Қазақ хандығының құрылуы (Ресми)"
 
         if not topic:
             return jsonify({'success': False, 'message': 'Тақырып міндетті / Topic required'}), 400
 
-        return jsonify({'success': True, 'content': _generate_learning_content_kz(topic, source_urls=source_urls)})
+        content = _generate_learning_content_kz(topic, source_urls=source_urls, level=level)
+        return jsonify({'success': True, 'content': content})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -266,6 +334,68 @@ def translate_content():
             return jsonify({'success': False, 'message': 'text_kz required'}), 400
 
         return jsonify({'success': True, 'text_ru': _translate_kz_to_ru(text_kz)})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/clans/create', methods=['POST'])
+def create_clan():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        clan_name = data.get('name')
+        
+        all_data = load_users()
+        if clan_name in all_data['clans']:
+            return jsonify({'success': False, 'message': 'Клан с таким именем уже существует'}), 400
+            
+        all_data['clans'][clan_name] = {
+            'leader': email,
+            'members': [email],
+            'xp': 0
+        }
+        if email in all_data['web_users']:
+            all_data['web_users'][email]['clan'] = clan_name
+            
+        save_users(all_data)
+        return jsonify({'success': True, 'message': f'Клан {clan_name} создан'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/clans/join', methods=['POST'])
+def join_clan():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        clan_name = data.get('name')
+        
+        all_data = load_users()
+        if clan_name not in all_data['clans']:
+            return jsonify({'success': False, 'message': 'Клан не найден'}), 404
+            
+        if email not in all_data['clans'][clan_name]['members']:
+            all_data['clans'][clan_name]['members'].append(email)
+            if email in all_data['web_users']:
+                all_data['web_users'][email]['clan'] = clan_name
+                
+        save_users(all_data)
+        return jsonify({'success': True, 'message': f'Вы вступили в клан {clan_name}'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/clans/list', methods=['GET'])
+def list_clans():
+    all_data = load_users()
+    return jsonify({'success': True, 'clans': all_data.get('clans', {})})
+
+@app.route('/api/duels/challenge', methods=['POST'])
+def challenge_duel():
+    try:
+        data = request.get_json()
+        from_email = data.get('from')
+        to_user = data.get('to') # can be email or name
+        
+        # Simple placeholder for duel initiation
+        return jsonify({'success': True, 'message': f'Вызов брошен пользователю {to_user}!'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
