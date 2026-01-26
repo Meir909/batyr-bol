@@ -403,45 +403,35 @@ def challenge_duel():
 def static_files(path):
     return send_from_directory('.', path)
 
-# Telegram bot functions (simplified)
-_bot_users = {}
-
-async def _bot_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = update.effective_user.id
-    _bot_users[uid] = {'lang': 'kk'}
-    await update.message.reply_text(
-        '🇰🇿 BATYR BOL\n\n'
-        'Командалар:\n'
-        '/missions — миссия алу\n'
-        '/kz — Қазақша\n'
-        '/ru — Русский'
-    )
-
+# Telegram bot runner using the full bb_bot logic
 def _run_telegram_bot():
-    import asyncio
-    token = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
-    if not token:
-        return
-
     try:
+        import asyncio
+        import bb_bot
+        
+        # Create a new event loop for this thread
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        application = Application.builder().token(token).build()
-        application.add_handler(CommandHandler('start', _bot_start))
-        application.run_polling(drop_pending_updates=True)
+        
+        print(f"🤖 [BOT] Инициализация Telegram бота с токеном: {bb_bot.TOKEN[:10]}...")
+        # Since bot_app is already built in bb_bot.py, we just run it
+        # run_polling is blocking, so it stays in this thread
+        bb_bot.app.run_polling(drop_pending_updates=True)
     except Exception as e:
-        print(f"Telegram bot error: {e}")
+        print(f"❌ [BOT] Ошибка при запуске Telegram бота: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == '__main__':
-    host = os.getenv('HOST', 'localhost')
+    # Optimization: Prevent Flask from starting the bot twice in debug mode
+    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true' or os.getenv('FLASK_DEBUG') != '1':
+        print("🚀 [SYSTEM] Запуск фонового процесса бота...")
+        t = threading.Thread(target=_run_telegram_bot, daemon=True)
+        t.start()
+    
+    host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 8000))
     debug = os.getenv('FLASK_ENV', 'development') == 'development'
 
-    t = threading.Thread(target=_run_telegram_bot, daemon=True)
-    t.start()
-
-    print("🚀 Сервер запущен!")
-    print(f"📖 Лендинг: http://{host}:{port}")
-    print(f"🎮 Игра: http://{host}:{port}/game")
-    print("🛑 Для остановки нажмите Ctrl+C")
+    print(f"🚀 [SERVER] Flask запущен на http://{host}:{port}")
     app.run(host=host, port=port, debug=debug)
