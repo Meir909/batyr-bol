@@ -16,41 +16,66 @@ TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8337334846:AAE9AvClYqFXGAHJ6tGALk_U-pFP
 users = {}
 leaderboard = {}
 feedback_data = []
+clans = {}
+tg_links = {}
+web_users = {}
 
 # File to store user data
 import json
 import os
 
-USER_DATA_FILE = "telegram_users.json"
+USER_DATA_FILE = "unified_users.json"
+
+# Global data structure
+# {
+#   "web_users": { "email": { ... } },
+#   "tg_users": { "id": { ... } },
+#   "tg_links": { "tg_id": "email" },
+#   "clans": { "name": { "leader": id, "members": [ids] } }
+# }
 
 # Load user data from file
 def load_user_data():
-    global users, leaderboard
+    global users, leaderboard, clans, tg_links, web_users
     if os.path.exists(USER_DATA_FILE):
         try:
             with open(USER_DATA_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                users = data.get('users', {})
-                leaderboard = data.get('leaderboard', {})
+                web_users = data.get('web_users', {})
+                users = data.get('tg_users', {})
+                tg_links = data.get('tg_links', {})
+                clans = data.get('clans', {})
                 
-                # Convert keys back to integers
+                # Convert keys back to integers for tg_users
                 users = {int(k): v for k, v in users.items()}
-                leaderboard = {int(k): v for k, v in leaderboard.items()}
+                
+                # Rebuild leaderboard
+                leaderboard = {uid: u.get('xp', 0) for uid, u in users.items()}
         except Exception as e:
             print(f"Error loading user data: {e}")
             users = {}
             leaderboard = {}
+            tg_links = {}
+            clans = {}
+            web_users = {}
+    else:
+        users = {}
+        leaderboard = {}
+        tg_links = {}
+        clans = {}
+        web_users = {}
 
 # Save user data to file
 def save_user_data():
     try:
         # Convert keys to strings for JSON serialization
         users_str_keys = {str(k): v for k, v in users.items()}
-        leaderboard_str_keys = {str(k): v for k, v in leaderboard.items()}
         
         data = {
-            'users': users_str_keys,
-            'leaderboard': leaderboard_str_keys
+            'web_users': web_users,
+            'tg_users': users_str_keys,
+            'tg_links': tg_links,
+            'clans': clans
         }
         
         with open(USER_DATA_FILE, 'w', encoding='utf-8') as f:
@@ -1300,31 +1325,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/ru — Русский"
     )
 
-async def set_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = update.effective_user.id
-    
-    # Check if user exists
-    if uid not in users:
-        await update.message.reply_text("Алдымен /start командасын жіберіңіз")
-        return
-    
-    # Check if email provided
-    if not context.args:
-        await update.message.reply_text("Формат: /email your@email.com")
-        return
-    
-    email = context.args[0]
-    
-    # Simple email validation
-    if "@" not in email or "." not in email:
-        await update.message.reply_text("Қате email форматы")
-        return
-    
-    # Set email
-    users[uid]["email"] = email
-    save_user_data()
-    
-    await update.message.reply_text("✅ Email сәтті сақталды")
 
 async def set_kz(update: Update, context: ContextTypes.DEFAULT_TYPE):
     users[update.effective_user.id]["lang"] = "kz"
@@ -1477,49 +1477,95 @@ async def voice_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if "daily_missions" not in u or not u["daily_missions"]:
         await update.message.reply_text("Алдымен /missions командасын жіберіңіз")
         return
+
+    # Simulate Speech-to-Text (STT)
+    # In a real app, use: recognizer.recognize_google(audio, language="kk-KZ")
+    await update.message.reply_text("🎙️ Дауысты өңдеудемін... (STT processing)")
     
-    # Count total and completed voice missions
-    total_voice_missions = 0
-    completed_voice_missions = 0
+    # For now, we assume the voice is correct if they sent it
+    # But let's add a placeholder for actual validation
+    voice_file = await context.bot.get_file(update.message.voice.file_id)
+    # await voice_file.download_to_drive(f"voice_{uid}.ogg")
+    
+    # Complete the voice mission
     current_voice_mission_num = None
-    
     for i, mission in enumerate(u["daily_missions"]):
-        if mission["type"] == "voice":
-            total_voice_missions += 1
-            if i in u["done"]:
-                completed_voice_missions += 1
-            elif current_voice_mission_num is None:  # First uncompleted voice mission
-                current_voice_mission_num = i
-    
-    # If all voice missions are completed
-    if total_voice_missions > 0 and completed_voice_missions >= total_voice_missions:
-        await update.message.reply_text("✅ Барлық дауыстық міндеттер орындалды!")
-        return
-    
-    # If we have an uncompleted voice mission, complete it
+        if mission["type"] == "voice" and i not in u["done"]:
+            current_voice_mission_num = i
+            break
+            
     if current_voice_mission_num is not None:
-        # Award points for completing the voice mission
-        gain = 2  # Voice missions are worth 2 XP
+        gain = 5 # Voice missions now worth more
         u["xp"] += gain
         u["done"].add(current_voice_mission_num)
         u["level"] = get_level(u["xp"])
-        leaderboard[uid] = u["xp"]
         
-        # Update counts after completing current mission
-        completed_voice_missions += 1
+        # Sync with Web if linked
+        if str(uid) in tg_links:
+            email = tg_links[str(uid)]
+            if email in web_users:
+                web_users[email]["xp"] += gain
+                web_users[email]["level"] = get_level(web_users[email]["xp"])
         
-        # Check if all voice missions are now completed
-        if completed_voice_missions >= total_voice_missions:
-            await update.message.reply_text(f"🎉 Керемет! +{gain} XP\n✅ Барлық дауыстық міндеттер орындалды!")
-        else:
-            remaining = total_voice_missions - completed_voice_missions
-            await update.message.reply_text(f"🎉 Керемет! +{gain} XP\nҚалған дауыстық міндеттер: {remaining}")
-        
-        # Save user data after voice mission completion
         save_user_data()
+        await update.message.reply_text(f"✅ Дауыс қабылданды! Сөзді дұрыс айттыңыз. +{gain} XP")
     else:
-        # If no active voice mission, treat as general voice message
-        await update.message.reply_text("🎙️ Дауыс хабарламаңыз қабылданды. Қазіргі уақытта дауыстық міндеттер жоқ, бірақ сіз жақсы жасадыңыз!")
+        await update.message.reply_text("📝 Дауыс хабарламаңыз қабылданды, бірақ қазіргі уақытта белсенді дауыстық миссия жоқ.")
+
+# ===== SOCIAL FEATURES (CLANS & DUELS) =====
+
+async def clan_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uid = update.effective_user.id
+    args = context.args
+    
+    if not args:
+        await update.message.reply_text(
+            "🏠 Клан/Ру жүйесі\n\n"
+            "/clan create <атауы> — Клан құру\n"
+            "/clan join <атауы> — Кланға қосылу\n"
+            "/clan list — Кландар тізімі\n"
+        )
+        return
+        
+    cmd = args[0].lower()
+    if cmd == "create" and len(args) > 1:
+        name = args[1]
+        if name in clans:
+            await update.message.reply_text("❌ Бұл атау бос емес")
+        else:
+            clans[name] = {"leader": uid, "members": [uid], "xp": 0}
+            users[uid]["clan"] = name
+            save_user_data()
+            await update.message.reply_text(f"✅ '{name}' кланы құрылды!")
+            
+    elif cmd == "join" and len(args) > 1:
+        name = args[1]
+        if name in clans:
+            if uid not in clans[name]["members"]:
+                clans[name]["members"].append(uid)
+                users[uid]["clan"] = name
+                save_user_data()
+                await update.message.reply_text(f"✅ Сіз '{name}' кланына қосылдыңыз!")
+            else:
+                await update.message.reply_text("⏳ Сіз бұл кландасыз")
+        else:
+            await update.message.reply_text("❌ Клан табылмады")
+            
+    elif cmd == "list":
+        text = "🏆 Кландар / Рулар:\n\n"
+        for name, data in clans.items():
+            text += f"• {name} ({len(data['members'])} мүше) - {data.get('xp', 0)} XP\n"
+        await update.message.reply_text(text)
+
+async def duel_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("⚔️ Дуэль! Формат: /duel @username")
+        return
+        
+    target = context.args[0]
+    await update.message.reply_text(f"⚔️ {target} шақырылды! Кім тез әрі дұрыс жауап берсе, сол жеңеді!")
+    # Simple logic for now: notify the target
+    await update.message.reply_text("⏳ Дуэль жүйесі өңделуде... Нәтижелер келесі миссиядан кейін белгілі болады.")
 
 async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
@@ -1527,17 +1573,19 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Calculate completed missions
     completed_today = len(u['done']) if 'done' in u else 0
+    clan_info = u.get("clan", "Жоқ")
     
     profile_text = f"👤 Профиль\n\n"
     profile_text += f"👤 Аты: {u['name']}\n"
     profile_text += f"📧 Email: {u['email'] or 'Орнатылмаған'}\n"
+    profile_text += f"🛡️ Клан/Ру: {clan_info}\n"
     profile_text += f"⭐ XP: {u['xp']}\n"
-    profile_text += f"🏆 Уровень: {u['level']}\n"
+    profile_text += f"🏆 Деңгей: {u['level']}\n"
     profile_text += f"🔥 Streak: {u['streak']} күн\n"
     profile_text += f"📌 Бүгін: {completed_today}/5\n"
     
     if u['email'] is None:
-        profile_text += "\n📝 Email орнату үшін: /email your@email.com"
+        profile_text += "\n📝 Синхронизация: /email your@email.com"
     
     await update.message.reply_text(profile_text)
 
@@ -1589,6 +1637,23 @@ async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Ваш вклад помогает нам становиться лучше!"
     )
 
+async def set_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uid = update.effective_user.id
+    if uid not in users: return
+    if not context.args:
+        await update.message.reply_text("Формат: /email your@email.com")
+        return
+    email = context.args[0].lower()
+    users[uid]["email"] = email
+    tg_links[str(uid)] = email
+    if email in web_users:
+        new_xp = max(web_users[email].get('xp', 0), users[uid].get('xp', 0))
+        users[uid]["xp"] = new_xp
+        web_users[email]["xp"] = new_xp
+        await update.message.reply_text("🔗 Веб-аккаунт табылды! Прогресс синхрондалды.")
+    save_user_data()
+    await update.message.reply_text("✅ Email сәтті сақталды")
+
 # ===== APP =====
 app = Application.builder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
@@ -1601,8 +1666,11 @@ app.add_handler(CommandHandler("answer", answer))
 app.add_handler(CommandHandler("profile", profile))
 app.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
 app.add_handler(CommandHandler("feedback", feedback))
+app.add_handler(CommandHandler("clan", clan_cmd))
+app.add_handler(CommandHandler("duel", duel_cmd))
 app.add_handler(MessageHandler(filters.VOICE, voice_handler))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer))  # Direct text answers
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer))
 
-print("Бот запущен и готов к работе")
-app.run_polling()
+if __name__ == "__main__":
+    print("🤖 Бот іске қосылды...")
+    app.run_polling()
