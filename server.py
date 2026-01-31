@@ -1,4 +1,5 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
+from flask_cors import CORS
 import os
 import json
 import hashlib
@@ -14,6 +15,7 @@ from werkzeug.utils import secure_filename
 import threading
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+from groq import Groq
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +43,7 @@ def save_users(users_data):
         json.dump(users_data, f, ensure_ascii=False, indent=2)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 os.makedirs(uploads_dir, exist_ok=True)
 
@@ -99,6 +102,147 @@ def _fetch_official_texts(urls):
             continue
     
     return source_texts, used_urls
+
+def _groq_check_answer(question, user_answer, correct_answer=None, context=None):
+    """
+    Check user answer using Groq API with intelligent evaluation
+    Returns: (success, result, error_message)
+    """
+    try:
+        groq_api_key = os.getenv('GROQ_API_KEY', '').strip()
+        if not groq_api_key or groq_api_key == 'your_groq_api_key_here':
+            return False, None, "Groq API key not configured"
+        
+        client = Groq(api_key=groq_api_key)
+        
+        prompt = f"""
+Проверь ответ пользователя на вопрос по истории Казахстана.
+
+Контекст (если доступен): {context or 'Нет контекста'}
+
+Вопрос: {question}
+
+Ответ пользователя: {user_answer}
+
+{f'Эталонный ответ: {correct_answer}' if correct_answer else ''}
+
+Оцени ответ по следующим критериям:
+1. Правильность фактов
+2. Полнота ответа
+3. Понимание темы
+4. Точность формулировок
+
+Верни JSON в следующем формате:
+{{
+    "is_correct": true/false,
+    "score": 0-100,
+    "feedback": "Подробный отзыв об ответе",
+    "suggestions": "Что можно улучшить или добавить",
+    "explanation": "Объяснение правильного ответа"
+}}
+
+Будь объективным, но поощряй правильные идеи даже если формулировка не идеальна.
+"""
+        
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=800
+        )
+        
+        result_text = response.choices[0].message.content
+        
+        # Try to extract JSON from response
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+            if json_match:
+                json_text = json_match.group()
+                result = json.loads(json_text)
+            else:
+                result = json.loads(result_text)
+        except json.JSONDecodeError as e:
+            print(f"[GROQ] JSON parsing error in answer check: {e}")
+            print(f"[GROQ] Raw response: {result_text[:200]}...")
+            return False, None, f"JSON parsing error: {str(e)}"
+        
+        return True, result, None
+        
+    except Exception as e:
+        error_msg = f"Groq API error: {str(e)}"
+        return False, None, error_msg
+
+def _groq_generate_mission(topic, level=1):
+    """
+    Generate mission content using Groq API with fallback to local model
+    Returns: (success, content, error_message)
+    """
+    try:
+        groq_api_key = os.getenv('GROQ_API_KEY', '').strip()
+        if not groq_api_key or groq_api_key == 'your_groq_api_key_here':
+            return False, None, "Groq API key not configured"
+        
+        client = Groq(api_key=groq_api_key)
+        
+        # Create prompt based on level and topic
+        level_descriptions = {
+            1: "простые сказки и легенды для начинающих",
+            2: "средняя сложность, основные исторические факты",
+            3: "сложные темы, детальная информация",
+            4: "официальные документы, сложные тексты"
+        }
+        
+        prompt = f"""Создай контент по казахской теме "{topic}" для уровня {level}.
+
+Верни строго JSON на казахском языке:
+{{
+    "text_kz": "Қазақша мәтін (50-100 сөз)",
+    "questions_kz": ["Қазақша сұрақ 1", "Қазақша сұрақ 2", "Қазақша сұрақ 3", "Қазақша сұрақ 4"],
+    "options_kz": [
+        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"],
+        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"],
+        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"],
+        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"]
+    ],
+    "correct_answers": [0, 1, 2, 3]
+}}
+
+Тема: {topic}. Уровень: {level}. Генерируй только на казахском языке."""
+        
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=1500
+        )
+        
+        content_text = response.choices[0].message.content
+        
+        # Ensure proper encoding
+        if isinstance(content_text, bytes):
+            content_text = content_text.decode('utf-8')
+        
+        # Try to extract JSON from response
+        try:
+            # Look for JSON in the response
+            import re
+            json_match = re.search(r'\{.*\}', content_text, re.DOTALL)
+            if json_match:
+                json_text = json_match.group()
+                content = json.loads(json_text)
+            else:
+                content = json.loads(content_text)
+        except json.JSONDecodeError as e:
+            print(f"[GROQ] JSON parsing error: {e}")
+            print(f"[GROQ] Raw response: {content_text[:200]}...")
+            return False, None, f"JSON parsing error: {str(e)}"
+        
+        return True, content, None
+        
+    except Exception as e:
+        error_msg = f"Groq API error: {str(e)}"
+        return False, None, error_msg
 
 def _gemini_generate(prompt):
     try:
@@ -170,78 +314,27 @@ def _get_fallback_mission(topic):
     return fallback_content.get(topic)
 
 def _generate_learning_content_kz(topic: str, source_urls=None, level=1):
-    # Level 1: Kazakh folk tales and legends
-    if level == 1:
-        folktales = {
-            "Ертөстік": {
-                "text_kz": "Ертөстік — қазақ ертегілерінің ең танымал батыры. Ол жер асты патшалығына түсіп, айдаһармен шайқасады. Оның аты — Шалқұйрық, ол иесіне әрқашан көмектеседі. Ертегіде достық, батылдық пен адалдық туралы айтылады.",
-                "questions_kz": ["Ертөстіктің аты кім?", "Ол кіммен шайқасты?", "Ертөстіктің тұлпарының аты қандай?", "Бұл ертегі не туралы?", "Ертөстік қайда барды?"],
-                "options_count": 2,
-                "topic": "Ертөстік батыр",
-                "level": 1
-            },
-            "Алдар Көсе": {
-                "text_kz": "Алдар Көсе — қазақ ауыз әдебиетінің кейіпкері. Ол өте ақылды және қу адам болған. Ол байларды алдап, кедейлерге көмектескен. Оның тоны жыртық болса да, ол ешқашан мұңаймаған. Алдар Көсе халықтың сүйікті кейіпкері.",
-                "questions_kz": ["Алдар Көсе қандай адам?", "Ол кімдерге көмектесті?", "Оның тоны қандай болды?", "Алдар Көсе несімен танымал?", "Халық оны жақсы көре ме?"],
-                "options_count": 2,
-                "topic": "Алдар Көсе хикаялары",
-                "level": 1
-            }
-        }
-        content = folktales.get(topic) or random.choice(list(folktales.values()))
-        return content
-
-    # Level 4: Official texts (long, hard)
-    if level == 4:
-        official_sources = {
-            "Қазақ хандығының құрылуы (Ресми)": {
-                "text_kz": "Қазақ хандығының құрылуы — Орталық Азия тарихындағы бетбұрысты кезең. XV ғасырдың ортасында (1465 ж.) Керей мен Жәнібек сұлтандар Әбілқайыр хандығынан бөлініп, Моғолстанның батысындағы Шу мен Қозыбасы өңіріне қоныс аударды. Бұл оқиға қазақ этносының бірігуіне және дербес мемлекеттілігінің қалыптасуына негіз болды. Тарихи деректерге сүйенсек, «қазақ» атауы еркіндікті сүйетін, өз алдына ел болғысы келетін халықтың рухын білдіреді. Хандық құрылғаннан кейін оның шекарасы кеңейіп, Сырдария бойындағы қалалар үшін күрес басталды. Бұл процесс бірнеше онжылдыққа созылып, Қасым ханның тұсында мемлекет қуатты державаға айналды.",
-                "questions_kz": [
-                    "Қазақ хандығының құрылуына қандай саяси жағдай түрткі болды?",
-                    "Керей мен Жәнібек қай өңірге алғаш қоныс аударды?",
-                    "«Қазақ» сөзінің тарихи контекстегі мағынасы қандай?",
-                    "Хандықтың нығаюына қай ханның үлесі зор болды?",
-                    "Әбілқайыр хандығынан бөлінудің басты себебі не?",
-                    "XV ғасырдағы Моғолстанның рөлі қандай болды?",
-                    "Хандық шекарасының кеңеюі қай бағытта жүрді?",
-                    "Сырдария қалаларының стратегиялық маңызы неде?",
-                    "Қазақ этносының қалыптасуы қай кезеңде аяқталды?",
-                    "Мемлекеттің халықаралық деңгейдегі беделі қашан артты?",
-                    "Хандық құрылымындағы ұлыстық жүйенің ерекшелігі?",
-                    "Шу мен Қозбасы өңірлерінің таңдалу себебі?",
-                    "Керей мен Жәнібектің Әбілқайырмен конфликтісінің сипаты?",
-                    "Хандықтың туы мен рәміздері туралы деректер бар ма?",
-                    "Қазақ хандығының Орта Азиядағы көршілерімен қарым-қатынасы?"
-                ],
-                "options_count": 4,
-                "topic": "Қазақ хандығының құрылу тарихы",
-                "level": 4
-            }
-        }
-        content = official_sources.get(topic) or list(official_sources.values())[0]
-        return content
-
-    # Default / Other levels
-    fallback = _get_fallback_mission(topic)
-    if fallback:
-        return fallback
+    """
+    Generate learning content using Groq API only
+    """
+    # Try Groq API only - no fallback
+    success, groq_content, error = _groq_generate_mission(topic, level)
+    if success:
+        return groq_content
     
+    # Log the error for debugging
+    print(f"[GROQ] API failed: {error}")
+    
+    # Return error instead of fallback
     return {
-        'text_kz': f'{topic} - қазақ халқының тарихындағы маңызды оқиға. Бұл тақырып Қазақстан тарихында зор орын алады.',
-        'questions_kz': [
-            f'{topic} туралы не білесіз?',
-            f'{topic} қандай маңызға ие?',
-            f'{topic} қашан болған?'
-        ],
-        'text_ru': f'{topic} - важное событие в истории казахского народа. Эта тема занимает большое место в истории Казахстана.',
-        'questions_ru': [
-            f'Что вы знаете о {topic}?',
-            f'Какое значение имеет {topic}?',
-            f'Когда произошло {topic}?'
-        ],
-        'sources': [],
+        'error': 'Groq API temporarily unavailable',
+        'message': 'Please try again later',
+        'text_kz': 'Қызмет уақытша қолжетімсіз. Кейінірек қайталап көріңіз.',
+        'questions_kz': [],
+        'options_kz': [],
+        'correct_answers': [],
         'topic': topic,
-        'level': 2
+        'level': level
     }
 
 def _translate_kz_to_ru(text_kz: str):
@@ -258,6 +351,10 @@ def health():
 @app.route('/game')
 def game():
     return send_from_directory('.', 'igra.html')
+
+@app.route('/groq-demo')
+def groq_demo():
+    return send_from_directory('.', 'groq_demo.html')
 
 # Simple login with test account only
 @app.route('/api/login', methods=['POST'])
@@ -321,6 +418,15 @@ def generate_learning_content():
             return jsonify({'success': False, 'message': 'Тақырып міндетті / Topic required'}), 400
 
         content = _generate_learning_content_kz(topic, source_urls=source_urls, level=level)
+        
+        # Check if content contains error
+        if 'error' in content:
+            return jsonify({
+                'success': False, 
+                'message': content.get('message', 'AI service temporarily unavailable'),
+                'error': content.get('error')
+            }), 503
+            
         return jsonify({'success': True, 'content': content})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -334,6 +440,36 @@ def translate_content():
             return jsonify({'success': False, 'message': 'text_kz required'}), 400
 
         return jsonify({'success': True, 'text_ru': _translate_kz_to_ru(text_kz)})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/answer/check', methods=['POST'])
+def check_answer():
+    try:
+        payload = request.get_json() or {}
+        question = (payload.get('question') or '').strip()
+        user_answer = (payload.get('user_answer') or '').strip()
+        correct_answer = payload.get('correct_answer')
+        context = payload.get('context')
+        
+        if not question or not user_answer:
+            return jsonify({'success': False, 'message': 'question and user_answer required'}), 400
+        
+        # Use Groq API only - no fallback
+        success, result, error = _groq_check_answer(question, user_answer, correct_answer, context)
+        
+        if success:
+            response_data = {'success': True, 'result': result}
+            return jsonify(response_data)
+        
+        # Log the error and return error response
+        print(f"[GROQ] Answer check failed: {error}")
+        return jsonify({
+            'success': False, 
+            'message': 'AI service temporarily unavailable. Please try again later.',
+            'error': error
+        }), 503
+        
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 

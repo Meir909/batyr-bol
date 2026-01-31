@@ -248,15 +248,45 @@ class GameIntegration {
             throw new Error(data.message || 'Ошибка генерации контента');
         }
 
+        // Show warning if fallback was used
+        if (data.warning) {
+            this.showMessage(data.warning, 'warning');
+        }
+
         const content = data.content;
         let text = content.text_kz;
-        let questions = (content.questions_kz || []).map((q, idx) => ({
-            id: `srv_q_${Date.now()}_${idx}`,
-            text: q,
-            type: 'open'
-        }));
+        let questions = [];
+        
+        // Handle new Groq API format with options
+        if (content.questions_kz && content.options_kz) {
+            questions = content.questions_kz.map((q, idx) => ({
+                id: `srv_q_${Date.now()}_${idx}`,
+                text: q,
+                type: 'multiple_choice',
+                options: content.options_kz[idx] || [],
+                correctAnswer: content.correct_answers ? content.correct_answers[idx] : 0
+            }));
+        } else {
+            // Fallback to open questions
+            questions = (content.questions_kz || []).map((q, idx) => ({
+                id: `srv_q_${Date.now()}_${idx}`,
+                text: q,
+                type: 'open'
+            }));
+        }
 
-        if (this.userProfile.language === 'ru') {
+        // Use Russian content if available and user language is Russian
+        if (this.userProfile.language === 'ru' && content.text_ru) {
+            text = content.text_ru;
+            if (content.questions_ru) {
+                questions = questions.map((q, idx) => ({
+                    ...q,
+                    text: content.questions_ru[idx] || q.text,
+                    options: content.options_ru && content.options_ru[idx] ? content.options_ru[idx] : q.options
+                }));
+            }
+        } else if (this.userProfile.language === 'ru') {
+            // Fallback to translation API if Russian content not available
             const tResp = await fetch('/api/content/translate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -277,10 +307,9 @@ class GameIntegration {
                 const qData = await qResp.json();
                 if (qData.success && qData.text_ru) {
                     const parts = qData.text_ru.split('\n').map(s => s.trim()).filter(Boolean);
-                    questions = parts.map((qq, idx) => ({
-                        id: `srv_q_${Date.now()}_${idx}`,
-                        text: qq,
-                        type: 'open'
+                    questions = questions.map((q, idx) => ({
+                        ...q,
+                        text: parts[idx] || q.text
                     }));
                 }
             }
@@ -332,25 +361,48 @@ class GameIntegration {
     }
 
     displayQuestions(questions) {
-        const questionsContainer = document.getElementById('mission-questions');
+        const questionsContainer = document.getElementById('mission-questions-list');
         if (questionsContainer) {
             questionsContainer.innerHTML = '';
 
             questions.forEach((q, index) => {
                 const questionElement = document.createElement('div');
                 questionElement.className = 'mb-4 p-3 bg-zinc-800/30 rounded-lg border border-white/10';
-                questionElement.innerHTML = `
-                    <div class="flex items-start gap-2">
-                        <span class="text-gold-400 font-medium">${index + 1}.</span>
-                        <div class="flex-1">
-                            <p class="text-white mb-2">${q.text}</p>
-                            <textarea id="text-answer-${q.id}" 
-                                     class="w-full px-3 py-2 bg-zinc-800/50 border border-white/10 rounded-lg text-white outline-none focus:border-gold-500/50 transition-colors" 
-                                     rows="3" 
-                                     placeholder="${this.userProfile.language === 'kk' ? 'Жауабыңызды жазыңыз...' : 'Введите ваш ответ...'}"></textarea>
+                
+                if (q.type === 'multiple_choice' && q.options && q.options.length > 0) {
+                    // Multiple choice question
+                    questionElement.innerHTML = `
+                        <div class="flex items-start gap-2">
+                            <span class="text-gold-400 font-medium">${index + 1}.</span>
+                            <div class="flex-1">
+                                <p class="text-white mb-3">${q.text}</p>
+                                <div class="space-y-2">
+                                    ${q.options.map((option, optIndex) => `
+                                        <label class="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 cursor-pointer transition-colors">
+                                            <input type="radio" name="question-${q.id}" value="${optIndex}" class="w-4 h-4 text-gold-500">
+                                            <span class="text-zinc-300">${String.fromCharCode(65 + optIndex)}. ${option}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // Open question
+                    questionElement.innerHTML = `
+                        <div class="flex items-start gap-2">
+                            <span class="text-gold-400 font-medium">${index + 1}.</span>
+                            <div class="flex-1">
+                                <p class="text-white mb-2">${q.text}</p>
+                                <textarea id="text-answer-${q.id}" 
+                                         class="w-full px-3 py-2 bg-zinc-800/50 border border-white/10 rounded-lg text-white outline-none focus:border-gold-500/50 transition-colors" 
+                                         rows="3" 
+                                         placeholder="${this.userProfile.language === 'kk' ? 'Жауабыңызды жазыңыз...' : 'Введите ваш ответ...'}"></textarea>
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 questionsContainer.appendChild(questionElement);
             });
         }
@@ -504,7 +556,8 @@ class GameIntegration {
             const messageElement = document.createElement('div');
             messageElement.className = `p-3 rounded-lg mb-2 ${type === 'success' ? 'bg-green-900/50 border border-green-500/30' :
                     type === 'error' ? 'bg-red-900/50 border border-red-500/30' :
-                        type === 'achievement' ? 'bg-purple-900/50 border border-purple-500/30' :
+                    type === 'warning' ? 'bg-yellow-900/50 border border-yellow-500/30' :
+                    type === 'achievement' ? 'bg-purple-900/50 border border-purple-500/30' :
                             'bg-blue-900/50 border border-blue-500/30'
                 }`;
             messageElement.textContent = message;
@@ -516,6 +569,180 @@ class GameIntegration {
                     messageElement.parentNode.removeChild(messageElement);
                 }
             }, 5000);
+        }
+    }
+
+    async submitAnswer(event) {
+        event.preventDefault();
+        
+        try {
+            const results = [];
+            let totalScore = 0;
+            let correctCount = 0;
+            
+            // Check each answer using Groq API
+            for (const question of this.currentQuestions) {
+                let userAnswer = '';
+                
+                if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+                    // Get selected radio button value
+                    const selectedOption = document.querySelector(`input[name="question-${question.id}"]:checked`);
+                    if (selectedOption) {
+                        userAnswer = selectedOption.value;
+                    } else {
+                        this.showMessage('Пожалуйста, выберите ответ на все вопросы с вариантами', 'warning');
+                        return;
+                    }
+                } else {
+                    // Get textarea value for open questions
+                    const answerElement = document.getElementById(`text-answer-${question.id}`);
+                    userAnswer = answerElement ? answerElement.value.trim() : '';
+                    
+                    if (!userAnswer) {
+                        this.showMessage('Пожалуйста, ответьте на все открытые вопросы', 'warning');
+                        return;
+                    }
+                }
+                
+                // Use Groq API to check answer
+                const response = await fetch('/api/answer/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: question.text,
+                        user_answer: userAnswer,
+                        correct_answer: question.correctAnswer,
+                        context: this.currentContent ? this.currentContent.text : null
+                    })
+                });
+                
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Ошибка проверки ответа');
+                }
+                
+                // Show warning if fallback was used
+                if (data.warning) {
+                    this.showMessage(data.warning, 'warning');
+                }
+                
+                const result = data.result;
+                results.push({
+                    question: question.text,
+                    userAnswer: userAnswer,
+                    result: result
+                });
+                
+                totalScore += result.score || 0;
+                if (result.is_correct) {
+                    correctCount++;
+                }
+            }
+            
+            // Calculate XP and update profile
+            const xpGained = Math.round(totalScore / this.currentQuestions.length);
+            this.userProfile.xp += xpGained;
+            this.userProfile.completedMissions.push({
+                topic: this.currentContent.title,
+                score: totalScore,
+                completedAt: new Date().toISOString()
+            });
+            
+            // Update streak
+            if (totalScore > 70) { // If score is good enough
+                this.userProfile.streak += 1;
+            } else {
+                this.userProfile.streak = Math.max(1, this.userProfile.streak - 1);
+            }
+            
+            this.saveUserProfile();
+            this.updateProfileInfo();
+            
+            // Display results
+            this.displayResults(results, totalScore, correctCount, xpGained);
+            
+        } catch (error) {
+            console.error('Error submitting answers:', error);
+            this.showMessage('Ошибка при отправке ответов: ' + error.message, 'error');
+        }
+    }
+
+    displayResults(results, totalScore, correctCount, xpGained) {
+        const questionsContainer = document.getElementById('mission-questions');
+        if (!questionsContainer) return;
+        
+        const averageScore = Math.round(totalScore / results.length);
+        
+        questionsContainer.innerHTML = `
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-white mb-2">
+                    ${this.userProfile.language === 'kk' ? 'Миссия аяқталды!' : 'Миссия завершена!'}
+                </h3>
+                <div class="text-gold-400 text-lg mb-4">
+                    ${this.userProfile.language === 'kk' ? 'Жалпы ұпай:' : 'Общий счёт:'} ${totalScore}/${results.length * 100}
+                </div>
+                <div class="text-green-400 mb-2">
+                    ${this.userProfile.language === 'kk' ? 'Дұрыс жауаптар:' : 'Правильные ответы:'} ${correctCount}/${results.length}
+                </div>
+                <div class="text-blue-400">
+                    ${this.userProfile.language === 'kk' ? 'Алынған XP:' : 'Получено XP:'} +${xpGained}
+                </div>
+            </div>
+            <div class="space-y-4">
+                ${results.map((result, index) => `
+                    <div class="p-4 rounded-lg border ${result.result.is_correct ? 'bg-green-900/20 border-green-500/30' : 'bg-red-900/20 border-red-500/30'}">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <iconify-icon icon="${result.result.is_correct ? 'lucide:check-circle' : 'lucide:x-circle'}" 
+                                    class="${result.result.is_correct ? 'text-green-400' : 'text-red-400'}" width="24"></iconify-icon>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-white font-medium mb-2">${index + 1}. ${result.question}</p>
+                                ${result.question.type === 'multiple_choice' && result.question.options ? `
+                                    <p class="text-zinc-300 text-sm mb-2">
+                                        ${this.userProfile.language === 'kk' ? 'Сіздің таңдауыңыз:' : 'Ваш выбор:'} 
+                                        ${result.question.options[result.userAnswer] ? `${String.fromCharCode(65 + parseInt(result.userAnswer))}. ${result.question.options[result.userAnswer]}` : result.userAnswer}
+                                    </p>
+                                ` : `
+                                    <p class="text-zinc-300 text-sm mb-2">
+                                        ${this.userProfile.language === 'kk' ? 'Сіздің жауабыңыз:' : 'Ваш ответ:'} ${result.userAnswer}
+                                    </p>
+                                `}
+                                ${result.result.feedback ? `
+                                    <p class="text-zinc-400 text-sm mb-1">${result.result.feedback}</p>
+                                ` : ''}
+                                ${result.result.explanation ? `
+                                    <p class="text-blue-300 text-sm">${result.result.explanation}</p>
+                                ` : ''}
+                                ${result.result.score !== undefined ? `
+                                    <div class="mt-2">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="text-zinc-500">${this.userProfile.language === 'kk' ? 'Ұпай:' : 'Баллы:'}</span>
+                                            <span class="text-gold-400">${result.result.score}/100</span>
+                                        </div>
+                                        <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-gold-500 to-gold-400 rounded-full transition-all" 
+                                                style="width: ${result.result.score}%"></div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="mt-6 text-center">
+                <button onclick="window.gameIntegration.getMissions()" 
+                    class="px-6 py-3 bg-gold-500 hover:bg-gold-600 text-black rounded-lg font-medium transition-colors">
+                    ${this.userProfile.language === 'kk' ? 'Келесі миссия' : 'Следующая миссия'}
+                </button>
+            </div>
+        `;
+        
+        // Hide answer form
+        const answerForm = document.getElementById('answer-form');
+        if (answerForm) {
+            answerForm.style.display = 'none';
         }
     }
 

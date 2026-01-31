@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groq AI Mission Generator - BATYR BOL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .mission-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .mission-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .questions {
+            margin-top: 20px;
+        }
+
+        .question {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .option {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #28a745;
+        }
+
+        .status-offline {
+            background: #dc3545;
+        }
+
+        .status-warning {
+            background: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Groq AI Mission Generator</h1>
+            <p>Генерация миссий с использованием искусственного интеллекта</p>
+            <p><span class="status-indicator status-offline" id="statusIndicator"></span><span id="statusText">Проверка состояния...</span></p>
+        </div>
+
+        <div class="content">
+            <form id="missionForm">
+                <div class="form-group">
+                    <label for="topic">Тема миссии:</label>
+                    <input type="text" id="topic" name="topic" placeholder="Например: Қазақ хандығы, Абылай хан, Ертөстік">
+                </div>
+
+                <div class="form-group">
+                    <label for="level">Уровень сложности:</label>
+                    <select id="level" name="level">
+                        <option value="1">Уровень 1 - Сказки и легенды</option>
+                        <option value="2">Уровень 2 - Основные факты</option>
+                        <option value="3">Уровень 3 - Детальная информация</option>
+                        <option value="4">Уровень 4 - Официальные документы</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="generateBtn">
+                    Сгенерировать миссию
+                </button>
+            </form>
+
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        // Check API status
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    document.getElementById('statusIndicator').className = 'status-indicator status-online';
+                    document.getElementById('statusText').textContent = 'API онлайн';
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                document.getElementById('statusIndicator').className = 'status-indicator status-offline';
+                document.getElementById('statusText').textContent = 'API недоступен';
+            }
+        }
+
+        // Generate mission
+        document.getElementById('missionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const topic = document.getElementById('topic').value.trim();
+            const level = parseInt(document.getElementById('level').value);
+            const resultDiv = document.getElementById('result');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            if (!topic) {
+                resultDiv.innerHTML = '<div class="result warning">⚠️ Пожалуйста, введите тему миссии</div>';
+                return;
+            }
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading"></span>Генерация...';
+            resultDiv.innerHTML = '<div class="result">🔄 Генерация миссии с использованием AI...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/content/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: topic,
+                        level: level
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let resultHtml = '<div class="result success">✅ Миссия успешно сгенерирована!</div>';
+                    
+                    // Show warning if fallback was used
+                    if (data.warning) {
+                        resultHtml += `<div class="result warning">⚠️ ${data.warning}</div>`;
+                    }
+                    
+                    const content = data.content;
+                    
+                    resultHtml += `
+                        <div class="mission-content">
+                            <h3>📚 Тема: ${content.topic || topic}</h3>
+                            <div class="mission-text">
+                                <strong>🇰🇿 Текст (казахский):</strong><br>
+                                ${content.text_kz || 'Текст недоступен'}
+                            </div>
+                    `;
+                    
+                    if (content.text_ru) {
+                        resultHtml += `
+                            <div class="mission-text">
+                                <strong>🇷🇺 Текст (русский):</strong><br>
+                                ${content.text_ru}
+                            </div>
+                        `;
+                    }
+                    
+                    if (content.questions_kz && content.questions_kz.length > 0) {
+                        resultHtml += '<div class="questions"><h4>❓ Вопросы:</h4>';
+                        
+                        content.questions_kz.forEach((question, index) => {
+                            resultHtml += `
+                                <div class="question">
+                                    <div class="question-text">${index + 1}. ${question}</div>
+                                    ${content.options_kz && content.options_kz[index] ? `
+                                        <div class="options">
+                                            ${content.options_kz[index].map((option, optIndex) => 
+                                                `<div class="option">${String.fromCharCode(65 + optIndex)}. ${option}</div>`
+                                            ).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        });
+                        
+                        resultHtml += '</div>';
+                    }
+                    
+                    resultHtml += '</div>';
+                    resultDiv.innerHTML = resultHtml;
+                } else {
+                    resultDiv.innerHTML = `<div class="result warning">❌ Ошибка: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result warning">❌ Ошибка соединения: ${error.message}</div>`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Сгенерировать миссию';
+            }
+        });
+        
+        // Check API status on page load
+        checkApiStatus();
+        setInterval(checkApiStatus, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>
