@@ -15,7 +15,14 @@ from werkzeug.utils import secure_filename
 import threading
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-from groq import Groq
+
+# Safe import for groq
+try:
+    from groq import Groq
+    GROQ_AVAILABLE = True
+except ImportError:
+    GROQ_AVAILABLE = False
+    print("[WARNING] Groq module not found. Install with: pip install groq")
 
 # Load environment variables
 load_dotenv()
@@ -108,6 +115,9 @@ def _groq_check_answer(question, user_answer, correct_answer=None, context=None)
     Check user answer using Groq API with intelligent evaluation
     Returns: (success, result, error_message)
     """
+    if not GROQ_AVAILABLE:
+        return False, None, "Groq module not available"
+        
     try:
         groq_api_key = os.getenv('GROQ_API_KEY', '').strip()
         if not groq_api_key or groq_api_key == 'your_groq_api_key_here':
@@ -175,9 +185,12 @@ def _groq_check_answer(question, user_answer, correct_answer=None, context=None)
 
 def _groq_generate_mission(topic, level=1):
     """
-    Generate mission content using Groq API with fallback to local model
+    Generate mission content using Groq API
     Returns: (success, content, error_message)
     """
+    if not GROQ_AVAILABLE:
+        return False, None, "Groq module not available"
+        
     try:
         groq_api_key = os.getenv('GROQ_API_KEY', '').strip()
         if not groq_api_key or groq_api_key == 'your_groq_api_key_here':
