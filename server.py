@@ -206,28 +206,41 @@ def _groq_generate_mission(topic, level=1):
             4: "официальные документы, сложные тексты"
         }
         
-        prompt = f"""Создай контент по казахской теме "{topic}" для уровня {level}.
+        prompt = f"""Создай образовательный контент по казахской теме "{topic}" для уровня {level}.
 
-Верни строго JSON на казахском языке:
+Напиши краткий текст на казахском языке (50-100 слов) по этой теме.
+Затем создай 4 вопроса с вариантами ответов по этому тексту.
+
+Верни строго JSON:
 {{
-    "text_kz": "Қазақша мәтін (50-100 сөз)",
-    "questions_kz": ["Қазақша сұрақ 1", "Қазақша сұрақ 2", "Қазақша сұрақ 3", "Қазақша сұрақ 4"],
+    "text_kz": "Здесь краткий текст на казахском языке по теме {topic}",
+    "questions_kz": [
+        "Реальный вопрос 1 по тексту",
+        "Реальный вопрос 2 по тексту", 
+        "Реальный вопрос 3 по тексту",
+        "Реальный вопрос 4 по тексту"
+    ],
     "options_kz": [
-        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"],
-        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"],
-        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"],
-        ["А нұсқасы", "Б нұсқасы", "В нұсқасы", "Г нұсқасы"]
+        ["Правильный ответ", "Неправильный вариант 1", "Неправильный вариант 2", "Неправильный вариант 3"],
+        ["Неправильный вариант 1", "Правильный ответ", "Неправильный вариант 2", "Неправильный вариант 3"],
+        ["Неправильный вариант 1", "Неправильный вариант 2", "Правильный ответ", "Неправильный вариант 3"],
+        ["Неправравильный вариант 1", "Неправильный вариант 2", "Неправильный вариант 3", "Правильный ответ"]
     ],
     "correct_answers": [0, 1, 2, 3]
 }}
 
-Тема: {topic}. Уровень: {level}. Генерируй только на казахском языке."""
+ВАЖНО: 
+- Текст должен быть по теме "{topic}"
+- Вопросы должны относиться к тексту
+- Варианты ответов должны быть реальными, а не шаблонами
+- Правильные ответы должны соответствовать вопросам
+- Все на казахском языке"""
         
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=1500
+            max_tokens=2000
         )
         
         content_text = response.choices[0].message.content
@@ -246,6 +259,27 @@ def _groq_generate_mission(topic, level=1):
                 content = json.loads(json_text)
             else:
                 content = json.loads(content_text)
+                
+            # Validate required fields
+            required_fields = ['text_kz', 'questions_kz', 'options_kz', 'correct_answers']
+            for field in required_fields:
+                if field not in content:
+                    return False, None, f"Missing required field: {field}"
+                    
+            # Validate data structure
+            if not isinstance(content['questions_kz'], list) or len(content['questions_kz']) != 4:
+                return False, None, "questions_kz must be a list of 4 questions"
+                
+            if not isinstance(content['options_kz'], list) or len(content['options_kz']) != 4:
+                return False, None, "options_kz must be a list of 4 options arrays"
+                
+            for options in content['options_kz']:
+                if not isinstance(options, list) or len(options) != 4:
+                    return False, None, "Each options array must contain 4 options"
+                    
+            if not isinstance(content['correct_answers'], list) or len(content['correct_answers']) != 4:
+                return False, None, "correct_answers must be a list of 4 integers"
+                
         except json.JSONDecodeError as e:
             print(f"[GROQ] JSON parsing error: {e}")
             print(f"[GROQ] Raw response: {content_text[:200]}...")
