@@ -83,15 +83,12 @@ class GameIntegration {
     }
 
     async registerUser(name, email, password) {
-        const response = await fetch('/api/register', {
+        const data = await this.requestJson('/api/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
+            body: { name, email, password }
         });
-
-        const data = await response.json();
-        if (!data.success) {
-            throw new Error(data.message || 'Ошибка регистрации');
+        if (!data || !data.success) {
+            throw new Error((data && data.message) || 'Ошибка регистрации');
         }
 
         this.userProfile = { ...this.userProfile, ...data.user };
@@ -100,15 +97,12 @@ class GameIntegration {
     }
 
     async loginUser(email, password) {
-        const response = await fetch('/api/login', {
+        const data = await this.requestJson('/api/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: { email, password }
         });
-
-        const data = await response.json();
-        if (!data.success) {
-            throw new Error(data.message || 'Ошибка входа');
+        if (!data || !data.success) {
+            throw new Error((data && data.message) || 'Ошибка входа');
         }
 
         this.userProfile = { ...this.userProfile, ...data.user };
@@ -148,15 +142,12 @@ class GameIntegration {
         if (email && email !== this.userProfile.email) requestData.new_email = email;
         if (password) requestData.password = password;
 
-        const response = await fetch('/api/profile', {
+        const data = await this.requestJson('/api/profile', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)
+            body: requestData
         });
-
-        const data = await response.json();
-        if (!data.success) {
-            throw new Error(data.message || 'Ошибка обновления профиля');
+        if (!data || !data.success) {
+            throw new Error((data && data.message) || 'Ошибка обновления профиля');
         }
 
         this.userProfile = { ...this.userProfile, ...data.user };
@@ -179,6 +170,52 @@ class GameIntegration {
 
     saveUserProfile() {
         localStorage.setItem('batyrBolUserProfile', JSON.stringify(this.userProfile));
+    }
+
+    async requestJson(url, { method = 'GET', body, headers = {}, timeoutMs = 20000 } = {}) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+            const isPlainObjectBody = body && !isFormData && typeof body === 'object';
+            const finalHeaders = { ...headers };
+            let finalBody = body;
+
+            if (isPlainObjectBody) {
+                finalBody = JSON.stringify(body);
+                if (!finalHeaders['Content-Type']) finalHeaders['Content-Type'] = 'application/json';
+            }
+
+            const response = await fetch(url, {
+                method,
+                headers: finalHeaders,
+                body: finalBody,
+                signal: controller.signal
+            });
+
+            const contentType = response.headers.get('content-type') || '';
+            const isJson = contentType.includes('application/json');
+
+            const data = isJson
+                ? await response.json().catch(() => null)
+                : await response.text().catch(() => '');
+
+            if (!response.ok) {
+                const message =
+                    (data && typeof data === 'object' && (data.message || data.error)) ||
+                    (typeof data === 'string' && data) ||
+                    response.statusText ||
+                    `HTTP ${response.status}`;
+                throw new Error(message);
+            }
+
+            return data;
+        } catch (error) {
+            if (error && error.name === 'AbortError') throw new Error('Request timeout');
+            throw error;
+        } finally {
+            clearTimeout(timeoutId);
+        }
     }
 
     switchLanguage(lang) {
@@ -209,9 +246,15 @@ class GameIntegration {
 
     async getMissions() {
         try {
+            // Check for incomplete mission from previous session
+            this.checkIncompleteMission();
+
             const content = await this.fetchAdaptiveContent();
             this.currentContent = content;
             this.currentQuestions = content.questions || [];
+
+            // Mark mission as started (for clan penalty tracking)
+            this.markMissionStarted();
 
             this.displayContent(content);
             this.hideQuestions();
@@ -219,11 +262,99 @@ class GameIntegration {
             this.showMessage('Жаңа миссиялар алынды! / Новые миссии получены!', 'success');
         } catch (error) {
             console.error('Ошибка получения миссий:', error);
-            this.showMessage('Миссияларды алу кезінде қате пайда болды', 'error');
+            this.showMessage(error && error.message ? error.message : 'Миссияларды алу кезінде қате пайда болды', 'error');
         }
     }
 
+    markMissionStarted() {
+        // Save mission start time for penalty tracking
+        const missionState = {
+            startedAt: new Date().toISOString(),
+            missionId: Date.now(),
+            completed: false
+        };
+        localStorage.setItem('batyrbol_current_mission', JSON.stringify(missionState));
+    }
+
+    markMissionCompleted() {
+        // Clear incomplete mission flag
+        localStorage.removeItem('batyrbol_current_mission');
+
+        // Record successful completion for clan
+        const clanData = JSON.parse(localStorage.getItem('batyrbol_clan_data') || '{"readToday": []}');
+        const today = new Date().toISOString().split('T')[0];
+
+        if (!clanData.readToday.includes(today)) {
+            clanData.readToday.push(today);
+            clanData.lastReadDate = today;
+            localStorage.setItem('batyrbol_clan_data', JSON.stringify(clanData));
+        }
+    }
+
+    checkIncompleteMission() {
+        const incompleteMission = localStorage.getItem('batyrbol_current_mission');
+
+        if (incompleteMission) {
+            try {
+                const missionData = JSON.parse(incompleteMission);
+                const startedAt = new Date(missionData.startedAt);
+                const now = new Date();
+                const hoursSince = (now - startedAt) / (1000 * 60 * 60);
+
+                // If mission was started more than 1 hour ago and not completed
+                if (hoursSince > 1 && !missionData.completed) {
+                    // Apply clan penalty
+                    this.applyClanPenalty();
+                    localStorage.removeItem('batyrbol_current_mission');
+                }
+            } catch (error) {
+                console.error('Error checking incomplete mission:', error);
+            }
+        }
+    }
+
+    applyClanPenalty() {
+        const clanData = JSON.parse(localStorage.getItem('batyrbol_clan_data') || '{"xp": 0, "penalties": 0}');
+
+        clanData.xp = (clanData.xp || 0) - 10;
+        clanData.penalties = (clanData.penalties || 0) + 1;
+        clanData.lastPenalty = new Date().toISOString();
+
+        localStorage.setItem('batyrbol_clan_data', JSON.stringify(clanData));
+
+        // Show penalty notification
+        const message = this.userProfile.language === 'kk'
+            ? '⚠️ Сенің кланың -10 XP жоғалтты! Миссияны аяқтамадыңыз.'
+            : '⚠️ Ваш клан потерял -10 XP! Вы не завершили миссию.';
+
+        this.showMessage(message, 'warning');
+    }
+
     async fetchAdaptiveContent() {
+        const level = this.userProfile.level || 1;
+        const completedMissions = this.userProfile.completedMissions || [];
+        const weakAreas = this.userProfile.weakAreas || [];
+
+        // Try personalized mission first (OpenAI)
+        try {
+            const data = await this.requestJson('/api/mission/personalized', {
+                method: 'POST',
+                body: {
+                    level,
+                    completedMissions,
+                    weakAreas,
+                    language: this.userProfile.language || 'kk'
+                }
+            });
+
+            if (data && data.success && data.content) {
+                return data.content;
+            }
+        } catch (error) {
+            console.warn('Personalized mission failed, falling back to standard:', error);
+        }
+
+        // Fallback to standard mission generation
         const topics = [
             'Абылай хан',
             'Қазақ хандығы',
@@ -232,20 +363,13 @@ class GameIntegration {
         ];
 
         const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-        const level = (typeof gameEngine !== 'undefined') ? gameEngine.difficultyLevel : 1;
 
-        const response = await fetch('/api/content/generate', {
+        const data = await this.requestJson('/api/content/generate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                topic: randomTopic,
-                level: level
-            })
+            body: { topic: randomTopic, level }
         });
-
-        const data = await response.json();
-        if (!data.success) {
-            throw new Error(data.message || 'Ошибка генерации контента');
+        if (!data || !data.success) {
+            throw new Error((data && data.message) || 'Ошибка генерации контента');
         }
 
         // Show warning if fallback was used
@@ -287,31 +411,29 @@ class GameIntegration {
             }
         } else if (this.userProfile.language === 'ru') {
             // Fallback to translation API if Russian content not available
-            const tResp = await fetch('/api/content/translate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text_kz: text })
-            });
-            const tData = await tResp.json();
-            if (tData.success && tData.text_ru) {
-                text = tData.text_ru;
-            }
+            try {
+                const tData = await this.requestJson('/api/content/translate', {
+                    method: 'POST',
+                    body: { text_kz: text }
+                });
+                if (tData && tData.success && tData.text_ru) text = tData.text_ru;
+            } catch (_) {}
 
             if (questions.length > 0) {
                 const joined = questions.map(q => q.text).join('\n');
-                const qResp = await fetch('/api/content/translate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text_kz: joined })
-                });
-                const qData = await qResp.json();
-                if (qData.success && qData.text_ru) {
-                    const parts = qData.text_ru.split('\n').map(s => s.trim()).filter(Boolean);
-                    questions = questions.map((q, idx) => ({
-                        ...q,
-                        text: parts[idx] || q.text
-                    }));
-                }
+                try {
+                    const qData = await this.requestJson('/api/content/translate', {
+                        method: 'POST',
+                        body: { text_kz: joined }
+                    });
+                    if (qData && qData.success && qData.text_ru) {
+                        const parts = qData.text_ru.split('\n').map(s => s.trim()).filter(Boolean);
+                        questions = questions.map((q, idx) => ({
+                            ...q,
+                            text: parts[idx] || q.text
+                        }));
+                    }
+                } catch (_) {}
             }
         }
 
@@ -328,36 +450,208 @@ class GameIntegration {
     }
 
     displayContent(content) {
+        // AI badge indicator
+        const aiBadge = content.ai_generated && content.personalized
+            ? `<span class="inline-flex items-center gap-1 px-3 py-1 bg-gold-500/20 text-gold-400 text-xs rounded-full border border-gold-500/30">
+                <span>✨</span>
+                <span>${this.userProfile.language === 'kk' ? 'AI жасаған миссия' : 'AI миссия'}</span>
+               </span>`
+            : '';
+
         // Используем новый игровой движок
         if (typeof gameEngine !== 'undefined') {
             gameEngine.setLanguage(this.userProfile.language === 'kk' ? 'kz' : 'ru');
             gameEngine.startMission({
                 text: content.text,
                 topic: content.title,
-                questions: content.questions || []
+                questions: content.questions || [],
+                aiBadge: aiBadge
             });
             return;
         }
 
-        // Fallback к старому методу
+        // Fallback к старому методу с принудительным чтением
         const contentContainer = document.getElementById('mission-content');
         if (contentContainer) {
+            const missionText = content.text_kz || content.text || '';
+            const wordCount = this.countWords(missionText);
+            const readingTimeSeconds = Math.max(10, Math.ceil(wordCount / 3)); // минимум 10 секунд
+
             contentContainer.innerHTML = `
-                <h3 class="text-xl text-white mb-2">${content.title}</h3>
-                <p class="text-zinc-300 mb-4">${content.text}</p>
-                <button id="read-complete-btn" class="mt-4 px-4 py-2 bg-gold-500 hover:bg-gold-600 text-black rounded-full transition-colors font-medium">
-                    ${this.userProfile.language === 'kk' ? 'Оқыдым' : 'Прочитал'}
+                <div class="mb-3">${aiBadge}</div>
+                <h3 class="text-xl text-white mb-2">${content.title || content.topic || 'Миссия'}</h3>
+
+                <!-- Mission Text -->
+                <div class="bg-zinc-900/50 border border-white/10 rounded-xl p-6 mb-6">
+                    <!-- Audio Button -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-medium text-zinc-400">
+                            ${this.userProfile.language === 'kk' ? 'Миссия мәтіні' : 'Текст миссии'}
+                        </h4>
+                        <button id="speak-text-btn" class="flex items-center gap-2 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                            </svg>
+                            <span id="speak-btn-text">${this.userProfile.language === 'kk' ? 'Тыңдау' : 'Слушать'}</span>
+                        </button>
+                    </div>
+                    <p id="mission-text-content" class="text-zinc-300 leading-relaxed text-base">${missionText}</p>
+                </div>
+
+                <!-- Reading Timer -->
+                <div id="reading-timer" class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-zinc-400">
+                            ${this.userProfile.language === 'kk' ? 'Оқу уақыты' : 'Время чтения'}
+                        </span>
+                        <span class="text-sm text-gold-400 font-medium" id="timer-text">
+                            ${this.formatTime(readingTimeSeconds)}
+                        </span>
+                    </div>
+                    <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                        <div id="reading-progress-bar" class="h-full progress-bar rounded-full transition-all" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-zinc-500 mt-2">
+                        ${this.userProfile.language === 'kk'
+                            ? 'Мәтінді мұқият оқыңыз. Сұрақтарға жауап беру үшін оқуды аяқтау керек.'
+                            : 'Внимательно читайте текст. Нужно дочитать до конца, чтобы ответить на вопросы.'}
+                    </p>
+                </div>
+
+                <!-- Questions Button (locked initially) -->
+                <button id="read-complete-btn" disabled class="w-full px-6 py-4 bg-zinc-700 text-zinc-500 rounded-xl font-medium cursor-not-allowed flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>${this.userProfile.language === 'kk' ? 'Сұрақтарды көру' : 'Показать вопросы'}</span>
                 </button>
             `;
 
-            const readBtn = document.getElementById('read-complete-btn');
-            if (readBtn) {
-                readBtn.addEventListener('click', () => {
-                    this.showQuestions();
-                    readBtn.style.display = 'none';
-                });
-            }
+            // Start reading timer
+            this.startReadingTimer(readingTimeSeconds);
+
+            // Setup audio button
+            this.setupTextToSpeech(missionText);
         }
+    }
+
+    setupTextToSpeech(text) {
+        const speakBtn = document.getElementById('speak-text-btn');
+        const speakBtnText = document.getElementById('speak-btn-text');
+
+        if (!speakBtn || !('speechSynthesis' in window)) {
+            // Hide button if speech synthesis not supported
+            if (speakBtn) speakBtn.style.display = 'none';
+            return;
+        }
+
+        let isSpeaking = false;
+        let utterance = null;
+
+        speakBtn.addEventListener('click', () => {
+            if (isSpeaking) {
+                // Stop speaking
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                speakBtnText.textContent = this.userProfile.language === 'kk' ? 'Тыңдау' : 'Слушать';
+                speakBtn.classList.remove('bg-gold-500', 'text-black');
+                speakBtn.classList.add('bg-zinc-800', 'text-zinc-300');
+            } else {
+                // Start speaking
+                utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'kk-KZ'; // Kazakh language
+                utterance.rate = 0.9; // Slightly slower for better comprehension
+                utterance.pitch = 1.0;
+
+                utterance.onstart = () => {
+                    isSpeaking = true;
+                    speakBtnText.textContent = this.userProfile.language === 'kk' ? 'Тоқтату' : 'Остановить';
+                    speakBtn.classList.add('bg-gold-500', 'text-black');
+                    speakBtn.classList.remove('bg-zinc-800', 'text-zinc-300');
+                };
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    speakBtnText.textContent = this.userProfile.language === 'kk' ? 'Тыңдау' : 'Слушать';
+                    speakBtn.classList.remove('bg-gold-500', 'text-black');
+                    speakBtn.classList.add('bg-zinc-800', 'text-zinc-300');
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    isSpeaking = false;
+                    speakBtnText.textContent = this.userProfile.language === 'kk' ? 'Тыңдау' : 'Слушать';
+                    speakBtn.classList.remove('bg-gold-500', 'text-black');
+                    speakBtn.classList.add('bg-zinc-800', 'text-zinc-300');
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+        });
+    }
+
+    countWords(text) {
+        // Count words in text
+        return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    }
+
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        if (mins > 0) {
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        return `${secs} сек`;
+    }
+
+    startReadingTimer(totalSeconds) {
+        let remainingSeconds = totalSeconds;
+        const progressBar = document.getElementById('reading-progress-bar');
+        const timerText = document.getElementById('timer-text');
+        const readBtn = document.getElementById('read-complete-btn');
+
+        if (!progressBar || !timerText || !readBtn) return;
+
+        const interval = setInterval(() => {
+            remainingSeconds--;
+            const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * 100;
+
+            progressBar.style.width = `${progress}%`;
+            timerText.textContent = this.formatTime(remainingSeconds);
+
+            if (remainingSeconds <= 0) {
+                clearInterval(interval);
+                // Unlock button with animation
+                readBtn.disabled = false;
+                readBtn.className = 'w-full px-6 py-4 btn-primary rounded-xl font-medium flex items-center justify-center gap-2 animate-pulse';
+                readBtn.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>${this.userProfile.language === 'kk' ? 'Сұрақтарды көру' : 'Показать вопросы'}</span>
+                `;
+
+                timerText.textContent = this.userProfile.language === 'kk' ? 'Дайын!' : 'Готово!';
+                timerText.className = 'text-sm text-green-400 font-medium';
+
+                // Remove pulse after 3 seconds
+                setTimeout(() => {
+                    if (readBtn) {
+                        readBtn.classList.remove('animate-pulse');
+                    }
+                }, 3000);
+
+                // Add click handler
+                readBtn.addEventListener('click', () => {
+                    // Mark mission as completed (no clan penalty)
+                    this.markMissionCompleted();
+
+                    this.showQuestions();
+                    document.getElementById('reading-timer').style.display = 'none';
+                    readBtn.style.display = 'none';
+                }, { once: true });
+            }
+        }, 1000);
     }
 
     displayQuestions(questions) {
@@ -505,14 +799,12 @@ class GameIntegration {
             formData.append('email', this.userProfile.email);
             formData.append('avatar', avatarFileInput.files[0]);
 
-            const response = await fetch('/api/profile/avatar', {
+            const data = await this.requestJson('/api/profile/avatar', {
                 method: 'POST',
                 body: formData
             });
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || 'Ошибка загрузки аватара');
+            if (!data || !data.success) {
+                throw new Error((data && data.message) || 'Ошибка загрузки аватара');
             }
 
             this.userProfile = { ...this.userProfile, ...data.user };
@@ -530,15 +822,12 @@ class GameIntegration {
                 throw new Error('Сначала войдите в систему');
             }
 
-            const response = await fetch('/api/profile/avatar/batyr', {
+            const data = await this.requestJson('/api/profile/avatar/batyr', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: this.userProfile.email })
+                body: { email: this.userProfile.email }
             });
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || 'Ошибка генерации аватара');
+            if (!data || !data.success) {
+                throw new Error((data && data.message) || 'Ошибка генерации аватара');
             }
 
             this.userProfile = { ...this.userProfile, ...data.user };
@@ -605,20 +894,17 @@ class GameIntegration {
                 }
                 
                 // Use Groq API to check answer
-                const response = await fetch('/api/answer/check', {
+                const data = await this.requestJson('/api/answer/check', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                    body: {
                         question: question.text,
                         user_answer: userAnswer,
                         correct_answer: question.correctAnswer,
                         context: this.currentContent ? this.currentContent.text : null
-                    })
+                    }
                 });
-                
-                const data = await response.json();
-                if (!data.success) {
-                    throw new Error(data.message || 'Ошибка проверки ответа');
+                if (!data || !data.success) {
+                    throw new Error((data && data.message) || 'Ошибка проверки ответа');
                 }
                 
                 // Show warning if fallback was used
@@ -670,23 +956,61 @@ class GameIntegration {
     displayResults(results, totalScore, correctCount, xpGained) {
         const questionsContainer = document.getElementById('mission-questions');
         if (!questionsContainer) return;
-        
-        const averageScore = Math.round(totalScore / results.length);
-        
+
+        const percentage = Math.round((correctCount / results.length) * 100);
+        const isPerfect = correctCount === results.length;
+        const isGood = percentage >= 70;
+
         questionsContainer.innerHTML = `
-            <div class="text-center mb-6">
-                <h3 class="text-2xl font-bold text-white mb-2">
-                    ${this.userProfile.language === 'kk' ? 'Миссия аяқталды!' : 'Миссия завершена!'}
+            <div class="text-center mb-8">
+                <!-- Success Icon with Animation -->
+                <div class="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-6"
+                     style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); animation: bounce 1s ease-in-out 3;">
+                    <svg class="w-10 h-10 sm:w-12 sm:h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">
+                    ${isPerfect
+                        ? (this.userProfile.language === 'kk' ? '🎉 Керемет!' : '🎉 Отлично!')
+                        : (this.userProfile.language === 'kk' ? 'Миссия аяқталды!' : 'Миссия завершена!')}
                 </h3>
-                <div class="text-gold-400 text-lg mb-4">
-                    ${this.userProfile.language === 'kk' ? 'Жалпы ұпай:' : 'Общий счёт:'} ${totalScore}/${results.length * 100}
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto mb-6">
+                    <!-- Score -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="text-gold-400 text-3xl sm:text-4xl font-bold mb-1">${percentage}%</div>
+                        <div class="text-zinc-400 text-sm">
+                            ${this.userProfile.language === 'kk' ? 'Нәтиже' : 'Результат'}
+                        </div>
+                    </div>
+
+                    <!-- Correct Answers -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="text-green-400 text-3xl sm:text-4xl font-bold mb-1">${correctCount}/${results.length}</div>
+                        <div class="text-zinc-400 text-sm">
+                            ${this.userProfile.language === 'kk' ? 'Дұрыс' : 'Правильно'}
+                        </div>
+                    </div>
+
+                    <!-- XP Gained -->
+                    <div class="glass rounded-xl p-4">
+                        <div class="text-blue-400 text-3xl sm:text-4xl font-bold mb-1">+${xpGained}</div>
+                        <div class="text-zinc-400 text-sm">XP</div>
+                    </div>
                 </div>
-                <div class="text-green-400 mb-2">
-                    ${this.userProfile.language === 'kk' ? 'Дұрыс жауаптар:' : 'Правильные ответы:'} ${correctCount}/${results.length}
-                </div>
-                <div class="text-blue-400">
-                    ${this.userProfile.language === 'kk' ? 'Алынған XP:' : 'Получено XP:'} +${xpGained}
-                </div>
+
+                <!-- Performance Message -->
+                <p class="text-base sm:text-lg ${isGood ? 'text-green-400' : 'text-yellow-400'} mb-2">
+                    ${isPerfect
+                        ? (this.userProfile.language === 'kk' ? 'Барлық жауаптар дұрыс! Сіз батырсыз! 🏆' : 'Все ответы правильные! Вы батыр! 🏆')
+                        : isGood
+                        ? (this.userProfile.language === 'kk' ? 'Жақсы нәтиже! Жалғастырыңыз! 💪' : 'Хороший результат! Продолжайте! 💪')
+                        : (this.userProfile.language === 'kk' ? 'Мәтінді мұқият оқыңыз 📖' : 'Читайте текст внимательно 📖')}
+                </p>
             </div>
             <div class="space-y-4">
                 ${results.map((result, index) => `

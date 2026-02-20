@@ -8,7 +8,7 @@
     <link rel="icon" href="logo.png" type="image/png">
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <!-- Header -->
         <header class="text-center mb-12">
             <div class="flex justify-center mb-6">
@@ -22,34 +22,60 @@
         </header>
 
         <!-- Features -->
-        <section class="grid md:grid-cols-3 gap-8 mb-12">
-            <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                <div class="text-4xl mb-4">🎮</div>
-                <h3 class="text-xl font-semibold mb-2">Игровые механики</h3>
-                <p class="text-gray-600">Увлекательные миссии и квесты по казахской истории</p>
+        <section class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 text-center">
+                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">🎮</div>
+                <h3 class="text-lg sm:text-xl font-semibold mb-2">Игровые механики</h3>
+                <p class="text-sm sm:text-base text-gray-600">Увлекательные миссии и квесты по казахской истории</p>
             </div>
-            <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                <div class="text-4xl mb-4">🤖</div>
-                <h3 class="text-xl font-semibold mb-2">ИИ-обучение</h3>
-                <p class="text-gray-600">Адаптивная система подстраивается под ваш уровень</p>
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 text-center">
+                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">🤖</div>
+                <h3 class="text-lg sm:text-xl font-semibold mb-2">ИИ-обучение</h3>
+                <p class="text-sm sm:text-base text-gray-600">Адаптивная система подстраивается под ваш уровень</p>
             </div>
-            <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                <div class="text-4xl mb-4">📱</div>
-                <h3 class="text-xl font-semibold mb-2">Мобильный доступ</h3>
-                <p class="text-gray-600">Учитесь где угодно с Telegram-ботом</p>
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 text-center sm:col-span-2 md:col-span-1">
+                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">📱</div>
+                <h3 class="text-lg sm:text-xl font-semibold mb-2">Мобильный доступ</h3>
+                <p class="text-sm sm:text-base text-gray-600">Учитесь где угодно с Telegram-ботом</p>
             </div>
         </section>
 
         <!-- CTA Section -->
-        <section class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Начните обучение прямо сейчас!</h2>
-            <div class="space-x-4">
-                <a href="igra.html" class="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition">
+        <section class="text-center mb-8 sm:mb-12">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Начните обучение прямо сейчас!</h2>
+
+            <!-- Demo Mode Badge for Judges -->
+            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-400 rounded-full px-4 py-2 mb-6">
+                <span class="text-2xl">🏆</span>
+                <div class="text-left">
+                    <div class="text-sm font-bold text-gray-800">Demo режим для жюри</div>
+                    <div class="text-xs text-gray-600">Быстрый доступ к AI миссиям</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md mx-auto sm:max-w-none">
+                <a href="igra_new.html?demo=true" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:from-yellow-600 hover:to-orange-600 transition inline-block shadow-lg">
+                    ⚡ Demo миссия (AI)
+                </a>
+                <a href="igra_new.html" class="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-blue-700 transition inline-block">
                     🎮 Начать игру
                 </a>
-                <a href="intro.html" class="bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition">
+                <a href="intro.html" class="bg-green-600 text-white px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-green-700 transition inline-block">
                     📖 Узнать больше
                 </a>
+            </div>
+
+            <!-- Quick Info for Judges -->
+            <div class="mt-8 max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-3">🎯 Что такое BATYR BOL?</h3>
+                <div class="text-left space-y-2 text-gray-700">
+                    <p>✅ <strong>AI персонализация:</strong> Миссии адаптируются под уровень ученика (OpenAI o4-mini)</p>
+                    <p>✅ <strong>Принудительное чтение:</strong> Нельзя ответить, не прочитав текст (таймер + блокировка)</p>
+                    <p>✅ <strong>Социальное давление:</strong> Если пропустишь чтение — клан теряет -10 XP</p>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <strong>Тестовый аккаунт:</strong> test@batyrbol.kz / batyr123
+                </div>
             </div>
         </section>
 

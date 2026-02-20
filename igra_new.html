@@ -96,13 +96,41 @@ body[data-language="kz"] .lang-ru { display: none !important; }
   50% { transform: translateY(-5px); }
 }
 .float { animation: float 3s ease-in-out infinite; }
+
+/* Мобильная оптимизация */
+@media (max-width: 640px) {
+  .glass {
+    background: rgba(24, 24, 27, 0.8);
+  }
+
+  /* Увеличенные области клика для touch-устройств */
+  button, a {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Отключаем hover эффекты на мобильных */
+  .card-hover:hover {
+    transform: none;
+  }
+}
+
+/* Предотвращаем горизонтальный скролл */
+body {
+  overflow-x: hidden;
+}
+
+/* Улучшенный скролл на мобильных */
+* {
+  -webkit-overflow-scrolling: touch;
+}
 </style>
 </head>
 
 <body class="antialiased" data-language="kz">
 
 <!-- AUTH SCREEN -->
-<section id="auth" class="min-h-screen flex items-center justify-center p-6">
+<section id="auth" class="min-h-screen flex items-center justify-center p-4 sm:p-6">
   <div class="w-full max-w-md">
     <!-- Logo -->
     <div class="text-center mb-10">
@@ -198,51 +226,51 @@ body[data-language="kz"] .lang-ru { display: none !important; }
 <section id="game" class="hidden min-h-screen">
   <!-- Header -->
   <header class="sticky top-0 z-50 glass border-b border-white/5">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="/logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-xl">
-        <span class="text-xl font-bold text-white tracking-tight">BATYR BOL</span>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <img src="/logo.png" alt="BATYR BOL" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl">
+        <span class="text-base sm:text-xl font-bold text-white tracking-tight">BATYR BOL</span>
       </div>
       
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 sm:gap-3 lg:gap-4">
         <!-- Quick Stats -->
-        <div class="hidden md:flex items-center gap-6 mr-4">
-          <div class="flex items-center gap-2">
-            <iconify-icon icon="lucide:zap" class="text-gold-400" width="18"></iconify-icon>
-            <span id="header-xp" class="text-white font-semibold">0</span>
+        <div class="hidden md:flex items-center gap-4 lg:gap-6 mr-2 lg:mr-4">
+          <div class="flex items-center gap-1.5">
+            <iconify-icon icon="lucide:zap" class="text-gold-400" width="16"></iconify-icon>
+            <span id="header-xp" class="text-white font-semibold text-sm">0</span>
           </div>
-          <div class="flex items-center gap-2">
-            <iconify-icon icon="lucide:flame" class="text-orange-400" width="18"></iconify-icon>
-            <span id="header-streak" class="text-white font-semibold">0</span>
+          <div class="flex items-center gap-1.5">
+            <iconify-icon icon="lucide:flame" class="text-orange-400" width="16"></iconify-icon>
+            <span id="header-streak" class="text-white font-semibold text-sm">0</span>
           </div>
         </div>
-        
+
         <!-- Language -->
-        <div class="flex gap-1 p-1 bg-zinc-900/80 rounded-lg border border-white/10">
-          <button onclick="switchLanguage('ru')" id="btn-ru-game" class="px-3 py-1.5 text-xs font-medium rounded-md text-zinc-400 hover:text-white transition-colors">RU</button>
-          <button onclick="switchLanguage('kz')" id="btn-kz-game" class="px-3 py-1.5 text-xs font-medium rounded-md bg-gold-500 text-black">KZ</button>
+        <div class="hidden sm:flex gap-1 p-1 bg-zinc-900/80 rounded-lg border border-white/10">
+          <button onclick="switchLanguage('ru')" id="btn-ru-game" class="px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md text-zinc-400 hover:text-white transition-colors">RU</button>
+          <button onclick="switchLanguage('kz')" id="btn-kz-game" class="px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md bg-gold-500 text-black">KZ</button>
         </div>
-        
+
         <!-- Profile -->
-        <button onclick="openProfileModal()" class="w-10 h-10 rounded-xl overflow-hidden border-2 border-gold-500/50 hover:border-gold-500 transition-colors">
+        <button onclick="openProfileModal()" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden border-2 border-gold-500/50 hover:border-gold-500 transition-colors">
           <img id="header-avatar" src="/logo.png" alt="Avatar" class="w-full h-full object-cover">
         </button>
-        
-        <button onclick="logout()" class="p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors">
-          <iconify-icon icon="lucide:log-out" class="text-zinc-400" width="18"></iconify-icon>
+
+        <button onclick="logout()" class="p-2 sm:p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors">
+          <iconify-icon icon="lucide:log-out" class="text-zinc-400" width="16"></iconify-icon>
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-6 py-8">
-    <div class="grid lg:grid-cols-12 gap-8">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+    <div class="grid lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
       
       <!-- Sidebar -->
-      <aside class="lg:col-span-3 space-y-6">
+      <aside class="lg:col-span-3 space-y-4 sm:space-y-6">
         <!-- Profile Card -->
-        <div class="glass rounded-2xl p-6 card-hover">
+        <div class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 card-hover">
           <div class="text-center">
             <div class="relative inline-block">
               <div class="w-20 h-20 rounded-2xl overflow-hidden border-2 border-gold-500/50 mx-auto">
@@ -328,19 +356,19 @@ body[data-language="kz"] .lang-ru { display: none !important; }
       <!-- Main Area -->
       <div class="lg:col-span-9 space-y-6">
         <!-- Welcome Banner -->
-        <div class="glass rounded-2xl p-8 relative overflow-hidden">
-          <div class="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gold-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div class="relative">
-            <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">
               <span class="lang-ru">Добро пожаловать, Батыр!</span>
               <span class="lang-kz">Қош келдің, Батыр!</span>
             </h2>
-            <p class="text-zinc-400 mb-6 max-w-xl">
+            <p class="text-sm sm:text-base text-zinc-400 mb-4 sm:mb-6 max-w-xl">
               <span class="lang-ru">Изучай историю Казахстана через увлекательные миссии и становись настоящим героем степи.</span>
               <span class="lang-kz">Қызықты миссиялар арқылы Қазақстан тарихын үйреніп, даланың нағыз батыры бол.</span>
             </p>
-            <button id="missions-btn" onclick="window.gameIntegration && window.gameIntegration.getMissions()" class="btn-primary px-8 py-4 rounded-xl text-base flex items-center gap-3 pulse-gold">
-              <iconify-icon icon="lucide:play" width="20"></iconify-icon>
+            <button id="missions-btn" onclick="window.gameIntegration && window.gameIntegration.getMissions()" class="btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base flex items-center gap-2 sm:gap-3 pulse-gold w-full sm:w-auto justify-center">
+              <iconify-icon icon="lucide:play" width="18"></iconify-icon>
               <span class="lang-ru">Начать миссию</span>
               <span class="lang-kz">Миссияны бастау</span>
             </button>
@@ -348,7 +376,7 @@ body[data-language="kz"] .lang-ru { display: none !important; }
         </div>
 
         <!-- Mission Content Area -->
-        <div id="mission-content" class="glass rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
+        <div id="mission-content" class="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
           <div class="text-center">
             <iconify-icon icon="lucide:compass" class="text-zinc-600" width="64"></iconify-icon>
             <p class="text-zinc-500 mt-4">
@@ -548,8 +576,19 @@ document.getElementById('login-form').addEventListener('submit', async function(
 
 document.getElementById('register-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  showMessage('Регистрация отключена. Используйте тестовый аккаунт: test@batyrbol.kz / batyr123', 'error');
-  showTab('login');
+  const name = document.getElementById('register-name').value;
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+
+  if (window.gameIntegration) {
+    try {
+      await window.gameIntegration.registerUser(name, email, password);
+      window.gameIntegration.showGameScreen();
+      showMessage(document.body.dataset.language === 'kz' ? 'Тіркелу сәтті өтті!' : 'Регистрация успешна!');
+    } catch (err) {
+      showMessage(err.message, 'error');
+    }
+  }
 });
 
 document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
@@ -610,18 +649,64 @@ let achievementsInstance = null;
 
 document.addEventListener('DOMContentLoaded', function() {
   switchLanguage('kz');
-  
+
   if (typeof initAchievements === 'function') {
     const { achievementsSystem } = initAchievements();
     achievementsInstance = achievementsSystem;
   }
-  
-  // Check for saved session
-  const savedUser = localStorage.getItem('batyrbol_user');
-  if (savedUser) {
-    showGame();
+
+  // Check for Demo Mode (for judges)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isDemoMode = urlParams.get('demo') === 'true';
+
+  if (isDemoMode) {
+    // Auto-login with test account and start mission
+    setTimeout(async () => {
+      if (window.gameIntegration) {
+        try {
+          await window.gameIntegration.loginUser('test@batyrbol.kz', 'batyr123');
+          window.gameIntegration.showGameScreen();
+
+          // Auto-start mission after 1 second
+          setTimeout(() => {
+            if (window.gameIntegration) {
+              window.gameIntegration.getMissions();
+
+              // Show demo info
+              const demoInfo = document.createElement('div');
+              demoInfo.className = 'fixed top-20 right-4 z-50 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-3 rounded-lg shadow-lg';
+              demoInfo.innerHTML = `
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl">🏆</span>
+                  <div class="text-sm">
+                    <div class="font-bold">Demo режим для жюри</div>
+                    <div class="text-xs opacity-90">AI миссия загружается...</div>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(demoInfo);
+
+              // Remove after 5 seconds
+              setTimeout(() => {
+                demoInfo.style.transition = 'opacity 0.5s';
+                demoInfo.style.opacity = '0';
+                setTimeout(() => demoInfo.remove(), 500);
+              }, 5000);
+            }
+          }, 1000);
+        } catch (error) {
+          console.error('Demo mode error:', error);
+        }
+      }
+    }, 500);
+  } else {
+    // Check for saved session (normal mode)
+    const savedUser = localStorage.getItem('batyrbol_user');
+    if (savedUser) {
+      showGame();
+    }
   }
-  
+
   setTimeout(updateStats, 500);
 });
 </script>

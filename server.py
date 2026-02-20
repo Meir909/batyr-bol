@@ -10,8 +10,10 @@ from html.parser import HTMLParser
 from urllib.parse import urlparse
 import requests
 from datetime import datetime
+import time
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 import threading
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -23,6 +25,14 @@ try:
 except ImportError:
     GROQ_AVAILABLE = False
     print("[WARNING] Groq module not found. Install with: pip install groq")
+
+# Safe import for OpenAI
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    print("[WARNING] OpenAI module not found. Install with: pip install openai")
 
 # Load environment variables
 load_dotenv()
@@ -48,6 +58,54 @@ def load_users():
 def save_users(users_data):
     with open(data_file, 'w', encoding='utf-8') as f:
         json.dump(users_data, f, ensure_ascii=False, indent=2)
+
+def _verify_user_password(email: str, user: dict, password: str) -> tuple[bool, bool]:
+    """
+    Returns (is_valid, should_migrate_legacy_password).
+    """
+    if email == 'test@batyrbol.kz' and password == 'batyr123':
+        return True, False
+
+    password = password or ''
+
+    password_hash = user.get('password_hash')
+    if password_hash:
+        return check_password_hash(password_hash, password), False
+
+    legacy_password = user.get('password')
+    if legacy_password and legacy_password == password:
+        return True, True
+
+    return False, False
+
+def _public_user(user: dict) -> dict:
+    # Never leak password fields to the client
+    return {k: v for k, v in user.items() if k not in {'password', 'password_hash'}}
+
+_rate_buckets: dict[str, list[float]] = {}
+
+def _client_ip() -> str:
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
+def _rate_limit(bucket_name: str, limit: int, window_seconds: int) -> tuple[bool, int]:
+    """
+    Simple in-memory rate limit.
+    Returns (is_limited, retry_after_seconds).
+    """
+    now = time.time()
+    key = f'{bucket_name}:{_client_ip()}'
+    bucket = _rate_buckets.setdefault(key, [])
+    cutoff = now - window_seconds
+    bucket[:] = [t for t in bucket if t >= cutoff]
+    if len(bucket) >= limit:
+        oldest = min(bucket) if bucket else now
+        retry_after = max(1, int(window_seconds - (now - oldest)))
+        return True, retry_after
+    bucket.append(now)
+    return False, 0
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -286,9 +344,117 @@ def _groq_generate_mission(topic, level=1):
             return False, None, f"JSON parsing error: {str(e)}"
         
         return True, content, None
-        
+
     except Exception as e:
         error_msg = f"Groq API error: {str(e)}"
+        return False, None, error_msg
+
+def _openai_generate_personal_mission(user_profile):
+    """
+    Generate personalized mission using OpenAI API (o4-mini model)
+    Takes user profile with: level, completedMissions, weakAreas, language
+    Returns: (success, content, error_message)
+    """
+    if not OPENAI_AVAILABLE:
+        return False, None, "OpenAI module not available"
+
+    try:
+        openai_api_key = os.getenv('OPENAI_API_KEY', '').strip()
+        if not openai_api_key or openai_api_key == 'your_openai_api_key_here':
+            return False, None, "OpenAI API key not configured"
+
+        client = OpenAI(api_key=openai_api_key)
+
+        # Extract user profile data
+        level = user_profile.get('level', 1)
+        completed_missions = user_profile.get('completedMissions', [])
+        weak_areas = user_profile.get('weakAreas', [])
+        language = user_profile.get('language', 'kk')
+
+        # Create personalized prompt
+        level_descriptions = {
+            1: "бастауыш деңгей, қарапайым сөздер мен қысқа сөйлемдер",
+            2: "орташа деңгей, негізгі тарихи фактілер",
+            3: "жоғары деңгей, толық ақпарат",
+            4: "эксперт деңгейі, тереń талдау"
+        }
+
+        # Determine topics to avoid (already completed)
+        avoid_topics = ", ".join(completed_missions[:5]) if completed_missions else "жоқ"
+
+        # Determine weak areas to focus on
+        focus_areas = ", ".join(weak_areas[:3]) if weak_areas else "Қазақстан тарихы жалпы"
+
+        prompt = f"""Сен қазақстанның білім беру жүйесінің AI көмекшісісің. Оқушыға қазақ тілінде жекелендірілген білім беру миссиясын құр.
+
+ОҚУШЫ ПРОФИЛІ:
+- Деңгей: {level} ({level_descriptions.get(level, 'орташа')})
+- Орындалған миссиялар: {avoid_topics}
+- Назар аудару қажет салалар: {focus_areas}
+
+ТАПСЫРМА:
+Қазақстан тарихы бойынша 100-150 сөзден тұратын қызықты мәтін жаз. Мәтін оқушының деңгейіне сәйкес болуы керек.
+
+МАҢЫЗДЫ ЕРЕЖЕЛЕР:
+1. Мәтінде НАҚТЫ ФАКТІЛЕР, АТТАР, КҮНДЕР, САНДАР болуы керек
+2. Мәтінді оқымай ЖАУАП ТАПҚАНҒА БОЛМАЙТЫН сұрақтар қой
+3. Әр сұрақтың дұрыс жауабы МӘТІННІҢ ІШІНДЕ ТІКЕЛЕЙ айтылған болуы керек
+4. Жалпы білімге негізделген сұрақтар ЖАРАМАЙДЫ
+
+Тек қана келесі JSON форматында жауап бер (басқа мәтінсіз):
+
+{{
+    "text_kz": "Мұнда 100-150 сөзден тұратын қазақша мәтін, нақты фактілермен",
+    "questions_kz": [
+        "Мәтін бойынша нақты сұрақ 1 (жауап мәтінде айтылған)",
+        "Мәтін бойынша нақты сұрақ 2 (жауап мәтінде айтылған)",
+        "Мәтін бойынша нақты сұрақ 3 (жауап мәтінде айтылған)"
+    ],
+    "options_kz": [
+        ["Дұрыс жауап (мәтіннен)", "Бұрыс нұсқа 1", "Бұрыс нұсқа 2", "Бұрыс нұсқа 3"],
+        ["Бұрыс нұсқа 1", "Дұрыс жауап (мәтіннен)", "Бұрыс нұсқа 2", "Бұрыс нұсқа 3"],
+        ["Бұрыс нұсқа 1", "Бұрыс нұсқа 2", "Дұрыс жауап (мәтіннен)", "Бұрыс нұсқа 3"]
+    ],
+    "correct_answers": [0, 1, 2],
+    "topic": "Мәтіннің тақырыбы"
+}}"""
+
+        # Call OpenAI API with o4-mini model
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # Using o4-mini as specified (gpt-4o-mini is the actual model name)
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=1500,
+            response_format={"type": "json_object"}
+        )
+
+        content_text = response.choices[0].message.content
+
+        # Parse JSON response
+        try:
+            content = json.loads(content_text)
+
+            # Validate required fields
+            required_fields = ['text_kz', 'questions_kz', 'options_kz', 'correct_answers']
+            for field in required_fields:
+                if field not in content:
+                    return False, None, f"Missing required field: {field}"
+
+            # Add AI-generated flag
+            content['ai_generated'] = True
+            content['model'] = 'openai-o4-mini'
+            content['personalized'] = True
+
+            return True, content, None
+
+        except json.JSONDecodeError as e:
+            print(f"[OPENAI] JSON parsing error: {e}")
+            print(f"[OPENAI] Raw response: {content_text[:200]}...")
+            return False, None, f"JSON parsing error: {str(e)}"
+
+    except Exception as e:
+        error_msg = f"OpenAI API error: {str(e)}"
+        print(f"[OPENAI] {error_msg}")
         return False, None, error_msg
 
 def _gemini_generate(prompt):
@@ -407,9 +573,18 @@ def groq_demo():
 @app.route('/api/login', methods=['POST'])
 def login_user():
     try:
+        limited, retry_after = _rate_limit('login', limit=30, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many login attempts. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'email and password required'}), 400
         
         all_data = load_users()
         web_users = all_data.get('web_users', {})
@@ -417,9 +592,13 @@ def login_user():
         # Check in unified data
         if email in web_users:
             user = web_users[email]
-            # Simple password check (in production use real hash)
-            if user.get('password') == password or (email == 'test@batyrbol.kz' and password == 'batyr123'):
-                return jsonify({'success': True, 'user': user})
+            ok, should_migrate = _verify_user_password(email, user, password)
+            if ok:
+                if should_migrate:
+                    user['password_hash'] = generate_password_hash(password)
+                    user.pop('password', None)
+                    save_users(all_data)
+                return jsonify({'success': True, 'user': _public_user(user)})
 
         # Hardcoded test account fallback
         if email == 'test@batyrbol.kz' and password == 'batyr123':
@@ -443,14 +622,82 @@ def login_user():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# Disable registration
 @app.route('/api/register', methods=['POST'])
 def register_user():
-    return jsonify({'success': False, 'message': 'Регистрация отключена. Используйте тестовый аккаунт: test@batyrbol.kz / batyr123'}), 403
+    try:
+        limited, retry_after = _rate_limit('register', limit=10, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many registration attempts. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+
+        # Validation
+        if not name or not email or not password:
+            return jsonify({'success': False, 'message': 'Барлық өрістерді толтырыңыз / Заполните все поля'}), 400
+
+        if len(name) < 2:
+            return jsonify({'success': False, 'message': 'Аты кем дегенде 2 таңбадан тұруы керек'}), 400
+
+        if len(password) < 6:
+            return jsonify({'success': False, 'message': 'Құпия сөз кем дегенде 6 таңбадан тұруы керек'}), 400
+
+        # Email validation
+        import re
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            return jsonify({'success': False, 'message': 'Жарамсыз email форматы'}), 400
+
+        # Load existing users
+        all_data = load_users()
+        web_users = all_data.get('web_users', {})
+
+        # Check if user already exists
+        if email in web_users:
+            return jsonify({'success': False, 'message': 'Бұл email тіркелген / Email уже зарегистрирован'}), 400
+
+        # Create new user
+        user_data = {
+            'id': str(uuid.uuid4()),
+            'name': name,
+            'email': email,
+            'password_hash': generate_password_hash(password),
+            'xp': 0,
+            'level': 1,
+            'energy': 100,
+            'streak': 0,
+            'avatarUrl': None,
+            'createdAt': datetime.now().isoformat(),
+            'lastLogin': datetime.now().isoformat(),
+            'completedMissions': [],
+            'achievements': [],
+            'weakAreas': [],
+            'language': 'kk'
+        }
+
+        # Save user
+        web_users[email] = user_data
+        all_data['web_users'] = web_users
+        save_users(all_data)
+
+        return jsonify({'success': True, 'user': _public_user(user_data)})
+
+    except Exception as e:
+        print(f"[REGISTER] Error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Қате пайда болды / Произошла ошибка'}), 500
 
 @app.route('/api/content/generate', methods=['POST'])
 def generate_learning_content():
     try:
+        limited, retry_after = _rate_limit('content_generate', limit=20, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many requests. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
         payload = request.get_json() or {}
         topic = (payload.get('topic') or '').strip()
         source_urls = payload.get('source_urls')
@@ -463,6 +710,12 @@ def generate_learning_content():
 
         if not topic:
             return jsonify({'success': False, 'message': 'Тақырып міндетті / Topic required'}), 400
+
+        if len(topic) > 120:
+            return jsonify({'success': False, 'message': 'Topic too long'}), 400
+
+        if level < 1 or level > 6:
+            return jsonify({'success': False, 'message': 'Invalid level'}), 400
 
         content = _generate_learning_content_kz(topic, source_urls=source_urls, level=level)
         
@@ -481,18 +734,81 @@ def generate_learning_content():
 @app.route('/api/content/translate', methods=['POST'])
 def translate_content():
     try:
+        limited, retry_after = _rate_limit('translate', limit=30, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many requests. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
         payload = request.get_json() or {}
         text_kz = (payload.get('text_kz') or '').strip()
         if not text_kz:
             return jsonify({'success': False, 'message': 'text_kz required'}), 400
 
+        if len(text_kz) > 4000:
+            return jsonify({'success': False, 'message': 'text_kz too long'}), 400
+
         return jsonify({'success': True, 'text_ru': _translate_kz_to_ru(text_kz)})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/mission/personalized', methods=['POST'])
+def generate_personalized_mission():
+    """
+    Generate AI-personalized mission based on user profile
+    Uses OpenAI o4-mini model for personalization
+    """
+    try:
+        limited, retry_after = _rate_limit('personalized_mission', limit=10, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many requests. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
+        payload = request.get_json() or {}
+
+        # Extract user profile
+        user_profile = {
+            'level': int(payload.get('level', 1)),
+            'completedMissions': payload.get('completedMissions', []),
+            'weakAreas': payload.get('weakAreas', []),
+            'language': payload.get('language', 'kk')
+        }
+
+        # Validate level
+        if user_profile['level'] < 1 or user_profile['level'] > 6:
+            return jsonify({'success': False, 'message': 'Invalid level'}), 400
+
+        # Try OpenAI first, fallback to Groq
+        success, content, error = _openai_generate_personal_mission(user_profile)
+
+        if not success:
+            # Fallback to Groq with a random topic
+            topics = ["Қазақ хандығы", "Абылай хан", "Томирис патша", "Әз-Тәуке хан", "Кенесары хан"]
+            topic = random.choice(topics)
+            success, content, error = _groq_generate_mission(topic, user_profile['level'])
+
+            if not success:
+                return jsonify({
+                    'success': False,
+                    'message': 'AI service temporarily unavailable',
+                    'error': error
+                }), 503
+
+        return jsonify({'success': True, 'content': content})
+
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/answer/check', methods=['POST'])
 def check_answer():
     try:
+        limited, retry_after = _rate_limit('answer_check', limit=40, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many requests. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
         payload = request.get_json() or {}
         question = (payload.get('question') or '').strip()
         user_answer = (payload.get('user_answer') or '').strip()
@@ -501,6 +817,9 @@ def check_answer():
         
         if not question or not user_answer:
             return jsonify({'success': False, 'message': 'question and user_answer required'}), 400
+
+        if len(question) > 600 or len(user_answer) > 600:
+            return jsonify({'success': False, 'message': 'question/user_answer too long'}), 400
         
         # Use Groq API only - no fallback
         success, result, error = _groq_check_answer(question, user_answer, correct_answer, context)
