@@ -49,7 +49,7 @@ class AuthManager {
                 this.updateUI();
                 
                 // Redirect to game
-                window.location.href = '/game';
+                window.location.href = '/igra.html';
                 
                 return { success: true };
             } else {
