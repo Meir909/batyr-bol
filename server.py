@@ -625,6 +625,10 @@ def health():
 def game():
     return send_from_directory('.', 'igra.html')
 
+@app.route('/mission')
+def mission():
+    return send_from_directory('.', 'mission.html')
+
 @app.route('/groq-demo')
 def groq_demo():
     return send_from_directory('.', 'groq_demo.html')
