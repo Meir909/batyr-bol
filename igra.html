@@ -1010,6 +1010,26 @@
       } catch (err) { showMessage(err.message, 'error'); }
     }
 
+    // Character Selection Functions
+    function openCharacterSelection() {
+      document.getElementById('character-modal').classList.remove('hidden');
+    }
+
+    function closeCharacterModal() {
+      document.getElementById('character-modal').classList.add('hidden');
+    }
+
+    function selectCharacter(character) {
+      // Save selected character to localStorage
+      localStorage.setItem('selectedCharacter', character);
+      
+      // Close modal
+      closeCharacterModal();
+      
+      // Redirect to mission page
+      window.location.href = '/mission';
+    }
+
     // Initialize
     let achievementsInstance = null;
 
@@ -1041,3 +1061,76 @@
 </body>
 
 </html>
+
+<!-- Character Selection Modal -->
+<div id="character-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 hidden">
+  <div class="glass rounded-2xl max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-white mb-4">
+        <span class="lang-ru">Выберите персонажа</span>
+        <span class="lang-kz">Персонажды таңдаңыз</span>
+      </h2>
+      <p class="text-zinc-400">
+        <span class="lang-ru">Каждый персонаж предлагает уникальные миссии</span>
+        <span class="lang-kz">Әрбір персонаж ерекше миссиялар ұсынады</span>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Абылай хан -->
+      <div onclick="selectCharacter('Абылай хан')" class="character-card bg-gradient-to-br from-amber-900/20 to-amber-700/20 border border-amber-500/30 rounded-xl p-6 cursor-pointer hover:border-amber-400/60 transition-all hover:scale-105">
+        <div class="text-center">
+          <div class="text-6xl mb-4">⚔️</div>
+          <h3 class="text-xl font-bold text-amber-400 mb-2">Абылай хан</h3>
+          <p class="text-zinc-300 text-sm mb-4">
+            <span class="lang-ru">Великий хан, объединивший казахские земли</span>
+            <span class="lang-kz">Ұлы хан, қазақ жерлерін біріктірген</span>
+          </p>
+          <div class="text-xs text-zinc-400">
+            <span class="lang-ru">Военные стратегии и дипломатия</span>
+            <span class="lang-kz">Әскери стратегиялар және дипломатия</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Абай -->
+      <div onclick="selectCharacter('Абай')" class="character-card bg-gradient-to-br from-blue-900/20 to-blue-700/20 border border-blue-500/30 rounded-xl p-6 cursor-pointer hover:border-blue-400/60 transition-all hover:scale-105">
+        <div class="text-center">
+          <div class="text-6xl mb-4">📚</div>
+          <h3 class="text-xl font-bold text-blue-400 mb-2">Абай</h3>
+          <p class="text-zinc-300 text-sm mb-4">
+            <span class="lang-ru">Великий поэт и философ</span>
+            <span class="lang-kz">Ұлы ақын және философ</span>
+          </p>
+          <div class="text-xs text-zinc-400">
+            <span class="lang-ru">Литература и мудрость</span>
+            <span class="lang-kz">Әдебиет және даналық</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Айтеке би -->
+      <div onclick="selectCharacter('Айтеке би')" class="character-card bg-gradient-to-br from-green-900/20 to-green-700/20 border border-green-500/30 rounded-xl p-6 cursor-pointer hover:border-green-400/60 transition-all hover:scale-105">
+        <div class="text-center">
+          <div class="text-6xl mb-4">⚖️</div>
+          <h3 class="text-xl font-bold text-green-400 mb-2">Айтеке би</h3>
+          <p class="text-zinc-300 text-sm mb-4">
+            <span class="lang-ru">Мудрый судья и бий</span>
+            <span class="lang-kz">Данышпан би және судья</span>
+          </p>
+          <div class="text-xs text-zinc-400">
+            <span class="lang-ru">Справедливость и право</span>
+            <span class="lang-kz">Әділдік және құқық</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center gap-4">
+      <button onclick="closeCharacterModal()" class="px-6 py-3 border border-zinc-600 text-zinc-300 font-medium rounded-xl hover:bg-zinc-800 transition-colors">
+        <span class="lang-ru">Отмена</span>
+        <span class="lang-kz">Бас тарту</span>
+      </button>
+    </div>
+  </div>
+</div>

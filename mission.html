@@ -224,9 +224,10 @@
         });
 
         function loadGameState() {
-            // Load from localStorage or URL params
-            const urlParams = new URLSearchParams(window.location.search);
-            gameState.character = urlParams.get('character') || 'Абылай хан';
+            // Load selected character from localStorage
+            const selectedCharacter = localStorage.getItem('selectedCharacter');
+            gameState.character = selectedCharacter || 'Абылай хан';
+            
             gameState.level = parseInt(localStorage.getItem('playerLevel') || '1');
             gameState.previousMissions = JSON.parse(localStorage.getItem('previousMissions') || '[]');
             
