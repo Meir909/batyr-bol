@@ -1016,10 +1016,15 @@
       if (!target) return showMessage('Введите имя или email', 'error');
 
       try {
+        // Get email from localStorage or gameIntegration
+        const userEmail = window.gameIntegration?.userProfile?.email ||
+                         JSON.parse(localStorage.getItem('batyrbol_user'))?.email ||
+                         'unknown@example.com';
+
         const resp = await fetch('/api/duels/challenge', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: window.gameIntegration.userProfile.email, to: target })
+          body: JSON.stringify({ from: userEmail, to: target })
         });
         const data = await resp.json();
         if (data.success) {
@@ -1092,10 +1097,15 @@
       if (!name) return showMessage('Введите название клана', 'error');
 
       try {
+        // Get email from localStorage or gameIntegration
+        const userEmail = window.gameIntegration?.userProfile?.email ||
+                         JSON.parse(localStorage.getItem('batyrbol_user'))?.email ||
+                         'unknown@example.com';
+
         const resp = await fetch('/api/clans/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: window.gameIntegration.userProfile.email, name })
+          body: JSON.stringify({ email: userEmail, name })
         });
         const data = await resp.json();
         if (data.success) {
@@ -1400,7 +1410,9 @@
       // Check for saved session
       const savedUser = localStorage.getItem('batyrbol_user');
       if (savedUser) {
-        window.gameIntegration.showGameScreen();
+        // DISABLED: Using new mission system instead of old gameIntegration
+        // window.gameIntegration.showGameScreen();
+        console.log('User logged in, ready to play');
       }
 
       setTimeout(updateStats, 500);
