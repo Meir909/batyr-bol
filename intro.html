@@ -1,4 +1,14 @@
 <html lang="ru"><head>
+    <script>
+        // Navigate to game function - MUST BE DEFINED EARLY!
+        function navigateToGame(e) {
+            e.preventDefault();
+            console.log('🎮 Navigating to igra.html...');
+            window.location.href = '/igra.html';
+            return false;
+        }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BATYR BOL - Learn History Through Play</title>
@@ -1046,14 +1056,6 @@
     </footer>
 
     <script>
-        // Navigate to game function
-        function navigateToGame(e) {
-            e.preventDefault();
-            console.log('🎮 Navigating to igra.html...');
-            window.location.href = '/igra.html';
-            return false;
-        }
-
         // Language Switcher Logic
         function switchLanguage(lang) {
             console.log('Switching language to:', lang);
