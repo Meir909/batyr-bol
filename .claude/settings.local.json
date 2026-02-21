@@ -8,7 +8,8 @@
       "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\FINAL_REPORT.txt\":*)",
       "Bash(ls -lh \"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\{\"*.js,\"*.md,\"*.yaml,\"*.example\"})",
       "Bash(python -m py_compile:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(curl:*)"
     ]
   }
 }
