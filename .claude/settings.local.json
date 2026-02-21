@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\.env.example\":*)",
+      "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\render.yaml\":*)",
+      "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\FINAL_REPORT.txt\":*)",
+      "Bash(ls -lh \"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\{\"*.js,\"*.md,\"*.yaml,\"*.example\"})"
     ]
   }
 }

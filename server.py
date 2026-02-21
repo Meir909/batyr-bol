@@ -48,6 +48,9 @@ CORS(app)  # Enable CORS for all routes
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 app.config['SESSION_TIMEOUT'] = 24 * 60 * 60  # 24 hours in seconds
 
+# OpenAI API Key (для генерации сценариев)
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+
 # Data storage
 data_file = 'unified_users.json'
 
@@ -339,7 +342,7 @@ def _groq_generate_mission(topic, level=1):
 
 def _openai_generate_personal_mission(user_profile):
     """
-    Generate personalized mission using OpenAI API (o4-mini model)
+    Generate personalized mission using OpenAI API (gpt-4o-mini model)
     Takes user profile with: level, completedMissions, weakAreas, language
     Returns: (success, content, error_message)
     """
@@ -347,7 +350,7 @@ def _openai_generate_personal_mission(user_profile):
         return False, None, "OpenAI module not available"
 
     try:
-        openai_api_key = os.getenv('OPENAI_API_KEY', '').strip()
+        openai_api_key = OPENAI_API_KEY
         if not openai_api_key or openai_api_key == 'your_openai_api_key_here':
             return False, None, "OpenAI API key not configured"
 
@@ -474,6 +477,83 @@ def _gemini_generate(prompt):
             ],
             "sources": []
         })
+
+def _get_fallback_scenario(character, scenario_number, language='kk'):
+    """
+    Get fallback scenario when AI generation fails
+    """
+    fallbacks = {
+        'Абылай хан': [
+            {
+                'scenario': 1,
+                'text': 'Жоңғар сарбаздары қазақ жерінің шегіне жақындады. Ата-баба қорғау үшін не істеу керек?' if language == 'kk' else 'Джунгарские войска приблизились к границам. Как защитить земли предков?',
+                'options': [
+                    {'id': 'A', 'text': 'Тез атақ жасау' if language == 'kk' else 'Немедленно атаковать', 'isCorrect': False},
+                    {'id': 'B', 'text': 'Үш жүздің барлығын біліктестіру' if language == 'kk' else 'Объединить три жуза', 'isCorrect': True},
+                    {'id': 'C', 'text': 'Түгелтеп іле шығу' if language == 'kk' else 'Отступить', 'isCorrect': False},
+                    {'id': 'D', 'text': 'Орыстарға көмек сұрау' if language == 'kk' else 'Попросить помощь у русских', 'isCorrect': False}
+                ],
+                'correctAnswer': 'B',
+                'wrongConsequence': 'Айдап күрес жеңіліске ұласты. Жоңғарлар қазақ топтарын бөлік-бөлік ұрды.' if language == 'kk' else 'Спешная атака привела к поражению. Джунгары разбили разрозненные казахские отряды.',
+                'correctConsequence': 'Үш жүзді біріктіре отырып, сіз қүшті әскер құрдыңыз. Жоңғарларға қарсы айтадай жеңіс!' if language == 'kk' else 'Объединив три жуза, вы создали мощное войско. Победа над джунгарами!',
+                'historicalContext': 'Абылай хан бірлік арқылы күшті әскер құру стратегиясын қолданды.' if language == 'kk' else 'Абылай хан использовал стратегию объединения для создания сильного войска.',
+                'nextScenarioSetup': 'Үш жүз қосылса, әрі де басқа проблемалар туындайды...'
+            },
+            {
+                'scenario': 2,
+                'text': 'Жүс ішінде жатысуы болды, әділіксіз өлімдер болды. Халықты ішінара біріктіруді қалай сақталу керек?' if language == 'kk' else 'Внутри жузов были конфликты. Как поддержать единство перед лицом врага?',
+                'options': [
+                    {'id': 'A', 'text': 'Ең күшті Node-ге құл бер' if language == 'kk' else 'Подчиниться сильнейшему', 'isCorrect': False},
+                    {'id': 'B', 'text': 'Прави-ші бий өндіктіррер сот құр' if language == 'kk' else 'Созвать совет биев для разрешения конфликтов', 'isCorrect': True},
+                    {'id': 'C', 'text': 'Ешкімге көмек көрсетпе' if language == 'kk' else 'Не вмешиваться во внутренние дела', 'isCorrect': False},
+                    {'id': 'D', 'text': 'Қауіпті адамдарды айырп тастау' if language == 'kk' else 'Изгнать смутьянов', 'isCorrect': False}
+                ],
+                'correctAnswer': 'B',
+                'wrongConsequence': 'Дау Продолжить қалып, әскер қарсы өндіктіларсы төрт жүзіне бөлінді.' if language == 'kk' else 'Конфликты продолжились, и армия ослабла перед врагом.',
+                'correctConsequence': 'Бий совет объединил өндіктіларды әділік аргументі арқылы. Халық біліктер! Әскер дайындалды!' if language == 'kk' else 'Совет биев объединил людей справедливостью. Народ готов! Армия подготовлена!',
+                'historicalContext': 'Абылай хан биев институтын қолдана отырып, немінде келген сағын істеді.' if language == 'kk' else 'Абылай хан использовал институт биев для единства.',
+                'nextScenarioSetup': 'Әскер дайындалды. Бірақ ақырында жоңғарлармен өндіктіпарлар жақындалды...'
+            }
+        ],
+        'Абай Кунанбаев': [
+            {
+                'scenario': 1,
+                'text': 'Жас балалар сөз сөйлеу әнерін үйренгісі келеді. Аларға не үйретесіз?' if language == 'kk' else 'Молодые люди хотят научиться красивой речи. Как их обучить?',
+                'options': [
+                    {'id': 'A', 'text': 'Ескі өлеңдерді оқы' if language == 'kk' else 'Читать старые стихи', 'isCorrect': False},
+                    {'id': 'B', 'text': 'Өздік өлең жазуды үйрет' if language == 'kk' else 'Учить писать собственные стихи', 'isCorrect': True},
+                    {'id': 'C', 'text': 'Басқа іс істеуге ықылас бер' if language == 'kk' else 'Позволить заняться другим', 'isCorrect': False},
+                    {'id': 'D', 'text': 'Шетел әдебиетін оқы' if language == 'kk' else 'Читать иностранную литературу', 'isCorrect': False}
+                ],
+                'correctAnswer': 'B',
+                'wrongConsequence': 'Ескі өлеңдерді қайталап жүргеніңіз балалардың шығармашылығын тоқтатты. Олар ешкімге ұқсамасса өлеңдер жаза алмады.' if language == 'kk' else 'Повторение старых стихов не развивает творчество. Молодежь не может создавать свои произведения.',
+                'correctConsequence': 'Өз сөздерімен өлең жазуды үйретіңіз - балалар шығармашыл болды! Өндіктіпарлар өндіктіпарлар түрінде қайта ойлау басталады.' if language == 'kk' else 'Обучая писать собственные стихи, вы развиваете их творчество. Молодежь начинает оригинально мыслить!',
+                'historicalContext': 'Абай өздік шығармашылықты түлектіге үйреді, ол қазақ әдебиетінің сәні болды.' if language == 'kk' else 'Абай учил ученикам самостоятельному творчеству, что стало основой казахской литературы.',
+                'nextScenarioSetup': 'Балалар өлең жаза барлығына балалық та бұлай ілінді...'
+            }
+        ],
+        'Айтеке би': [
+            {
+                'scenario': 1,
+                'text': 'Екі саудагер өнімділік туралы дауласып жатыр. Сіз әділ сот ете аласыз ба?' if language == 'kk' else 'Два купца спорят о товаре. Как разрешить этот спор справедливо?',
+                'options': [
+                    {'id': 'A', 'text': 'Күшілі тарапқа құқық бер' if language == 'kk' else 'Дать право более сильному', 'isCorrect': False},
+                    {'id': 'B', 'text': 'Екеуінің де сөзін тыңда' if language == 'kk' else 'Выслушать обе стороны', 'isCorrect': True},
+                    {'id': 'C', 'text': 'Ешкімге байланыстырма' if language == 'kk' else 'Не разбираться в спорах', 'isCorrect': False},
+                    {'id': 'D', 'text': 'Ысқақ төңнег өлеңін' if language == 'kk' else 'Призвать свидетелей', 'isCorrect': False}
+                ],
+                'correctAnswer': 'B',
+                'wrongConsequence': 'Біржақтап сот істесеңіз, халық сізге күмәнеді. Өндіктіпарлар өндіктіпарлар секе міндеттерді істей қоймайды.' if language == 'kk' else 'Несправедливое решение подрывает доверие народа. Люди перестанут обращаться к вам с делами.',
+                'correctConsequence': 'Екеуінің де сөзін тыңдау арқылы сіз әділ шешім қабылдадыңыз. Халық сіздің даналығына мойындау жасады және өндіктіпарлар сіздің сотын сезінді.' if language == 'kk' else 'Выслушав обе стороны, вы вынесли справедливое решение. Народ уважает вашу мудрость!',
+                'historicalContext': 'Айтеке би әділік жеті жарғыда айтылғандай әділік арқылы халық өндіктіпарларын сақтады.' if language == 'kk' else 'Айтеке би, как установлено в Жеті Жарғы, разрешал споры справедливо.',
+                'nextScenarioSetup': 'Әділ сот өндіктіпарлар түліктіне ықдай, түліктіктелік өндіктіпарлар келіді...'
+            }
+        ]
+    }
+
+    character_fallbacks = fallbacks.get(character, fallbacks['Абылай хан'])
+    return character_fallbacks[min(scenario_number - 1, len(character_fallbacks) - 1)]
+
 
 def _get_fallback_mission(topic):
     fallback_content = {
@@ -1090,6 +1170,104 @@ def translate_content():
         return jsonify({'success': True, 'text_ru': _translate_kz_to_ru(text_kz)})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/mission/generate-scenario', methods=['POST'])
+def generate_scenario():
+    """
+    Generate a single scenario for a mission using OpenAI
+    Used by mission_generator.js
+    """
+    try:
+        limited, retry_after = _rate_limit('scenario_generation', limit=30, window_seconds=60)
+        if limited:
+            return jsonify({'success': False, 'message': 'Too many requests. Try again later.'}), 429, {
+                'Retry-After': str(retry_after)
+            }
+
+        payload = request.get_json() or {}
+
+        character = payload.get('character', '').strip()
+        level = int(payload.get('level', 1))
+        scenario_number = int(payload.get('scenarioNumber', 1))
+        prompt = payload.get('prompt', '')
+        language = payload.get('language', 'kk')
+
+        if not character or not prompt:
+            return jsonify({'success': False, 'message': 'character and prompt required'}), 400
+
+        # Call OpenAI API
+        try:
+            if not OPENAI_AVAILABLE:
+                return jsonify({
+                    'success': False,
+                    'message': 'OpenAI module not available'
+                }), 503
+
+            openai_api_key = OPENAI_API_KEY
+            if not openai_api_key or openai_api_key == 'your_openai_api_key_here':
+                return jsonify({
+                    'success': False,
+                    'message': 'OpenAI API key not configured'
+                }), 503
+
+            client = OpenAI(api_key=openai_api_key)
+
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "Ты - эксперт по казахской истории и создатель интерактивных образовательных игр. Отвечай ТОЛЬКО валидным JSON, без markdown или пояснений."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.7,
+                max_tokens=2000,
+                response_format={"type": "json_object"}
+            )
+
+            content_text = response.choices[0].message.content.strip()
+
+            # Parse JSON response
+            try:
+                scenario = json.loads(content_text)
+
+                # Validate required fields
+                required_fields = ['scenario', 'text', 'options', 'correctAnswer', 'wrongConsequence', 'correctConsequence']
+                for field in required_fields:
+                    if field not in scenario:
+                        # Return fallback
+                        return jsonify({
+                            'success': True,
+                            'scenario': _get_fallback_scenario(character, scenario_number, language),
+                            'fallback': True
+                        })
+
+                return jsonify({'success': True, 'scenario': scenario})
+
+            except json.JSONDecodeError as e:
+                print(f"[SCENARIO] JSON parsing error: {e}")
+                return jsonify({
+                    'success': True,
+                    'scenario': _get_fallback_scenario(character, scenario_number, language),
+                    'fallback': True
+                })
+
+        except Exception as e:
+            print(f"[SCENARIO] OpenAI error: {str(e)}")
+            return jsonify({
+                'success': True,
+                'scenario': _get_fallback_scenario(character, scenario_number, language),
+                'fallback': True
+            })
+
+    except Exception as e:
+        print(f"[SCENARIO] Generation error: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 
 @app.route('/api/mission/personalized', methods=['POST'])
 def generate_personalized_mission():
