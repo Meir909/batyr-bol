@@ -183,7 +183,7 @@ class GameEngine {
                     </div>
                 </div>
                 
-                <button onclick="window.gameIntegration && window.gameIntegration.getMissions()" class="px-8 py-4 btn-primary rounded-2xl font-semibold text-lg">
+                <button onclick="typeof openCharacterSelection !== 'undefined' ? openCharacterSelection() : alert('Mission system not loaded')" class="px-8 py-4 btn-primary rounded-2xl font-semibold text-lg">
                     ${this.language === 'kz' ? 'Миссияны бастау' : 'Начать миссию'}
                 </button>
             </div>
@@ -855,7 +855,7 @@ class GameEngine {
                     </div>
                 </div>
                 
-                <button onclick="window.gameIntegration && window.gameIntegration.getMissions()" class="px-8 py-4 btn-primary rounded-2xl font-semibold text-lg flex items-center gap-3 mx-auto">
+                <button onclick="typeof openCharacterSelection !== 'undefined' ? openCharacterSelection() : alert('Mission system not loaded')" class="px-8 py-4 btn-primary rounded-2xl font-semibold text-lg flex items-center gap-3 mx-auto">
                     <iconify-icon icon="lucide:arrow-right" width="20"></iconify-icon>
                     ${this.language === 'kz' ? 'Келесі миссия' : 'Следующая миссия'}
                 </button>
