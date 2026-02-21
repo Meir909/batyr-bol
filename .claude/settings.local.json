@@ -6,7 +6,9 @@
       "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\.env.example\":*)",
       "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\render.yaml\":*)",
       "Bash(\"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\FINAL_REPORT.txt\":*)",
-      "Bash(ls -lh \"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\{\"*.js,\"*.md,\"*.yaml,\"*.example\"})"
+      "Bash(ls -lh \"c:\\\\Users\\\\nurmi\\\\OneDrive\\\\Desktop\\\\infomatrix\\\\BATYR BOL\\\\{\"*.js,\"*.md,\"*.yaml,\"*.example\"})",
+      "Bash(python -m py_compile:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
