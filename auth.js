@@ -50,7 +50,9 @@ class AuthManager {
                     window.location.href = '/game';
                 }
             } else {
-                this.showSessionExpiredModal();
+                // DISABLED: Don't show session expired modal
+                // this.showSessionExpiredModal();
+                console.log('Session invalid - user can login on page');
             }
         } catch (error) {
             console.error('Session check failed:', error);
