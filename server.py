@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 import json
 import hashlib
-import uuid
+import sys
 import re
 import random
 from html.parser import HTMLParser
@@ -17,6 +17,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import threading
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+
+# Try to import uuid, fallback to simple string generator if not available
+try:
+    import uuid
+    def generate_uuid():
+        return str(uuid.uuid4())
+except ImportError:
+    import random
+    import string
+    def generate_uuid():
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
 
 # Safe import for groq
 try:
@@ -51,7 +62,7 @@ sessions = {}
 
 def generate_session_id():
     """Generate a secure session ID"""
-    return str(uuid.uuid4())
+    return generate_uuid()
 
 def is_session_valid(session_id):
     """Check if session is valid and not expired"""
@@ -793,7 +804,7 @@ def register_user():
 
         # Create new user
         user_data = {
-            'id': str(uuid.uuid4()),
+            'id': generate_uuid(),
             'name': name,
             'email': email,
             'password_hash': generate_password_hash(password),
