@@ -8,56 +8,19 @@ class AuthManager {
     }
 
     init() {
-        // Check session on initialization
-        this.checkSession();
-        
-        // Set up periodic session validation (every 5 minutes)
-        this.checkInterval = setInterval(() => {
-            this.checkSession();
-        }, 5 * 60 * 1000);
+        // DISABLED: Don't check session on initialization
+        // this.checkSession();
+
+        // DISABLED: Don't set up periodic session validation
+        // this.checkInterval = setInterval(() => {
+        //     this.checkSession();
+        // }, 5 * 60 * 1000);
     }
 
     async checkSession() {
-        if (!this.sessionId) {
-            // On igra.html, allow to continue without session (show login form)
-            if (window.location.pathname.endsWith('igra.html')) {
-                console.log('No session on igra.html - user can login on page');
-                return;
-            }
-            this.redirectToLanding();
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/check-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    session_id: this.sessionId
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.valid) {
-                this.currentUser = data.user;
-                this.updateUI();
-                
-                // If we're on landing page, redirect to game
-                if (window.location.pathname === '/' || window.location.pathname.endsWith('intro.html')) {
-                    window.location.href = '/game';
-                }
-            } else {
-                // DISABLED: Don't show session expired modal
-                // this.showSessionExpiredModal();
-                console.log('Session invalid - user can login on page');
-            }
-        } catch (error) {
-            console.error('Session check failed:', error);
-            this.redirectToLanding();
-        }
+        // DISABLED: Session checking removed - no periodic validation
+        console.log('Session check disabled - skipping validation');
+        return;
     }
 
     async login(email, password) {
