@@ -16,10 +16,14 @@
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
   <script src="auth.js"></script>
   <script src="achievements.js"></script>
+  <!-- DISABLED: These files don't exist and cause 404 errors
   <script src="daily_rewards.js"></script>
   <script src="leaderboard.js"></script>
   <script src="user_stats.js"></script>
+  -->
+  <!-- DISABLED: voice_recognition.js not available
   <script src="voice_recognition.js"></script>
+  -->
   <script src="game_integration.js"></script>
   <script src="game_engine.js"></script>
   <script src="mission_generator.js"></script>
@@ -438,8 +442,12 @@
                 <span class="lang-kz">Күнделікті сыйлық</span>
               </span>
             </button>
-            <button onclick="leaderboard.showLeaderboardModal()"
+            <!-- DISABLED: leaderboard.js not available
+            <button onclick="leaderboard && leaderboard.showLeaderboardModal && leaderboard.showLeaderboardModal()"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            -->
+            <button onclick="alert('Лидерборд временно недоступен / Leaderboard coming soon')"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left opacity-50">
               <iconify-icon icon="lucide:trophy" class="text-gold-400" width="20"></iconify-icon>
               <span class="text-white text-sm font-medium">
                 <span class="lang-ru">Лидерборд</span>
