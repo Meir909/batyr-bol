@@ -7,9 +7,35 @@ services:
     startCommand: python server.py
     healthCheckPath: /health
     envVars:
+      # Python Configuration
       - key: PYTHON_VERSION
         value: 3.9.0
       - key: HOST
         value: 0.0.0.0
       - key: PORT
         value: 8000
+      
+      # Flask Configuration
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+        sync: false
+      
+      # API Keys (add your actual keys here)
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      
+      # Database Configuration
+      - key: DATABASE_URL
+        value: sqlite:///unified_users.json
+      
+      # Debug Configuration
+      - key: DEBUG
+        value: false
