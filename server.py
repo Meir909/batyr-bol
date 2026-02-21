@@ -21,13 +21,17 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 # Try to import uuid, fallback to simple string generator if not available
 try:
     import uuid
-    def generate_uuid():
+    def _generate_uuid():
         return str(uuid.uuid4())
 except ImportError:
     import random
     import string
-    def generate_uuid():
+    def _generate_uuid():
         return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+
+def generate_uuid():
+    """Generate a unique ID for sessions and users"""
+    return _generate_uuid()
 
 # Safe import for groq
 try:
