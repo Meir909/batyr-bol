@@ -202,8 +202,8 @@
 
             <!-- CTA Buttons -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
-                <a href="igra.html" class="px-8 py-3 bg-white text-black font-medium rounded-full hover:scale-105 transition-transform glow-on-hover">
-                    <span class="flex items-center gap-2">
+                <a href="igra.html" class="px-8 py-3 bg-white text-black font-medium rounded-full hover:scale-105 transition-transform glow-on-hover block">
+                    <span class="flex items-center gap-2 justify-center">
                         <span class="lang-ru">Начать играть в браузере</span>
                         <span class="lang-kz">Браузерде ойнауды бастау</span>
                         <iconify-icon icon="lucide:play" width="18" height="18" stroke-width="1.5"></iconify-icon>
@@ -1084,6 +1084,21 @@
         // Initialize default state
         document.addEventListener('DOMContentLoaded', function() {
             switchLanguage('kz');
+
+            // Debug: Log button state
+            const playButton = document.querySelector('a[href="igra.html"]');
+            if (playButton) {
+                console.log('✅ Play button found');
+                console.log('Button text:', playButton.innerText);
+                console.log('Button visible:', playButton.offsetParent !== null);
+
+                // Add click logging
+                playButton.addEventListener('click', function(e) {
+                    console.log('✅ Play button clicked!');
+                });
+            } else {
+                console.error('❌ Play button NOT found');
+            }
         });
         
         // Feedback form function
