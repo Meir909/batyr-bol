@@ -22,14 +22,8 @@ services:
         generateValue: true
         sync: false
       
-      # API Keys (add your actual keys here)
+      # OpenAI API Key (for mission generation)
       - key: OPENAI_API_KEY
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: GEMINI_API_KEY
         sync: false
       
       # Database Configuration

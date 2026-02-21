@@ -15,8 +15,6 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import threading
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
 
 # Try to import uuid, fallback to simple string generator if not available
 try:
@@ -32,14 +30,6 @@ except ImportError:
 def generate_uuid():
     """Generate a unique ID for sessions and users"""
     return _generate_uuid()
-
-# Safe import for groq
-try:
-    from groq import Groq
-    GROQ_AVAILABLE = True
-except ImportError:
-    GROQ_AVAILABLE = False
-    print("[WARNING] Groq module not found. Install with: pip install groq")
 
 # Safe import for OpenAI
 try:
