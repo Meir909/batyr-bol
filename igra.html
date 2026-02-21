@@ -856,7 +856,7 @@
         }
       });
 
-      if (window.gameIntegration) {
+      if (window.gameIntegration && window.gameIntegration.userProfile) {
         window.gameIntegration.userProfile.language = lang === 'kz' ? 'kk' : 'ru';
       }
     }
@@ -948,7 +948,7 @@
       const email = document.getElementById('profile-email').value;
       const password = document.getElementById('profile-password').value;
 
-      if (window.gameIntegration) {
+      if (window.gameIntegration && window.gameIntegration.updateUserProfile) {
         try {
           await window.gameIntegration.updateUserProfile(name, email, password);
           document.getElementById('user-name').textContent = name;
@@ -957,6 +957,15 @@
         } catch (err) {
           showMessage(err.message, 'error');
         }
+      } else {
+        // Fallback: update profile in localStorage if gameIntegration unavailable
+        const user = JSON.parse(localStorage.getItem('batyrbol_user') || '{}');
+        user.name = name;
+        user.email = email;
+        localStorage.setItem('batyrbol_user', JSON.stringify(user));
+        document.getElementById('user-name').textContent = name;
+        closeProfileModal();
+        showMessage('Профиль обновлен!');
       }
     });
 
