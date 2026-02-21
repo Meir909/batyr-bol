@@ -22,6 +22,9 @@
   <script src="voice_recognition.js"></script>
   <script src="game_integration.js"></script>
   <script src="game_engine.js"></script>
+  <script src="mission_generator.js"></script>
+  <script src="mission_engine.js"></script>
+  <script src="profile_system.js"></script>
 
   <script>
     tailwind.config = {
@@ -522,8 +525,8 @@
             </div>
           </div>
 
-          <!-- Mission Content Area -->
-          <div id="mission-content" class="glass rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
+          <!-- Welcome/Start Screen -->
+          <div id="mission-welcome" class="glass rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
             <div class="text-center">
               <iconify-icon icon="lucide:compass" class="text-zinc-600" width="64"></iconify-icon>
               <p class="text-zinc-500 mt-4">
@@ -533,30 +536,129 @@
             </div>
           </div>
 
-          <!-- Mission Questions Area -->
-          <div id="mission-questions" class="hidden glass rounded-2xl p-8">
-            <h3 class="text-xl font-bold text-white mb-6">
-              <span class="lang-ru">Вопросы по теме</span>
-              <span class="lang-kz">Тақырып бойынша сұрақтар</span>
-            </h3>
-            <div id="mission-questions-list" class="space-y-4"></div>
-            
-            <!-- Answer Form -->
-            <form id="answer-form" class="mt-6">
-              <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base font-medium">
-                <span class="lang-ru">Отправить ответы</span>
-                <span class="lang-kz">Жауаптарды жіберу</span>
-              </button>
-            </form>
+          <!-- Mission Game Screen -->
+          <div id="mission-game" class="hidden glass rounded-2xl p-8">
+            <!-- Top Bar: Lives, Timer, Progress -->
+            <div class="flex justify-between items-center mb-8">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-zinc-400">
+                  <span class="lang-ru">Жизни:</span>
+                  <span class="lang-kz">Өмір:</span>
+                </span>
+                <div id="lives-display" class="flex gap-1"></div>
+              </div>
+              <div class="text-center">
+                <span id="scenario-counter" class="text-sm text-gold-400 font-bold">1/6</span>
+              </div>
+              <div class="flex items-center gap-2 text-right">
+                <iconify-icon icon="lucide:timer" class="text-gold-400" width="18"></iconify-icon>
+                <span id="mission-timer" class="text-sm font-mono text-white">00:00</span>
+              </div>
+            </div>
+
+            <!-- Scenario Text -->
+            <div id="scenario-text" class="mb-8 p-6 bg-zinc-900/50 rounded-xl border border-white/10 min-h-[150px]">
+              <p class="text-lg text-white leading-relaxed"></p>
+            </div>
+
+            <!-- Options -->
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- Options will be generated here -->
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center hidden py-8">
+              <div class="inline-block animate-spin">
+                <iconify-icon icon="lucide:loader" class="text-gold-400" width="32"></iconify-icon>
+              </div>
+              <p class="text-zinc-400 mt-4">
+                <span class="lang-ru">Загрузка сценария...</span>
+                <span class="lang-kz">Сценарий жүктелінеді...</span>
+              </p>
+            </div>
           </div>
 
-          <!-- Questions Area -->
-          <div id="questions-container" class="hidden glass rounded-2xl p-8">
-            <h3 class="text-xl font-bold text-white mb-6">
-              <span class="lang-ru">Вопросы по теме</span>
-              <span class="lang-kz">Тақырып бойынша сұрақтар</span>
-            </h3>
-            <div id="questions-list" class="space-y-4"></div>
+          <!-- Consequence Screen -->
+          <div id="mission-consequence" class="hidden glass rounded-2xl p-8">
+            <div class="text-center mb-8">
+              <div id="consequence-icon" class="text-6xl mb-4"></div>
+              <h3 id="consequence-title" class="text-2xl font-bold text-white mb-4"></h3>
+              <p id="consequence-text" class="text-lg text-zinc-300 leading-relaxed"></p>
+            </div>
+
+            <!-- Updated Lives Display -->
+            <div class="text-center mb-8">
+              <span class="text-sm text-zinc-400 block mb-2">
+                <span class="lang-ru">Жизни:</span>
+                <span class="lang-kz">Өмір:</span>
+              </span>
+              <div id="consequence-lives" class="flex gap-2 justify-center"></div>
+            </div>
+
+            <!-- Continue Button -->
+            <button id="consequence-continue-btn" class="w-full py-4 btn-primary rounded-xl text-base font-medium">
+              <span class="lang-ru">Продолжить</span>
+              <span class="lang-kz">Жалғастыру</span>
+            </button>
+          </div>
+
+          <!-- Result Screen -->
+          <div id="mission-result" class="hidden glass rounded-2xl p-8">
+            <div class="text-center mb-8">
+              <div id="result-icon" class="text-7xl mb-4"></div>
+              <h2 id="result-title" class="text-3xl font-bold text-white mb-2"></h2>
+              <p id="result-subtitle" class="text-zinc-400 mb-8"></p>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div class="bg-zinc-900/50 rounded-xl p-4 text-center">
+                <div id="result-scenarios" class="text-2xl font-bold text-white">6/6</div>
+                <div class="text-xs text-zinc-400 mt-1">
+                  <span class="lang-ru">Сценариев</span>
+                  <span class="lang-kz">Сценариялар</span>
+                </div>
+              </div>
+              <div class="bg-zinc-900/50 rounded-xl p-4 text-center">
+                <div id="result-correct" class="text-2xl font-bold text-green-400">4/6</div>
+                <div class="text-xs text-zinc-400 mt-1">
+                  <span class="lang-ru">Верно</span>
+                  <span class="lang-kz">Дұрыс</span>
+                </div>
+              </div>
+              <div class="bg-zinc-900/50 rounded-xl p-4 text-center">
+                <div id="result-time" class="text-2xl font-bold text-gold-400">8:45</div>
+                <div class="text-xs text-zinc-400 mt-1">
+                  <span class="lang-ru">Время</span>
+                  <span class="lang-kz">Уақыт</span>
+                </div>
+              </div>
+              <div class="bg-zinc-900/50 rounded-xl p-4 text-center">
+                <div id="result-xp" class="text-2xl font-bold text-purple-400">+70 XP</div>
+                <div class="text-xs text-zinc-400 mt-1">XP</div>
+              </div>
+            </div>
+
+            <!-- Achievement Unlock -->
+            <div id="achievement-unlock" class="hidden bg-gold-900/30 border border-gold-500/30 rounded-xl p-6 mb-8 text-center">
+              <p class="text-gold-300 text-sm font-medium mb-2">🔓
+                <span class="lang-ru">Новое достижение разблокировано!</span>
+                <span class="lang-kz">Жаңа жетістік ашылды!</span>
+              </p>
+              <p id="achievement-name" class="text-white font-bold text-lg"></p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4">
+              <button id="result-again-btn" class="flex-1 py-4 btn-primary rounded-xl text-base font-medium">
+                <span class="lang-ru">🎮 Играть ещё</span>
+                <span class="lang-kz">🎮 Тағы ойна</span>
+              </button>
+              <button onclick="closeCharacterModal(); document.getElementById('mission-welcome').classList.remove('hidden')" class="flex-1 py-4 border border-zinc-600 text-white rounded-xl text-base font-medium hover:bg-zinc-800 transition-colors">
+                <span class="lang-ru">🏠 На главную</span>
+                <span class="lang-kz">🏠 Басты бетке</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1022,12 +1124,257 @@
     function selectCharacter(character) {
       // Save selected character to localStorage
       localStorage.setItem('selectedCharacter', character);
-      
+
       // Close modal
       closeCharacterModal();
-      
-      // Redirect to mission page
-      window.location.href = '/mission';
+
+      // Hide welcome screen and show game screen
+      document.getElementById('mission-welcome').classList.add('hidden');
+      document.getElementById('mission-game').classList.remove('hidden');
+
+      // Start the mission
+      startNewMission(character);
+    }
+
+    // Mission Management
+    let currentMission = null;
+    let missionGenerator = null;
+    let missionEngine = null;
+    let profileSystem = null;
+
+    function startNewMission(character) {
+      // Initialize systems if not already done
+      if (!missionGenerator) {
+        missionGenerator = new MissionGenerator();
+      }
+      if (!profileSystem) {
+        profileSystem = new ProfileSystem();
+      }
+
+      // Get player profile
+      const playerProfile = profileSystem.getProfile();
+      const completedMissions = profileSystem.getMissionsCompleted();
+      const weakAreas = profileSystem.getWeakAreas();
+
+      // Start mission engine
+      missionEngine = new MissionEngine();
+      missionEngine.startMission(character, playerProfile.level, completedMissions, weakAreas);
+
+      // Update lives display
+      updateLivesDisplay();
+
+      // Start timer
+      startMissionTimer();
+
+      // Load first scenario
+      loadNextScenario();
+    }
+
+    let missionTimerInterval = null;
+
+    function startMissionTimer() {
+      // Clear any existing timer
+      if (missionTimerInterval) clearInterval(missionTimerInterval);
+
+      // Start new timer
+      missionTimerInterval = setInterval(() => {
+        if (missionEngine && !document.getElementById('mission-game').classList.contains('hidden')) {
+          const elapsed = Math.floor((Date.now() - missionEngine.startTime) / 1000);
+          const minutes = Math.floor(elapsed / 60);
+          const seconds = elapsed % 60;
+          document.getElementById('mission-timer').textContent =
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    function updateLivesDisplay() {
+      const livesDisplay = document.getElementById('lives-display');
+      if (livesDisplay && missionEngine) {
+        livesDisplay.innerHTML = Array.from({ length: 3 }, (_, i) => {
+          const hasLife = i < missionEngine.lives;
+          return `<span class="text-xl">${hasLife ? '❤️' : '⭕'}</span>`;
+        }).join('');
+      }
+    }
+
+    async function loadNextScenario() {
+      if (!missionEngine || !missionGenerator) return;
+
+      const gameScreen = document.getElementById('mission-game');
+      const loadingState = document.getElementById('loading-state');
+      const optionsContainer = document.getElementById('options-container');
+
+      // Show loading
+      loadingState.classList.remove('hidden');
+      optionsContainer.innerHTML = '';
+
+      try {
+        // Get scenario from generator
+        const language = document.body.dataset.language === 'kz' ? 'kk' : 'ru';
+        const scenario = await missionGenerator.generateScenario(
+          missionEngine.character,
+          missionEngine.scenarioNumber,
+          missionEngine.playerLevel,
+          language
+        );
+
+        // Hide loading
+        loadingState.classList.add('hidden');
+
+        // Display scenario
+        const scenarioText = document.querySelector('#scenario-text p');
+        scenarioText.textContent = scenario.scenario;
+
+        // Update progress
+        document.getElementById('scenario-counter').textContent = `${missionEngine.scenarioNumber}/${missionEngine.totalScenarios}`;
+
+        // Display options
+        optionsContainer.innerHTML = scenario.options.map((option, index) => `
+          <button onclick="handleOptionSelect('${String.fromCharCode(65 + index)}', ${index}, '${option.is_correct}')"
+            class="p-4 text-left rounded-xl border-2 border-white/10 bg-zinc-900/50 hover:border-gold-500/50 hover:bg-gold-500/10 transition-all text-white">
+            <div class="font-bold text-gold-400 mb-2">${String.fromCharCode(65 + index)})</div>
+            <div>${option.text}</div>
+          </button>
+        `).join('');
+
+        // Store correct answers for this scenario
+        missionEngine.currentScenarioOptions = scenario.options;
+
+      } catch (error) {
+        console.error('Error loading scenario:', error);
+        loadingState.classList.add('hidden');
+        document.querySelector('#scenario-text p').textContent = 'Ошибка загрузки сценария. Пожалуйста, попробуйте еще раз.';
+      }
+    }
+
+    function handleOptionSelect(optionId, optionIndex, isCorrect) {
+      if (!missionEngine) return;
+
+      const option = missionEngine.currentScenarioOptions[optionIndex];
+      const isCorrectAnswer = option.is_correct;
+
+      // Process answer
+      const result = missionEngine.processAnswer(optionIndex, isCorrectAnswer);
+
+      // Show consequence screen
+      showConsequenceScreen(isCorrectAnswer, option.explanation || '', result);
+    }
+
+    function showConsequenceScreen(isCorrect, explanation, engineResult) {
+      // Hide game screen, show consequence screen
+      document.getElementById('mission-game').classList.add('hidden');
+      document.getElementById('mission-consequence').classList.remove('hidden');
+
+      // Update consequence display
+      const icon = document.getElementById('consequence-icon');
+      const title = document.getElementById('consequence-title');
+      const text = document.getElementById('consequence-text');
+      const lang = document.body.dataset.language;
+
+      if (isCorrect) {
+        icon.textContent = '✅';
+        title.textContent = lang === 'kz' ? 'Дұрыс жауап!' : 'Правильный ответ!';
+        title.className = 'text-2xl font-bold text-green-400 mb-4';
+      } else {
+        icon.textContent = '❌';
+        title.textContent = lang === 'kz' ? 'Қате жауап' : 'Неправильный ответ';
+        title.className = 'text-2xl font-bold text-red-400 mb-4';
+      }
+
+      text.textContent = explanation || (isCorrect
+        ? (lang === 'kz' ? 'Сіз дұрыс шешім қабылдадыңыз!' : 'Вы приняли правильное решение!')
+        : (lang === 'kz' ? 'Бұл дұрыс емес шешім болды' : 'Это было неправильное решение'));
+
+      // Update lives display
+      const livesDisplay = document.getElementById('consequence-lives');
+      livesDisplay.innerHTML = Array.from({ length: 3 }, (_, i) => {
+        const hasLife = i < missionEngine.lives;
+        return `<span class="text-3xl">${hasLife ? '❤️' : '⭕'}</span>`;
+      }).join('');
+
+      // Continue button handler
+      document.getElementById('consequence-continue-btn').onclick = () => {
+        // Check if mission is complete or failed
+        if (missionEngine.lives <= 0) {
+          if (missionTimerInterval) clearInterval(missionTimerInterval);
+          showResultScreen(false);
+        } else if (missionEngine.scenarioNumber >= missionEngine.totalScenarios) {
+          if (missionTimerInterval) clearInterval(missionTimerInterval);
+          showResultScreen(true);
+        } else {
+          // Load next scenario
+          document.getElementById('mission-consequence').classList.add('hidden');
+          document.getElementById('mission-game').classList.remove('hidden');
+          missionEngine.nextScenario();
+          updateLivesDisplay();
+          loadNextScenario();
+        }
+      };
+    }
+
+    function showResultScreen(isSuccess) {
+      document.getElementById('mission-consequence').classList.add('hidden');
+      document.getElementById('mission-result').classList.remove('hidden');
+
+      const lang = document.body.dataset.language;
+      const icon = document.getElementById('result-icon');
+      const title = document.getElementById('result-title');
+      const subtitle = document.getElementById('result-subtitle');
+
+      if (isSuccess) {
+        icon.textContent = '🏆';
+        title.textContent = lang === 'kz' ? 'Миссия аяқталды!' : 'Миссия завершена!';
+        title.className = 'text-3xl font-bold text-gold-400 mb-2';
+      } else {
+        icon.textContent = '💔';
+        title.textContent = lang === 'kz' ? 'Миссия сәтсіз аяқталды' : 'Миссия не удалась';
+        title.className = 'text-3xl font-bold text-red-400 mb-2';
+      }
+
+      // Calculate results
+      const missionData = missionEngine.endMission();
+      const xpGained = missionData.xp_earned;
+      const correctAnswers = missionData.correct_answers;
+      const totalScenarios = missionData.total_scenarios;
+      const timeElapsed = missionData.time_elapsed;
+
+      // Format time
+      const minutes = Math.floor(timeElapsed / 60);
+      const seconds = timeElapsed % 60;
+      const timeStr = `${minutes}:${String(seconds).padStart(2, '0')}`;
+
+      // Update result display
+      document.getElementById('result-scenarios').textContent = `${totalScenarios}/${missionEngine.totalScenarios}`;
+      document.getElementById('result-correct').textContent = `${correctAnswers}/${totalScenarios}`;
+      document.getElementById('result-time').textContent = timeStr;
+      document.getElementById('result-xp').textContent = `+${xpGained} XP`;
+
+      subtitle.textContent = isSuccess
+        ? (lang === 'kz' ? `${correctAnswers}/${totalScenarios} дұрыс жауап` : `${correctAnswers}/${totalScenarios} правильных ответов`)
+        : (lang === 'kz' ? 'Қайта ойнап көріңіз' : 'Попробуйте еще раз');
+
+      // Update profile with results
+      if (profileSystem) {
+        profileSystem.addXP(profileSystem.getProfile(), xpGained);
+        profileSystem.updateCharacterProgress(missionEngine.character, {
+          completed: isSuccess,
+          correct_answers: correctAnswers,
+          total_scenarios: totalScenarios,
+          time_elapsed: timeElapsed
+        });
+      }
+
+      // Check for achievements and show if unlocked
+      const achievementUnlock = document.getElementById('achievement-unlock');
+      // This would need to be connected with the achievements system
+
+      // Continue button
+      document.getElementById('result-again-btn').onclick = () => {
+        document.getElementById('mission-result').classList.add('hidden');
+        document.getElementById('mission-game').classList.remove('hidden');
+        startNewMission(missionEngine.character);
+      };
     }
 
     // Initialize

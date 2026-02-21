@@ -1171,6 +1171,133 @@ def translate_content():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+def _build_scenario_prompt(character, level, scenario_number, language):
+    """Build prompt for scenario generation"""
+    character_contexts = {
+        'Абылай хан': 'великий хан, военный стратег, объединитель казахских земель',
+        'Абай': 'великий поэт, философ, просветитель',
+        'Айтеке би': 'мудрый бий, справедливый судья, разрешитель конфликтов'
+    }
+
+    context = character_contexts.get(character, 'историческая личность')
+
+    if language == 'kk':
+        return f"""Создай сценарий для образовательной миссии по истории Казахстана.
+
+Персонаж: {character} ({context})
+Уровень сложности: {level} из 10
+Номер сценария: {scenario_number}
+
+Создай интерактивную ситуацию с выбором, где игрок должен принять правильное решение.
+
+Формат ответа (JSON):
+{{
+  "scenario": {scenario_number},
+  "text": "Описание ситуации на казахском языке (100-150 слов)",
+  "options": [
+    {{"id": "A", "text": "Вариант ответа А", "isCorrect": false}},
+    {{"id": "B", "text": "Правильный вариант ответа", "isCorrect": true}},
+    {{"id": "C", "text": "Вариант ответа В", "isCorrect": false}},
+    {{"id": "D", "text": "Вариант ответа Г", "isCorrect": false}}
+  ],
+  "correctAnswer": "B",
+  "wrongConsequence": "Последствия неправильного выбора на казахском языке",
+  "correctConsequence": "Последствия правильного выбора на казахском языке",
+  "historicalContext": "Исторический контекст на казахском языке",
+  "nextScenarioSetup": "Подготовка к следующему сценарию"
+}}
+
+Требования:
+1. Историческая точность
+2. Образовательная ценность
+3. Один правильный ответ
+4. Понятные последствия выбора
+5. Адаптация под уровень сложности"""
+    else:
+        return f"""Create a scenario for an educational mission about Kazakhstan history.
+
+Character: {character} ({context})
+Difficulty level: {level} out of 10
+Scenario number: {scenario_number}
+
+Create an interactive decision-making situation.
+
+Response format (JSON):
+{{
+  "scenario": {scenario_number},
+  "text": "Situation description in Russian (100-150 words)",
+  "options": [
+    {{"id": "A", "text": "Answer option A", "isCorrect": false}},
+    {{"id": "B", "text": "Correct answer option", "isCorrect": true}},
+    {{"id": "C", "text": "Answer option C", "isCorrect": false}},
+    {{"id": "D", "text": "Answer option D", "isCorrect": false}}
+  ],
+  "correctAnswer": "B",
+  "wrongConsequence": "Consequences of wrong choice in Russian",
+  "correctConsequence": "Consequences of correct choice in Russian",
+  "historicalContext": "Historical context in Russian",
+  "nextScenarioSetup": "Setup for next scenario"
+}}
+
+Requirements:
+1. Historical accuracy
+2. Educational value
+3. One correct answer
+4. Clear consequences
+5. Adapted to difficulty level"""
+
+def _get_fallback_scenario(character, scenario_number, language):
+    """Return a fallback scenario when AI generation fails"""
+
+    def t(kz, ru):
+        """Helper for language selection"""
+        return kz if language == 'kk' else ru
+
+    fallbacks = {
+        'Абылай хан': {
+            'text': t('Жоңғар сарбаздары қазақ жерінің шегіне жақындады. Ата-баба қорғау үшін не істеу керек?',
+                     'Джунгарские войска приблизились к границам. Как защитить земли предков?'),
+            'options': [
+                {'id': 'A', 'text': t('Тез атақ жасау', 'Немедленно атаковать'), 'isCorrect': False},
+                {'id': 'B', 'text': t('Үш жүздің барлығын біліктестіру', 'Объединить три жуза'), 'isCorrect': True},
+                {'id': 'C', 'text': t('Түгелтеп іле шығу', 'Отступить'), 'isCorrect': False},
+                {'id': 'D', 'text': t('Орыстарға көмек сұрау', 'Попросить помощи у русских'), 'isCorrect': False}
+            ],
+            'correctAnswer': 'B',
+            'wrongConsequence': t('Айдап күрес жеңіліске ұласты', 'Спешная атака привела к поражению'),
+            'correctConsequence': t('Үш жүзді біріктіре отырып, сіз құрды құрдыңыз', 'Объединив три жуза, вы создали мощное войско')
+        },
+        'Абай': {
+            'text': t('Жас балалар сөз сөйлеу әнерін үйренгісі келеді. Аларға не үйретесіз?',
+                     'Молодые люди хотят научиться красивой речи. Как их обучить?'),
+            'options': [
+                {'id': 'A', 'text': t('Ескі өлеңдерді оқы', 'Читать старые стихи'), 'isCorrect': False},
+                {'id': 'B', 'text': t('Өздік өлең жазуды үйрет', 'Учить писать собственные стихи'), 'isCorrect': True},
+                {'id': 'C', 'text': t('Басқа іс істеуге ықылас бер', 'Позволить заняться другим'), 'isCorrect': False},
+                {'id': 'D', 'text': t('Шетел әдебиетін оқы', 'Читать иностранную литературу'), 'isCorrect': False}
+            ],
+            'correctAnswer': 'B',
+            'wrongConsequence': t('Балалардың шығармашылығы тоқталады', 'Творчество молодежи не развивается'),
+            'correctConsequence': t('Балалар шығармашыл болды', 'Молодежь начинает творить')
+        },
+        'Айтеке би': {
+            'text': t('Екі саудагер өнімділік туралы дауласып жатыр. Сіз әділ сот ете аласыз ба?',
+                     'Два купца спорят о товаре. Как разрешить этот спор справедливо?'),
+            'options': [
+                {'id': 'A', 'text': t('Күшілі тарапқа құқық бер', 'Дать право более сильному'), 'isCorrect': False},
+                {'id': 'B', 'text': t('Екеуінің де сөзін тыңда', 'Выслушать обе стороны'), 'isCorrect': True},
+                {'id': 'C', 'text': t('Ешкімге байланыстырма', 'Не разбираться в спорах'), 'isCorrect': False},
+                {'id': 'D', 'text': t('Ысқақ төңнег өлеңін', 'Призвать свидетелей'), 'isCorrect': False}
+            ],
+            'correctAnswer': 'B',
+            'wrongConsequence': t('Халық сіздің әділіңіз күмәнеді', 'Народ теряет доверие'),
+            'correctConsequence': t('Халық мойындату жасады', 'Народ уважает вашу мудрость')
+        }
+    }
+
+    fallback = fallbacks.get(character, fallbacks['Абылай хан'])
+    return fallback
+
 @app.route('/api/mission/generate-scenario', methods=['POST'])
 def generate_scenario():
     """
@@ -1189,11 +1316,15 @@ def generate_scenario():
         character = payload.get('character', '').strip()
         level = int(payload.get('level', 1))
         scenario_number = int(payload.get('scenarioNumber', 1))
-        prompt = payload.get('prompt', '')
         language = payload.get('language', 'kk')
+        prompt = payload.get('prompt', '')
 
-        if not character or not prompt:
-            return jsonify({'success': False, 'message': 'character and prompt required'}), 400
+        if not character:
+            return jsonify({'success': False, 'message': 'character required'}), 400
+
+        # If prompt not provided, generate it server-side
+        if not prompt:
+            prompt = _build_scenario_prompt(character, level, scenario_number, language)
 
         # Call OpenAI API
         try:
@@ -1611,5 +1742,5 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 8000))
     debug = os.getenv('FLASK_ENV', 'development') == 'development'
 
-    print(f"🚀 [SERVER] Flask запущен на http://{host}:{port}")
+    print(f"[SERVER] Flask running on http://{host}:{port}")
     app.run(host=host, port=port, debug=debug)

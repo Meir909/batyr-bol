@@ -11,19 +11,17 @@ class MissionGenerator {
 
   /**
    * Generate a single scenario for a mission
-   * @param {Object} config - Configuration object
-   * @returns {Promise<Object>} - Single scenario data
+   * @param {string} character - Character name
+   * @param {number} scenarioNumber - Scenario number
+   * @param {number} level - Player level (1-10)
+   * @param {string} language - Language code ('kk' or 'ru')
+   * @returns {Promise<Object>} - Single scenario data with options
    */
-  async generateScenario(config) {
-    const {
-      character,
-      level = 1,
-      scenarioNumber = 1,
-      prompt,
-      language = 'kk'
-    } = config;
-
+  async generateScenario(character, scenarioNumber = 1, level = 1, language = 'kk') {
     try {
+      // Build prompt for scenario generation
+      const prompt = this._buildScenarioPrompt(character, level, scenarioNumber, language);
+
       const response = await fetch(`${this.apiBase}/api/mission/generate-scenario`, {
         method: 'POST',
         headers: {
@@ -38,26 +36,34 @@ class MissionGenerator {
         })
       });
 
+      if (!response.ok) {
+        // Use fallback if API fails
+        console.warn(`API error: ${response.status}, using fallback scenario`);
+        return this._getFallbackScenario(character, scenarioNumber, language);
+      }
+
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.scenario) {
+        // Normalize response format
         return {
-          success: true,
-          scenario: data.scenario,
-          fallback: data.fallback || false
+          scenario: data.scenario.text || data.scenario.scenario || '',
+          options: (data.scenario.options || []).map(opt => ({
+            text: opt.text || opt.option || '',
+            is_correct: opt.is_correct || opt.isCorrect || false,
+            explanation: opt.explanation || opt.consequence || ''
+          })),
+          correct_answer: data.scenario.correct_answer || data.scenario.correctAnswer,
+          fallback: false
         };
       } else {
-        return {
-          success: false,
-          error: data.message || 'Failed to generate scenario'
-        };
+        // Fallback scenario
+        return this._getFallbackScenario(character, scenarioNumber, language);
       }
     } catch (error) {
       console.error('Mission generation error:', error);
-      return {
-        success: false,
-        error: error.message || 'Network error'
-      };
+      // Always return fallback on error
+      return this._getFallbackScenario(character, scenarioNumber, language);
     }
   }
 
@@ -187,59 +193,81 @@ Requirements:
     const fallbacks = {
       'Абылай хан': [
         {
-          scenario: 1,
-          text: language === 'kk' ? 'Жоңғар сарбаздары қазақ жерінің шегіне жақындады. Ата-баба қорғау үшін не істеу керек?' : 'Джунгарские войска приблизились к границам. Как защитить земли предков?',
+          scenario: language === 'kk' ? 'Жоңғар сарбаздары қазақ жерінің шегіне жақындады. Ата-баба қорғау үшін не істеу керек?' : 'Джунгарские войска приблизились к границам. Как защитить земли предков?',
           options: [
-            {id: 'A', text: language === 'kk' ? 'Тез атақ жасау' : 'Немедленно атаковать', isCorrect: false},
-            {id: 'B', text: language === 'kk' ? 'Үш жүздің барлығын біліктестіру' : 'Объединить три жуза', isCorrect: true},
-            {id: 'C', text: language === 'kk' ? 'Түгелтеп іле шығу' : 'Отступить', isCorrect: false},
-            {id: 'D', text: language === 'kk' ? 'Орыстарға көмек сұрау' : 'Попросить помощи у русских', isCorrect: false}
+            {text: language === 'kk' ? 'Тез атақ жасау' : 'Немедленно атаковать', is_correct: false, explanation: language === 'kk' ? 'Спешная атака привела к разрозненному сопротивлению' : 'Спешная атака привела к разрозненному сопротивлению'},
+            {text: language === 'kk' ? 'Үш жүздің барлығын біліктестіру' : 'Объединить три жуза', is_correct: true, explanation: language === 'kk' ? 'Үш жүзді біріктіре отырып, сіз қүшті әскер құрдыңыз' : 'Объединив три жуза, вы создали мощное войско'},
+            {text: language === 'kk' ? 'Түгелтеп іле шығу' : 'Отступить', is_correct: false, explanation: language === 'kk' ? 'Отступление ослабляет позиции' : 'Отступление ослабляет позиции'},
+            {text: language === 'kk' ? 'Орыстарға көмек сұрау' : 'Попросить помощи у русских', is_correct: false, explanation: language === 'kk' ? 'Зависимость от других - слабость' : 'Зависимость от других - слабость'}
           ],
-          correctAnswer: 'B',
-          wrongConsequence: language === 'kk' ? 'Айдап күрес жеңіліске ұласты. Жоңғарлар қазақ топтарын бөлік-бөлік ұрды.' : 'Спешная атака привела к поражению. Джунгары разбили разрозненные казахские отряды.',
-          correctConsequence: language === 'kk' ? 'Үш жүзді біріктіре отырып, сіз қүшті әскер құрдыңыз. Жоңғарларға қарсы айтадай жеңіс!' : 'Объединив три жуза, вы создали мощное войско. Победа над джунгарами!',
-          historicalContext: language === 'kk' ? 'Абылай хан бірлік арқылы күшті әскер құру стратегиясын қолданды.' : 'Абылай хан использовал стратегию объединения для создания сильного войска.',
-          nextScenarioSetup: language === 'kk' ? 'Үш жүз қосылса, әрі де басқа проблемалар туындайды...' : 'Объединение жузов принесло новые вызовы...'
+          correct_answer: 'B'
+        },
+        {
+          scenario: language === 'kk' ? 'Бірінші ұрысынан кейін халық құлығын жоғалттағаннан күнініс көргені белгілі болды. Боевой дух қалай қалпына келтіруге болады?' : 'После первого поражения народ потерял веру в вас. Как восстановить боевой дух?',
+          options: [
+            {text: language === 'kk' ? 'Қадәт ұрысын жариялау' : 'Объявить священную войну', is_correct: false, explanation: language === 'kk' ? 'Эмоции не заменяют стратегию' : 'Эмоции не заменяют стратегию'},
+            {text: language === 'kk' ? 'Биялар сатысын істеп, әскерді қайта құру' : 'Провести совет биев и переформировать войско', is_correct: true, explanation: language === 'kk' ? 'Даналық бұлтынын қалпына келтіреді' : 'Мудрость восстанавливает единство'},
+            {text: language === 'kk' ? 'Барлығына сыйлықтар ұсыну' : 'Пообещать награды', is_correct: false, explanation: language === 'kk' ? 'Үзінді мамынды түсіндіру керек' : 'Нужна стратегия, не награды'},
+            {text: language === 'kk' ? 'Күту және өндіктіпарлы' : 'Отступить и переждать', is_correct: false, explanation: language === 'kk' ? 'Уақыт төл дос емес' : 'Время работает против нас'}
+          ],
+          correct_answer: 'B'
         }
       ],
       'Абай': [
         {
-          scenario: 1,
-          text: language === 'kk' ? 'Жас балалар сөз сөйлеу әнерін үйренгісі келеді. Аларға не үйретесіз?' : 'Молодые люди хотят научиться красивой речи. Как их обучить?',
+          scenario: language === 'kk' ? 'Жас балалар сөз сөйлеу әнерін үйренгісі келеді. Аларға не үйретесіз?' : 'Молодые люди хотят научиться красивой речи. Как их обучить?',
           options: [
-            {id: 'A', text: language === 'kk' ? 'Ескі өлеңдерді оқы' : 'Читать старые стихи', isCorrect: false},
-            {id: 'B', text: language === 'kk' ? 'Өздік өлең жазуды үйрет' : 'Учить писать собственные стихи', isCorrect: true},
-            {id: 'C', text: language === 'kk' ? 'Басқа іс істеуге ықылас бер' : 'Позволить заняться другим', isCorrect: false},
-            {id: 'D', text: language === 'kk' ? 'Шетел әдебиетін оқы' : 'Читать иностранную литературу', isCorrect: false}
+            {text: language === 'kk' ? 'Ескі өлеңдерді оқы' : 'Читать старые стихи', is_correct: false, explanation: language === 'kk' ? 'Ескі өлеңдер баға емес' : 'Старые стихи не помогают учиться'},
+            {text: language === 'kk' ? 'Өздік өлең жазуды үйрет' : 'Учить писать собственные стихи', is_correct: true, explanation: language === 'kk' ? 'Өздік шығармашылық өндіктіпарлар өндіктіпарларын қалпына келтіреді' : 'Собственное творчество развивает мышление'},
+            {text: language === 'kk' ? 'Басқа іс істеуге ықылас бер' : 'Позволить заняться другим', is_correct: false, explanation: language === 'kk' ? 'Ойынды қоштау - өндіктіпарлар' : 'Отвлечение не помогает учиться'},
+            {text: language === 'kk' ? 'Шетел әдебиетін оқы' : 'Читать иностранную литературу', is_correct: false, explanation: language === 'kk' ? 'Өз тілді білу керек' : 'Нужно знать свой язык'}
           ],
-          correctAnswer: 'B',
-          wrongConsequence: language === 'kk' ? 'Ескі өлеңдерді қайталап жүргеніңіз балалардың шығармашылығын тоқтатты. Олар ешкімге ұқсамасса өлеңдер жаза алмады.' : 'Повторение старых стихов не развивает творчество. Молодежь не может создавать свои произведения.',
-          correctConsequence: language === 'kk' ? 'Өз сөздерімен өлең жазуды үйретіңіз - балалар шығармашыл болды! Өндіктіпарлар өндіктіпарлар түрінде қайта ойлау басталады.' : 'Обучая писать собственные стихи, вы развиваете их творчество. Молодежь начинает оригинально мыслить!',
-          historicalContext: language === 'kk' ? 'Абай өздік шығармашылықты түлектіге үйреді, ол қазақ әдебиетінің сәні болды.' : 'Абай учил ученикам самостоятельному творчеству, что стало основой казахской литературы.',
-          nextScenarioSetup: language === 'kk' ? 'Балалар өлең жаза барлығына балалық та бұлай ілінді...' : 'Юные поэты начали творить...'
+          correct_answer: 'B'
+        },
+        {
+          scenario: language === 'kk' ? 'Өндіктіпарлар өндіктіпарларының сөзіне ынамсыз болуы мүмкін. Оларды сендіруге не істеу керек?' : 'Ученики сомневаются в вашем учении. Как убедить их в правоте?',
+          options: [
+            {text: language === 'kk' ? 'Қоршеген адамдар істеген сөзге құлақ тағу' : 'Слушать, что говорят окружающие', is_correct: false, explanation: language === 'kk' ? 'Қоршеген әуелі өндіктіпарлар сөздеді құлақ қоймайды' : 'Люди часто слабо понимают смысл'},
+            {text: language === 'kk' ? 'Өндіктіпарлар сөзінің дұрыс екенін өндіктіпарлар мысалымен көрсету' : 'Показать примерами из жизни', is_correct: true, explanation: language === 'kk' ? 'Өндіктіпарлар мысалымен құлақ сөйлеп түседі' : 'Живые примеры убеждают лучше слов'},
+            {text: language === 'kk' ? 'Ынамсыз болуды қайтарып салу' : 'Отвергнуть сомнения', is_correct: false, explanation: language === 'kk' ? 'Сомнения пиши, үйрену керек' : 'Сомнения нужно разрешать'},
+            {text: language === 'kk' ? 'Басқа өндіктіпарлар табу' : 'Найти других учеников', is_correct: false, explanation: language === 'kk' ? 'Өндіктіпарлар бөлік-бөлік - өндіктіпарлар' : 'Уход учеников - плохо для обучения'}
+          ],
+          correct_answer: 'B'
         }
       ],
       'Айтеке би': [
         {
-          scenario: 1,
-          text: language === 'kk' ? 'Екі саудагер өнімділік туралы дауласып жатыр. Сіз әділ сот ете аласыз ба?' : 'Два купца спорят о товаре. Как разрешить этот спор справедливо?',
+          scenario: language === 'kk' ? 'Екі саудагер өнімділік туралы дауласып жатыр. Сіз әділ сот ете аласыз ба?' : 'Два купца спорят о товаре. Как разрешить этот спор справедливо?',
           options: [
-            {id: 'A', text: language === 'kk' ? 'Күшілі тарапқа құқық бер' : 'Дать право более сильному', isCorrect: false},
-            {id: 'B', text: language === 'kk' ? 'Екеуінің де сөзін тыңда' : 'Выслушать обе стороны', isCorrect: true},
-            {id: 'C', text: language === 'kk' ? 'Ешкімге байланыстырма' : 'Не разбираться в спорах', isCorrect: false},
-            {id: 'D', text: language === 'kk' ? 'Ысқақ төңнег өлеңін' : 'Призвать свидетелей', isCorrect: false}
+            {text: language === 'kk' ? 'Күшілі тарапқа құқық бер' : 'Дать право более сильному', is_correct: false, explanation: language === 'kk' ? 'Онда әділік жоқ' : 'Это несправедливо'},
+            {text: language === 'kk' ? 'Екеуінің де сөзін тыңда' : 'Выслушать обе стороны', is_correct: true, explanation: language === 'kk' ? 'Әділік - екеуінің де сөзінің сөйлеуінде' : 'Справедливость требует послушания обеих сторон'},
+            {text: language === 'kk' ? 'Ешкімге байланыстырма' : 'Не разбираться в спорах', is_correct: false, explanation: language === 'kk' ? 'Сот істеуі керек' : 'Необходимо разрешать конфликты'},
+            {text: language === 'kk' ? 'Ысқақ төңнег өлеңін' : 'Призвать свидетелей', is_correct: false, explanation: language === 'kk' ? 'Өндіктіпарлар сөзінің ең бастысы' : 'Свидетели важны, но нужна справедливость'}
           ],
-          correctAnswer: 'B',
-          wrongConsequence: language === 'kk' ? 'Біржақтап сот істесеңіз, халық сізге күмәнеді. Өндіктіпарлар өндіктіпарлар секе міндеттерді істей қоймайды.' : 'Несправедливое решение подрывает доверие народа. Люди перестанут обращаться к вам с делами.',
-          correctConsequence: language === 'kk' ? 'Екеуінің де сөзін тыңдау арқылы сіз әділ шешім қабылдадыңыз. Халық сіздің даналығына мойындау жасады және өндіктіпарлар сіздің сотын сезінді.' : 'Выслушав обе стороны, вы вынесли справедливое решение. Народ уважает вашу мудрость!',
-          historicalContext: language === 'kk' ? 'Айтеке би әділік жеті жарғыда айтылғандай әділік арқылы халық өндіктіпарларын сақтады.' : 'Айтеке би, как установлено в Жеті Жарғы, разрешал споры справедливо.',
-          nextScenarioSetup: language === 'kk' ? 'Әділ сот өндіктіпарлар түліктіне ықдай, түліктіктелік өндіктіпарлар келіді...' : 'Справедливость укрепила доверие народа...'
+          correct_answer: 'B'
+        },
+        {
+          scenario: language === 'kk' ? 'Бір ата-ана балалыққасындағы балалығын атыс істеп жатыр. Өндіктіпарлар өндіктіпарларың өндіктіпарларын өндіктіпарлар.' : 'Родитель обвиняет соседа в оскорблении. Как судить справедливо?',
+          options: [
+            {text: language === 'kk' ? 'Ата-ананың сөзі - шындық' : 'Слово родителя - закон', is_correct: false, explanation: language === 'kk' ? 'Бірінің сөзі - әлі істеуге жетпес' : 'Одного свидетеля недостаточно'},
+            {text: language === 'kk' ? 'Екеуінің де дәлелдеуін төле' : 'Потребовать доказательства от обеих сторон', is_correct: true, explanation: language === 'kk' ? 'Дәлелі - әділіктің негізі' : 'Доказательства - основа справедливости'},
+            {text: language === 'kk' ? 'Көршелерге сұра' : 'Спросить соседей', is_correct: false, explanation: language === 'kk' ? 'Көршелер әрі де өндіктіпарлар болуы мүмкін' : 'Соседи могут быть предвзяты'},
+            {text: language === 'kk' ? 'Баланың сөзін тыңда' : 'Слушать ребенка', is_correct: false, explanation: language === 'kk' ? 'Бала баршылықсыз сөйлеген болуы мүмкін' : 'Ребенок может ошибаться'}
+          ],
+          correct_answer: 'B'
         }
       ]
     };
 
     const characterFallbacks = fallbacks[character] || fallbacks['Абылай хан'];
-    return characterFallbacks[Math.min(scenarioNumber - 1, characterFallbacks.length - 1)];
+    const fallback = characterFallbacks[Math.min(scenarioNumber - 1, characterFallbacks.length - 1)];
+
+    return {
+      scenario: fallback.scenario,
+      options: fallback.options,
+      correct_answer: fallback.correct_answer,
+      fallback: true
+    };
   }
 }
 
