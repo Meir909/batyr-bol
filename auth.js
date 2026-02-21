@@ -19,6 +19,11 @@ class AuthManager {
 
     async checkSession() {
         if (!this.sessionId) {
+            // On igra.html, allow to continue without session (show login form)
+            if (window.location.pathname.endsWith('igra.html')) {
+                console.log('No session on igra.html - user can login on page');
+                return;
+            }
             this.redirectToLanding();
             return;
         }
@@ -176,7 +181,13 @@ class AuthManager {
         // Clear session data
         localStorage.removeItem('batyrbol_session_id');
         localStorage.removeItem('batyrbol_user');
-        
+
+        // On igra.html, don't redirect - show login form instead
+        if (window.location.pathname.endsWith('igra.html')) {
+            console.log('On igra.html - showing login form instead of redirecting');
+            return; // Don't redirect on game page
+        }
+
         // Redirect to landing page
         if (window.location.pathname !== '/' && !window.location.pathname.endsWith('intro.html')) {
             window.location.href = '/';
