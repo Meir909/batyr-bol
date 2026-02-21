@@ -168,6 +168,8 @@ def _rate_limit(bucket_name: str, limit: int, window_seconds: int) -> tuple[bool
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+# Define uploads directory
+uploads_dir = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(uploads_dir, exist_ok=True)
 
 class _HTMLTextExtractor(HTMLParser):
