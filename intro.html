@@ -202,7 +202,7 @@
 
             <!-- CTA Buttons -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
-                <a href="igra.html" class="px-8 py-3 bg-white text-black font-medium rounded-full hover:scale-105 transition-transform glow-on-hover inline-flex items-center gap-2 whitespace-nowrap">
+                <a href="igra.html" onclick="navigateToGame(event)" class="px-8 py-3 bg-white text-black font-medium rounded-full hover:scale-105 transition-transform glow-on-hover inline-flex items-center gap-2 whitespace-nowrap cursor-pointer">
                     <span class="lang-ru">Начать играть в браузере</span>
                     <span class="lang-kz">Браузерде ойнауды бастау</span>
                     <iconify-icon icon="lucide:play" width="18" height="18" stroke-width="1.5"></iconify-icon>
@@ -1046,6 +1046,14 @@
     </footer>
 
     <script>
+        // Navigate to game function
+        function navigateToGame(e) {
+            e.preventDefault();
+            console.log('🎮 Navigating to igra.html...');
+            window.location.href = '/igra.html';
+            return false;
+        }
+
         // Language Switcher Logic
         function switchLanguage(lang) {
             console.log('Switching language to:', lang);
