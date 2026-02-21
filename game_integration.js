@@ -57,12 +57,14 @@ class GameIntegration {
         attachListener('btn-kz-game', 'click', () => this.switchLanguage('kk'));
         attachListener('btn-ru-game', 'click', () => this.switchLanguage('ru'));
 
-        const setupMissionButton = () => {
-            if (!attachListener('missions-btn', 'click', () => this.getMissions())) {
-                setTimeout(setupMissionButton, 500);
-            }
-        };
-        setupMissionButton();
+        // NOTE: missions-btn is handled by igra.html onclick="openCharacterSelection()"
+        // Disabled old getMissions() to use new mission system
+        // const setupMissionButton = () => {
+        //     if (!attachListener('missions-btn', 'click', () => this.getMissions())) {
+        //         setTimeout(setupMissionButton, 500);
+        //     }
+        // };
+        // setupMissionButton();
 
         attachListener('answer-form', 'submit', (e) => this.submitAnswer(e));
         attachListener('upload-avatar-btn', 'click', () => this.uploadAvatar());
