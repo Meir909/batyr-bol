@@ -1202,10 +1202,12 @@ class GameIntegration {
 }
 
 // Инициализация интеграции при загрузке страницы
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.gameIntegration = new GameIntegration();
-    });
-} else {
-    window.gameIntegration = new GameIntegration();
-}
+// DISABLED: Using new mission system instead
+// Старая система использовала /api/mission/personalized которая больше не нужна
+// if (document.readyState === 'loading') {
+//     document.addEventListener('DOMContentLoaded', () => {
+//         window.gameIntegration = new GameIntegration();
+//     });
+// } else {
+//     window.gameIntegration = new GameIntegration();
+// }
