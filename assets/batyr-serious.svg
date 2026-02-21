@@ -1,0 +1,63 @@
+<!-- Маскот БАТЫР - серьезное состояние (миссия) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Тело (плащ) - строгий силуэт -->
+  <path d="M 100 120 L 62 178 L 70 188 L 100 150 L 130 188 L 138 178 Z" fill="#13131A" stroke="#D4AF37" stroke-width="2"/>
+
+  <!-- Туловище (доспехи) -->
+  <ellipse cx="100" cy="110" rx="35" ry="45" fill="#1C1C28" stroke="#D4AF37" stroke-width="3"/>
+
+  <!-- Орнаменты на доспехах - строгие -->
+  <path d="M 100 90 L 108 95 L 100 100 L 92 95 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+  <path d="M 100 110 L 108 115 L 100 120 L 92 115 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+  <line x1="100" y1="90" x2="100" y2="120" stroke="#D4AF37" stroke-width="2"/>
+  <circle cx="85" cy="105" r="3" fill="#D4AF37"/>
+  <circle cx="115" cy="105" r="3" fill="#D4AF37"/>
+
+  <!-- Голова -->
+  <circle cx="100" cy="60" r="28" fill="#1C1C28" stroke="#D4AF37" stroke-width="3"/>
+
+  <!-- Шлем строгий -->
+  <path d="M 72 50 Q 72 32 100 28 Q 128 32 128 50" fill="none" stroke="#D4AF37" stroke-width="4"/>
+  <circle cx="100" cy="28" r="4" fill="#D4AF37"/>
+  <!-- Дополнительные детали шлема -->
+  <line x1="100" y1="28" x2="100" y2="45" stroke="#D4AF37" stroke-width="2"/>
+
+  <!-- Лицо - серьезные глаза (сосредоточенный взгляд) -->
+  <ellipse cx="88" cy="58" rx="5" ry="6" fill="#F5F0E8"/>
+  <ellipse cx="88" cy="59" rx="3" ry="4" fill="#0A0A0F"/>
+
+  <ellipse cx="112" cy="58" rx="5" ry="6" fill="#F5F0E8"/>
+  <ellipse cx="112" cy="59" rx="3" ry="4" fill="#0A0A0F"/>
+
+  <!-- Брови (нахмуренные) -->
+  <path d="M 80 52 L 92 56" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 108 56 L 120 52" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Рот (серьезный, сжатые губы) -->
+  <line x1="92" y1="70" x2="108" y2="70" stroke="#F5F0E8" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Руки (готовность к бою) -->
+  <g id="arms">
+    <!-- Левая рука (на мече) -->
+    <path d="M 70 110 L 50 125 L 54 130 L 68 118" fill="#1C1C28" stroke="#D4AF37" stroke-width="2"/>
+    <!-- Правая рука (держит щит/указывает) -->
+    <path d="M 130 110 L 145 120 L 142 125 L 133 118" fill="#1C1C28" stroke="#D4AF37" stroke-width="2"/>
+  </g>
+
+  <!-- Щит -->
+  <g id="shield">
+    <path d="M 145 115 Q 155 115 155 125 Q 155 135 145 140 Q 135 135 135 125 Q 135 115 145 115 Z" fill="#1C1C28" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 145 120 L 150 125 L 145 130 L 140 125 Z" fill="none" stroke="#F0D060" stroke-width="1.5"/>
+  </g>
+
+  <!-- Меч готов к бою -->
+  <g id="sword">
+    <line x1="45" y1="120" x2="30" y2="140" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 30 140 L 28 142 L 30 144 L 32 142 Z" fill="#F0D060"/>
+    <line x1="33" y1="137" x2="27" y2="143" stroke="#D4AF37" stroke-width="2"/>
+  </g>
+
+  <!-- Аура концентрации -->
+  <circle cx="100" cy="100" r="60" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.2"/>
+  <circle cx="100" cy="100" r="55" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.15"/>
+</svg>

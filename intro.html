@@ -4,6 +4,7 @@
     <title>BATYR BOL - Learn History Through Play</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="auth.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -35,6 +36,19 @@
             color: #e4e4e7;
         }
         
+        /* Enhanced gradient animation */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .animated-gradient {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0a0a0a 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
         /* Language Toggling Logic */
         body[data-language="ru"] .lang-kz { display: none !important; }
         body[data-language="kz"] .lang-ru { display: none !important; }
@@ -59,6 +73,68 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #3f3f46; 
         }
+
+        /* Scroll animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glow on hover */
+        .glow-on-hover:hover {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-black text-zinc-300 antialiased selection:bg-gold-500/30 selection:text-gold-200" data-language="ru">
@@ -68,16 +144,14 @@
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center gap-2">
-                <img src="/logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
+                <img src="logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
                 <span class="text-lg font-semibold tracking-tighter text-white">BATYR BOL</span>
             </div>
             
             <!-- Menu Items -->
             <div class="hidden md:flex items-center gap-8">
                 <a href="#about" class="text-sm font-medium text-zinc-300"><span class="lang-ru">О нас</span><span class="lang-kz">Біз туралы</span></a>
-                <a href="#how-it-works" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Как это работает</span><span class="lang-kz">Қалай жұмыс істейді</span></a>
                 <a href="#features" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Функции</span><span class="lang-kz">Мүмкіндіктер</span></a>
-                <a href="/investors.html" target="_blank" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Для инвесторов</span><span class="lang-kz">Инвесторларға</span></a>
                 <a href="#roadmap" class="text-sm font-medium text-zinc-300"><span class="lang-ru">Дорожная карта</span><span class="lang-kz">Жоспар</span></a>
             </div>
 
@@ -87,12 +161,6 @@
                     <button onclick="switchLanguage('ru')" id="btn-ru" class="px-3 py-1 text-xs font-medium rounded-md text-black bg-white">RU</button>
                     <button onclick="switchLanguage('kz')" id="btn-kz" class="px-3 py-1 text-xs font-medium rounded-md text-zinc-400">KZ</button>
                 </div>
-                
-                <!-- CTA Button -->
-                <button class="px-4 py-1.5 text-sm font-medium bg-white text-black rounded-full">
-                    <span class="lang-ru">Ранний доступ</span>
-                    <span class="lang-kz">Ерте қол жеткізу</span>
-                </button>
             </div>
         </div>
     </nav>
@@ -110,7 +178,7 @@
         <div class="max-w-7xl mx-auto px-6 text-center z-10 relative">
             
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-400 text-xs font-medium mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10 text-gold-400 text-xs font-medium mb-8 reveal">
                 <span class="relative flex h-2 w-2">
                   <span class="absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-gold-500"></span>
@@ -120,31 +188,26 @@
             </div>
 
             <!-- Main Title -->
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-gradient mb-6">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-gradient mb-6 reveal-scale">
                 BATYR BOL
             </h1>
 
             <!-- Subtitle -->
-            <p class="lang-ru text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p class="lang-ru text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal">
                 Изучай историю Казахстана и развивай язык через эпические игровые миссии. Стань настоящим батыром своей эпохи.
             </p>
-            <p class="lang-kz text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p class="lang-kz text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal">
                 Қазақстан тарихын зерттеп, эпикалық ойын тапсырмалары арқылы тілді дамыт. Өз заманыңның нағыз батыры бол.
             </p>
 
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="/game" class="px-8 py-3 bg-white text-black font-medium rounded-full">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
+                <a href="igra.html" class="px-8 py-3 bg-white text-black font-medium rounded-full hover:scale-105 transition-transform glow-on-hover">
                     <span class="flex items-center gap-2">
                         <span class="lang-ru">Начать играть в браузере</span>
                         <span class="lang-kz">Браузерде ойнауды бастау</span>
                         <iconify-icon icon="lucide:play" width="18" height="18" stroke-width="1.5"></iconify-icon>
                     </span>
-                </a>
-                <a href="https://t.me/BatyrBolBot" target="_blank" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
-                    <iconify-icon icon="lucide:message-circle" width="18" height="18"></iconify-icon>
-                    <span class="lang-ru">Играть в Telegram</span>
-                    <span class="lang-kz">Telegram-да ойнау</span>
                 </a>
             </div>
             
@@ -158,36 +221,26 @@
             </div>
             
             <!-- Additional Navigation -->
-            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="#about" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
+            <div class="mt-8 flex justify-center">
+                <button onclick="scrollToSection('about')" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2 hover:bg-white/10 transition-colors">
                     <iconify-icon icon="lucide:info" width="18" height="18"></iconify-icon>
-                    <span class="lang-ru">О проекте</span>
-                    <span class="lang-kz">Жоба туралы</span>
-                </a>
-                <a href="#how-it-works" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2">
-                    <iconify-icon icon="lucide:help-circle" width="18" height="18"></iconify-icon>
-                    <span class="lang-ru">Как это работает</span>
-                    <span class="lang-kz">Бұл қалай жұмыс істейді</span>
-                </a>
-                <a href="/investors.html" target="_blank" class="px-8 py-3 border border-gold-500/30 bg-gold-500/10 text-gold-400 font-medium rounded-full flex items-center gap-2">
-                    <iconify-icon icon="lucide:trending-up" width="18" height="18"></iconify-icon>
-                    <span class="lang-ru">Для инвесторов</span>
-                    <span class="lang-kz">Инвесторларға</span>
-                </a>
+                    <span class="lang-ru">Узнать больше</span>
+                    <span class="lang-kz">Көбірек білу</span>
+                </button>
             </div>
             
             <!-- Interactive Visual Elements -->
             <div class="mt-16 flex justify-center gap-8 flex-wrap">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gold-500/20 to-transparent border border-gold-500/10 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gold-500/20 to-transparent border border-gold-500/10 flex items-center justify-center float-animation">
                     <iconify-icon icon="lucide:sword" width="24" height="24" class="text-gold-400"></iconify-icon>
                 </div>
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/20 to-transparent border border-blue-500/10 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/20 to-transparent border border-blue-500/10 flex items-center justify-center float-animation" style="animation-delay: 0.5s">
                     <iconify-icon icon="lucide:book-open" width="24" height="24" class="text-blue-400"></iconify-icon>
                 </div>
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-transparent border border-purple-500/10 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-transparent border border-purple-500/10 flex items-center justify-center float-animation" style="animation-delay: 1s">
                     <iconify-icon icon="lucide:medal" width="24" height="24" class="text-purple-400"></iconify-icon>
                 </div>
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500/20 to-transparent border border-green-500/10 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500/20 to-transparent border border-green-500/10 flex items-center justify-center float-animation" style="animation-delay: 1.5s">
                     <iconify-icon icon="lucide:mic" width="24" height="24" class="text-green-400"></iconify-icon>
                 </div>
             </div>
@@ -926,70 +979,13 @@
                     <span class="lang-kz">Пікірлер</span>
                 </span>
                 <h2 class="text-4xl md:text-5xl font-bold text-white mt-4 tracking-tight">
-                    <span class="lang-ru">Что говорят пользователи</span>
-                    <span class="lang-kz">Пайдаланушылар не дейді</span>
+                    <span class="lang-ru">Поделитесь вашим мнением</span>
+                    <span class="lang-kz">Пікіріңізді бөлісіңіз</span>
                 </h2>
             </div>
             
-            <!-- Reviews Grid -->
-            <div class="grid md:grid-cols-3 gap-6 mb-12" id="reviews-grid">
-                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
-                    <div class="flex items-center gap-1 mb-4">
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                    </div>
-                    <p class="text-zinc-300 mb-4">"Балама өте ұнады! Ойын арқылы тарихты үйрену керемет идея. Енді ол батырлар туралы көп біледі."</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">А</div>
-                        <div>
-                            <div class="text-white font-medium">Айгүл М.</div>
-                            <div class="text-zinc-500 text-sm">Ата-ана</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
-                    <div class="flex items-center gap-1 mb-4">
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                    </div>
-                    <p class="text-zinc-300 mb-4">"ЕНТ-ге дайындалуға көмектесті. Сұрақтар нақты ЕНТ форматында. Рахмет!"</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">Е</div>
-                        <div>
-                            <div class="text-white font-medium">Ерлан К.</div>
-                            <div class="text-zinc-500 text-sm">11-сынып оқушысы</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
-                    <div class="flex items-center gap-1 mb-4">
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-gold-400" width="16"></iconify-icon>
-                        <iconify-icon icon="lucide:star" class="text-zinc-600" width="16"></iconify-icon>
-                    </div>
-                    <p class="text-zinc-300 mb-4">"Отличное приложение для изучения истории Казахстана. Дети играют и учатся одновременно!"</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400">М</div>
-                        <div>
-                            <div class="text-white font-medium">Марина С.</div>
-                            <div class="text-zinc-500 text-sm">Учитель истории</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Add Review Form -->
-            <div class="max-w-2xl mx-auto bg-zinc-900/50 border border-white/5 rounded-2xl p-8">
+            <div class="max-w-2xl mx-auto bg-zinc-900/50 border border-white/5 rounded-2xl p-8 reveal">
                 <h3 class="text-xl font-bold text-white mb-6 text-center">
                     <span class="lang-ru">Оставить отзыв</span>
                     <span class="lang-kz">Пікір қалдыру</span>
@@ -1096,8 +1092,60 @@
             window.open('https://forms.gle/7eoXJwsyR9wMgxiF6', '_blank');
             
             // Show confirmation message
-            alert('Спасибо! Опрос откроется в новой вкладке');
+            alert('');
         }
+        
+        // Contact form functionality
+        document.getElementById('contact-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const message = document.getElementById('contact-message').value;
+            
+            // Send email to nurmiko22@gmail.com
+            const subject = `Новое сообщение от ${name}`;
+            const body = `Имя: ${name}\nEmail: ${email}\n\nСообщение:\n${message}`;
+            
+            // Create mailto link
+            const mailtoLink = `mailto:nurmiko22@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Open email client
+            window.location.href = mailtoLink;
+            
+            // Show success message
+            const form = document.getElementById('contact-form');
+            const successDiv = document.getElementById('contact-success');
+            
+            form.style.display = 'none';
+            successDiv.classList.remove('hidden');
+        });
+        
+        // Scroll animations
+        function handleScrollAnimations() {
+            const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+            
+            reveals.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('active');
+                }
+            });
+        }
+        
+        // Smooth scroll function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Initialize scroll animations
+        window.addEventListener('scroll', handleScrollAnimations);
+        window.addEventListener('load', handleScrollAnimations);
         
         // Review form functionality
         let currentRating = 5;
@@ -1149,6 +1197,31 @@
                     </p>
                 </div>
             `;
+        });
+
+        // Auth check and redirect logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for auth manager to initialize
+            setTimeout(() => {
+                if (window.authManager && window.authManager.isAuthenticated()) {
+                    // User is already logged in, redirect to game
+                    window.location.href = '/game';
+                } else {
+                    // User is not logged in, show landing page
+                    // Add smooth scroll animations
+                    const reveals = document.querySelectorAll('.reveal');
+                    reveals.forEach(element => {
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    entry.target.classList.add('active');
+                                }
+                            });
+                        });
+                        observer.observe(entry.target);
+                    });
+                }
+            }, 1000);
         });
     </script>
 

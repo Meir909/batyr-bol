@@ -1,3 +1,8 @@
+"""
+LEGACY SERVER (reference/testing).
+Prefer `server.py` as the main backend.
+"""
+
 from flask import Flask, render_template, send_from_directory, request, jsonify
 import os
 import json
@@ -10,6 +15,7 @@ import requests
 from datetime import datetime
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 import threading
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -314,8 +320,8 @@ def register_user():
         if email in users:
             return jsonify({'success': False, 'message': 'Пользователь с таким email уже существует'}), 400
 
-        # Hash password
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        # Hash password (salted)
+        password_hash = generate_password_hash(password)
 
         # Create new user
         user_id = f'user_{int(datetime.now().timestamp() * 1000)}'
@@ -410,8 +416,7 @@ def upload_avatar():
             email = new_email
 
         if password:
-            # Hash new password
-            user['password_hash'] = hashlib.sha256(password.encode()).hexdigest()
+            user['password_hash'] = generate_password_hash(password)
 
         # Save updated users
         save_users(users)
@@ -450,16 +455,22 @@ def login_user():
                 'achievements': []
             }
             return jsonify({'success': True, 'user': user_data})
+
+        users = load_users()
+        user = users.get(email)
+        if user and user.get('password_hash') and check_password_hash(user['password_hash'], password or ''):
+            user_data = user.copy()
+            user_data.pop('password_hash', None)
+            if 'avatarUrl' not in user_data:
+                user_data['avatarUrl'] = None
+            return jsonify({'success': True, 'user': user_data})
         
         return jsonify({'success': False, 'message': 'Неверный email или пароль. Используйте: test@batyrbol.kz / batyr123'}), 401
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# Disable registration - only test account allowed
-@app.route('/api/register', methods=['POST'])
-def register_user():
-    return jsonify({'success': False, 'message': 'Регистрация отключена. Используйте тестовый аккаунт: test@batyrbol.kz / batyr123'}), 403
+# NOTE: Registration is implemented выше в файле (route /api/register)
 
 @app.route('/api/content/generate', methods=['POST'])
 def generate_learning_content():

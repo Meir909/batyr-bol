@@ -75,7 +75,11 @@ server {
 Create a `.env` file with your configuration:
 ```env
 TELEGRAM_BOT_TOKEN=your_actual_bot_token_here
+GROQ_API_KEY=your_groq_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 FLASK_ENV=production
+HOST=0.0.0.0
+PORT=8000
 DOMAIN_NAME=https://batyrbol.kz
 ```
 

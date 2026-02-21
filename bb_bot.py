@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8337334846:AAE9AvClYqFXGAHJ6tGALk_U-pFPFsxOaqk')
+TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
 
 # ===== DATA =====
 users = {}
@@ -1655,22 +1655,28 @@ async def set_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✅ Email сәтті сақталды")
 
 # ===== APP =====
-app = Application.builder().token(TOKEN).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("kz", set_kz))
-app.add_handler(CommandHandler("ru", set_ru))
-app.add_handler(CommandHandler("email", set_email))
-app.add_handler(CommandHandler("missions", missions))
-app.add_handler(CommandHandler("read_complete", read_complete))
-app.add_handler(CommandHandler("answer", answer))
-app.add_handler(CommandHandler("profile", profile))
-app.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
-app.add_handler(CommandHandler("feedback", feedback))
-app.add_handler(CommandHandler("clan", clan_cmd))
-app.add_handler(CommandHandler("duel", duel_cmd))
-app.add_handler(MessageHandler(filters.VOICE, voice_handler))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer))
+def create_app(token: str) -> Application:
+    application = Application.builder().token(token).build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("kz", set_kz))
+    application.add_handler(CommandHandler("ru", set_ru))
+    application.add_handler(CommandHandler("email", set_email))
+    application.add_handler(CommandHandler("missions", missions))
+    application.add_handler(CommandHandler("read_complete", read_complete))
+    application.add_handler(CommandHandler("answer", answer))
+    application.add_handler(CommandHandler("profile", profile))
+    application.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
+    application.add_handler(CommandHandler("feedback", feedback))
+    application.add_handler(CommandHandler("clan", clan_cmd))
+    application.add_handler(CommandHandler("duel", duel_cmd))
+    application.add_handler(MessageHandler(filters.VOICE, voice_handler))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer))
+    return application
+
 
 if __name__ == "__main__":
+    if not TOKEN:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN is not set. Put it into .env or environment variables.")
     print("🤖 Бот іске қосылды...")
+    app = create_app(TOKEN)
     app.run_polling()

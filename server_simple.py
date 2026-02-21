@@ -1,3 +1,8 @@
+"""
+LEGACY SERVER (reference/testing).
+Prefer `server.py` as the main backend.
+"""
+
 from flask import Flask, render_template, send_from_directory, request, jsonify
 import os
 import json

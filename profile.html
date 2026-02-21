@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f59e0b">
+    <title>BATYR BOL — Профиль</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                            950: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0a0a0a 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+        }
+
+        body[data-language="ru"] .lang-kz { display: none !important; }
+        body[data-language="kz"] .lang-ru { display: none !important; }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .glow {
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+            }
+        }
+
+        .pulse-gold {
+            animation: pulse-gold 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-black text-zinc-300 antialiased" data-language="ru">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/70 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <img src="logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
+                <span class="text-lg font-semibold tracking-tighter text-white">BATYR BOL</span>
+            </div>
+            
+            <!-- Menu Items -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="intro.html" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Главная</span>
+                    <span class="lang-kz">Басты бет</span>
+                </a>
+                <a href="igra.html" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Игра</span>
+                    <span class="lang-kz">Ойын</span>
+                </a>
+                <a href="clan.html" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">Клан</span>
+                    <span class="lang-kz">Клан</span>
+                </a>
+                <a href="openai_demo.html" class="text-sm font-medium text-zinc-300">
+                    <span class="lang-ru">AI Демо</span>
+                    <span class="lang-kz">AI Демо</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Language Switcher -->
+                <div class="flex items-center gap-1 bg-zinc-900/80 p-1 rounded-lg border border-white/10">
+                    <button onclick="switchLanguage('ru')" id="btn-ru" class="px-3 py-1 text-xs font-medium rounded-md text-black bg-white">RU</button>
+                    <button onclick="switchLanguage('kz')" id="btn-kz" class="px-3 py-1 text-xs font-medium rounded-md text-zinc-400">KZ</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            
+            <!-- Profile Header -->
+            <div class="glass rounded-2xl p-8 mb-8">
+                <div class="flex flex-col md:flex-row items-center gap-6 mb-6">
+                    <div class="w-24 h-24 rounded-full bg-gold-500/20 flex items-center justify-center">
+                        <iconify-icon icon="lucide:user" width="48" height="48" class="text-gold-400"></iconify-icon>
+                    </div>
+                    <div class="text-center md:text-left">
+                        <h1 class="text-3xl font-bold text-white mb-2" id="userName">Загрузка...</h1>
+                        <p class="text-zinc-400 mb-4" id="userEmail">user@example.com</p>
+                        <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <span class="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm font-medium">
+                                <span class="lang-ru">Уровень</span>
+                                <span class="lang-kz">Деңгей</span>
+                                <span id="userLevel">5</span>
+                            </span>
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
+                                <span id="userXP">1,250</span> XP
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="glass rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">
+                            <span class="lang-ru">Миссии</span>
+                            <span class="lang-kz">Миссиялар</span>
+                        </h3>
+                        <div class="w-12 h-12 rounded-full bg-gold-500/20 flex items-center justify-center">
+                            <iconify-icon icon="lucide:target" width="24" height="24" class="text-gold-400"></iconify-icon>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gold-400 mb-2" id="missionsCompleted">23</div>
+                    <p class="text-sm text-zinc-500">
+                        <span class="lang-ru">Выполнено</span>
+                        <span class="lang-kz">Орындалған</span>
+                    </p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">
+                            <span class="lang-ru">Серия</span>
+                            <span class="lang-kz">Серия</span>
+                        </h3>
+                        <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <iconify-icon icon="lucide:flame" width="24" height="24" class="text-green-400"></iconify-icon>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-green-400 mb-2" id="currentStreak">7</div>
+                    <p class="text-sm text-zinc-500">
+                        <span class="lang-ru">Дней подряд</span>
+                        <span class="lang-kz">Күн қатар</span>
+                    </p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">
+                            <span class="lang-ru">Достижения</span>
+                            <span class="lang-kz">Жетістіктер</span>
+                        </h3>
+                        <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                            <iconify-icon icon="lucide:award" width="24" height="24" class="text-purple-400"></iconify-icon>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-purple-400 mb-2" id="achievementsCount">15</div>
+                    <p class="text-sm text-zinc-500">
+                        <span class="lang-ru">Получено</span>
+                        <span class="lang-kz">Алынған</span>
+                    </p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">
+                            <span class="lang-ru">Рейтинг</span>
+                            <span class="lang-kz">Рейтинг</span>
+                        </h3>
+                        <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                            <iconify-icon icon="lucide:medal" width="24" height="24" class="text-orange-400"></iconify-icon>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-orange-400 mb-2" id="globalRank">#42</div>
+                    <p class="text-sm text-zinc-500">
+                        <span class="lang-ru">В мире</span>
+                        <span class="lang-kz">Әлемде</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="glass rounded-2xl p-8 mb-8">
+                <h2 class="text-2xl font-bold text-white mb-6">
+                    <span class="lang-ru">Прогресс до следующего уровня</span>
+                    <span class="lang-kz">Келесі деңгейге дейінгі прогресс</span>
+                </h2>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-zinc-400 mb-2">
+                        <span>
+                            <span class="lang-ru">Уровень</span>
+                            <span class="lang-kz">Деңгей</span>
+                            <span id="currentLevel">5</span>
+                        </span>
+                        <span>
+                            <span class="lang-ru">Уровень</span>
+                            <span class="lang-kz">Деңгей</span>
+                            <span id="nextLevel">6</span>
+                        </span>
+                    </div>
+                    <div class="w-full bg-zinc-800 rounded-full h-4 overflow-hidden">
+                        <div class="progress-bar h-full rounded-full transition-all duration-500" id="levelProgress" style="width: 65%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-zinc-500 mt-2">
+                        <span><span id="currentXP">1,250</span> XP</span>
+                        <span><span id="requiredXP">2,000</span> XP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="glass rounded-2xl p-8">
+                <h2 class="text-2xl font-bold text-white mb-6">
+                    <span class="lang-ru">Последняя активность</span>
+                    <span class="lang-kz">Соңғы белсенділік</span>
+                </h2>
+                
+                <div class="space-y-4" id="recentActivity">
+                    <!-- Activity will be loaded here -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Language switching
+        function switchLanguage(lang) {
+            document.body.setAttribute('data-language', lang);
+            document.getElementById('btn-ru').className = lang === 'ru' ? 'px-3 py-1 text-xs font-medium rounded-md text-black bg-white' : 'px-3 py-1 text-xs font-medium rounded-md text-zinc-400';
+            document.getElementById('btn-kz').className = lang === 'kz' ? 'px-3 py-1 text-xs font-medium rounded-md text-black bg-white' : 'px-3 py-1 text-xs font-medium rounded-md text-zinc-400';
+            localStorage.setItem('preferredLanguage', lang);
+        }
+
+        // Load saved language
+        const savedLang = localStorage.getItem('preferredLanguage') || 'ru';
+        switchLanguage(savedLang);
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                // Get user from localStorage or server
+                const userEmail = localStorage.getItem('userEmail') || 'test@batyrbol.kz';
+                
+                const response = await fetch('/api/user/profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: userEmail })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.user;
+                    
+                    // Update profile information
+                    document.getElementById('userName').textContent = user.name || 'Батыр';
+                    document.getElementById('userEmail').textContent = user.email || userEmail;
+                    document.getElementById('userLevel').textContent = user.level || 5;
+                    document.getElementById('userXP').textContent = user.xp || 1250;
+                    
+                    // Update stats
+                    document.getElementById('missionsCompleted').textContent = user.missions_completed || 23;
+                    document.getElementById('currentStreak').textContent = user.current_streak || 7;
+                    document.getElementById('achievementsCount').textContent = user.achievements_count || 15;
+                    document.getElementById('globalRank').textContent = `#${user.global_rank || 42}`;
+                    
+                    // Update progress
+                    const currentLevel = user.level || 5;
+                    const currentXP = user.xp || 1250;
+                    const requiredXP = currentLevel * 400; // 400 XP per level
+                    const progress = Math.min((currentXP % requiredXP) / requiredXP * 100, 100);
+                    
+                    document.getElementById('currentLevel').textContent = currentLevel;
+                    document.getElementById('nextLevel').textContent = currentLevel + 1;
+                    document.getElementById('currentXP').textContent = currentXP;
+                    document.getElementById('requiredXP').textContent = requiredXP;
+                    document.getElementById('levelProgress').style.width = `${progress}%`;
+                    
+                    // Load recent activity
+                    loadRecentActivity(user.recent_activity || []);
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+                // Load demo data if API fails
+                loadDemoData();
+            }
+        }
+
+        // Load recent activity
+        function loadRecentActivity(activities) {
+            const activityContainer = document.getElementById('recentActivity');
+            activityContainer.innerHTML = '';
+            
+            activities.slice(0, 5).forEach(activity => {
+                const activityCard = document.createElement('div');
+                activityCard.className = 'flex items-center justify-between p-4 glass rounded-xl card-hover';
+                activityCard.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center">
+                            <iconify-icon icon="${getActivityIcon(activity.type)}" width="20" height="20" class="text-gold-400"></iconify-icon>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-white">${getActivityTitle(activity)}</h4>
+                            <p class="text-sm text-zinc-400">${formatDate(activity.timestamp)}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-bold text-gold-400">+${activity.xp || 0}</div>
+                        <p class="text-xs text-zinc-500">XP</p>
+                    </div>
+                `;
+                activityContainer.appendChild(activityCard);
+            });
+        }
+
+        // Get activity icon
+        function getActivityIcon(type) {
+            const icons = {
+                'mission_completed': 'lucide:check-circle',
+                'achievement_unlocked': 'lucide:award',
+                'level_up': 'lucide:arrow-up-circle',
+                'streak_milestone': 'lucide:flame'
+            };
+            return icons[type] || 'lucide:circle';
+        }
+
+        // Get activity title
+        function getActivityTitle(activity) {
+            const titles = {
+                'mission_completed': {
+                    ru: 'Миссия выполнена',
+                    kz: 'Миссия орындалды'
+                },
+                'achievement_unlocked': {
+                    ru: 'Достижение получено',
+                    kz: 'Жетістік алынды'
+                },
+                'level_up': {
+                    ru: 'Новый уровень',
+                    kz: 'Жаңа деңгей'
+                },
+                'streak_milestone': {
+                    ru: 'Серия обновлена',
+                    kz: 'Серия жаңартылды'
+                }
+            };
+            
+            const title = titles[activity.type] || { ru: 'Активность', kz: 'Белсенділік' };
+            const lang = document.body.getAttribute('data-language') || 'ru';
+            
+            return title[lang];
+        }
+
+        // Format date
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            const lang = document.body.getAttribute('data-language') || 'ru';
+            
+            if (diffMins < 60) {
+                return lang === 'ru' ? `${diffMins} минут назад` : `${diffMins} минут бұрын`;
+            } else if (diffHours < 24) {
+                return lang === 'ru' ? `${diffHours} часов назад` : `${diffHours} сағат бұрын`;
+            } else {
+                return lang === 'ru' ? `${diffDays} дней назад` : `${diffDays} күн бұрын`;
+            }
+        }
+
+        // Load demo data
+        function loadDemoData() {
+            const demoActivities = [
+                { type: 'mission_completed', xp: 50, timestamp: Date.now() - 3600000 },
+                { type: 'achievement_unlocked', xp: 25, timestamp: Date.now() - 7200000 },
+                { type: 'level_up', xp: 100, timestamp: Date.now() - 86400000 },
+                { type: 'streak_milestone', xp: 30, timestamp: Date.now() - 172800000 },
+                { type: 'mission_completed', xp: 45, timestamp: Date.now() - 259200000 }
+            ];
+            
+            loadRecentActivity(demoActivities);
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+        });
+    </script>
+</body>
+</html>

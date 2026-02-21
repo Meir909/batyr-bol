@@ -1,0 +1,22 @@
+<!-- Угловой казахский орнамент для карточек -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Основные линии угла -->
+  <path d="M 10 90 L 10 10 L 90 10" stroke="#D4AF37" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Декоративные ромбы -->
+  <path d="M 30 10 L 40 5 L 50 10 L 40 15 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+  <path d="M 70 10 L 80 5 L 90 10 L 80 15 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+
+  <path d="M 10 30 L 5 40 L 10 50 L 15 40 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+  <path d="M 10 70 L 5 80 L 10 90 L 15 80 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+
+  <!-- Внутренний узор -->
+  <path d="M 15 15 L 25 10" stroke="#F0D060" stroke-width="1"/>
+  <path d="M 15 15 L 10 25" stroke="#F0D060" stroke-width="1"/>
+
+  <!-- Точки акцента -->
+  <circle cx="40" cy="10" r="2" fill="#F0D060"/>
+  <circle cx="80" cy="10" r="2" fill="#F0D060"/>
+  <circle cx="10" cy="40" r="2" fill="#F0D060"/>
+  <circle cx="10" cy="80" r="2" fill="#F0D060"/>
+</svg>

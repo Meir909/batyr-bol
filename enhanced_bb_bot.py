@@ -12,12 +12,15 @@ from telegram.ext import (
 from datetime import date
 import random
 import json
+import os
+from dotenv import load_dotenv
 
 # Импортируем адаптивную модель обучения
 from learning_model import adaptive_model
 
 # ===== TOKEN =====
-TOKEN = "YOUR_BOT_TOKEN_HERE"  # Замените на ваш токен
+load_dotenv()
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 
 # ===== DATA =====
 users = {}
@@ -199,21 +202,23 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 # ===== APP =====
-app = Application.builder().token(TOKEN).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("kz", set_kz))
-app.add_handler(CommandHandler("ru", set_ru))
-app.add_handler(CommandHandler("missions", missions))
-app.add_handler(CommandHandler("answer", answer))
-app.add_handler(CommandHandler("profile", profile))
-app.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
-app.add_handler(CommandHandler("help", help_cmd))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer))  # Прямые ответы
+def create_app(token: str) -> Application:
+    application = Application.builder().token(token).build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("kz", set_kz))
+    application.add_handler(CommandHandler("ru", set_ru))
+    application.add_handler(CommandHandler("missions", missions))
+    application.add_handler(CommandHandler("answer", answer))
+    application.add_handler(CommandHandler("profile", profile))
+    application.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
+    application.add_handler(CommandHandler("help", help_cmd))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, answer))  # Прямые ответы
+    return application
 
-print("Бот запущен и готов к работе")
-# app.run_polling()  # Раскомментируйте для запуска бота
 
 if __name__ == "__main__":
-    # Для тестирования модели
-    print("Адаптивная модель обучения готова к использованию!")
-    print("Для запуска бота раскомментируйте app.run_polling()")
+    if not TOKEN:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN is not set. Put it into .env or environment variables.")
+    app = create_app(TOKEN)
+    print("Бот запущен и готов к работе")
+    app.run_polling()

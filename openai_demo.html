@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq AI Mission Generator - BATYR BOL</title>
+    <title>OpenAI AI Mission Generator - BATYR BOL</title>
     <style>
         * {
             margin: 0;
@@ -208,8 +208,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 Groq AI Mission Generator</h1>
-            <p>Генерация миссий с использованием искусственного интеллекта</p>
+            <h1>🤖 OpenAI AI Mission Generator</h1>
+            <p>Генерация миссий с использованием OpenAI GPT-4o-mini</p>
             <p><span class="status-indicator status-offline" id="statusIndicator"></span><span id="statusText">Проверка состояния...</span></p>
         </div>
 
@@ -228,6 +228,11 @@
                         <option value="3">Уровень 3 - Детальная информация</option>
                         <option value="4">Уровень 4 - Официальные документы</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="apiKey">OpenAI API Key (опционально):</label>
+                    <input type="password" id="apiKey" name="apiKey" placeholder="sk-...">
                 </div>
 
                 <button type="submit" class="btn" id="generateBtn">
@@ -264,6 +269,7 @@
             
             const topic = document.getElementById('topic').value.trim();
             const level = parseInt(document.getElementById('level').value);
+            const apiKey = document.getElementById('apiKey').value.trim();
             const resultDiv = document.getElementById('result');
             const generateBtn = document.getElementById('generateBtn');
             
@@ -275,17 +281,18 @@
             // Show loading state
             generateBtn.disabled = true;
             generateBtn.innerHTML = '<span class="loading"></span>Генерация...';
-            resultDiv.innerHTML = '<div class="result">🔄 Генерация миссии с использованием AI...</div>';
+            resultDiv.innerHTML = '<div class="result">🔄 Генерация миссии с использованием OpenAI GPT-4o-mini...</div>';
             
             try {
-                const response = await fetch(`${API_URL}/api/content/generate`, {
+                const response = await fetch(`${API_URL}/api/content/generate-openai`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         topic: topic,
-                        level: level
+                        level: level,
+                        api_key: apiKey || null
                     })
                 });
                 

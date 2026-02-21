@@ -1,0 +1,65 @@
+<!-- Маскот БАТЫР - радостное состояние (победа) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Тело (плащ) - более динамичный -->
+  <path d="M 100 120 L 55 180 L 65 192 L 100 150 L 135 192 L 145 180 Z" fill="#13131A" stroke="#D4AF37" stroke-width="2"/>
+
+  <!-- Туловище (доспехи) -->
+  <ellipse cx="100" cy="110" rx="35" ry="45" fill="#1C1C28" stroke="#D4AF37" stroke-width="3"/>
+
+  <!-- Орнаменты на доспехах (более яркие) -->
+  <path d="M 100 90 L 110 95 L 100 100 L 90 95 Z" fill="#F0D060" stroke="#F0D060" stroke-width="1.5"/>
+  <path d="M 100 110 L 110 115 L 100 120 L 90 115 Z" fill="#F0D060" stroke="#F0D060" stroke-width="1.5"/>
+  <circle cx="85" cy="105" r="3" fill="#F0D060"/>
+  <circle cx="115" cy="105" r="3" fill="#F0D060"/>
+
+  <!-- Голова -->
+  <circle cx="100" cy="60" r="28" fill="#1C1C28" stroke="#D4AF37" stroke-width="3"/>
+
+  <!-- Шлем с золотыми деталями -->
+  <path d="M 72 50 Q 72 35 100 30 Q 128 35 128 50" fill="none" stroke="#F0D060" stroke-width="3"/>
+  <circle cx="100" cy="30" r="6" fill="#F0D060">
+    <animate attributeName="r" values="6;8;6" dur="1s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Лицо - радостные глаза -->
+  <path d="M 82 56 Q 88 60 94 56" stroke="#0A0A0F" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M 106 56 Q 112 60 118 56" stroke="#0A0A0F" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Брови (приподнятые) -->
+  <path d="M 82 50 L 92 52" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
+  <path d="M 108 52 L 118 50" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Рот (широкая улыбка) -->
+  <path d="M 85 68 Q 100 78 115 68" stroke="#F5F0E8" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Руки (поднятые в победном жесте) -->
+  <g id="arms">
+    <!-- Левая рука -->
+    <path d="M 70 100 L 45 80 L 48 75 L 68 92" fill="#1C1C28" stroke="#D4AF37" stroke-width="2"/>
+    <!-- Правая рука -->
+    <path d="M 130 100 L 155 80 L 152 75 L 132 92" fill="#1C1C28" stroke="#D4AF37" stroke-width="2"/>
+  </g>
+
+  <!-- Меч поднят вверх -->
+  <g id="sword">
+    <line x1="160" y1="75" x2="170" y2="45" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 170 45 L 172 43 L 170 41 L 168 43 Z" fill="#F0D060"/>
+    <line x1="167" y1="48" x2="173" y2="42" stroke="#F0D060" stroke-width="2"/>
+  </g>
+
+  <!-- Звезды победы -->
+  <g id="stars">
+    <path d="M 40 50 L 42 55 L 47 55 L 43 58 L 45 63 L 40 60 L 35 63 L 37 58 L 33 55 L 38 55 Z" fill="#F0D060" opacity="0.8">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 160 50 L 162 55 L 167 55 L 163 58 L 165 63 L 160 60 L 155 63 L 157 58 L 153 55 L 158 55 Z" fill="#F0D060" opacity="0.8">
+      <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Сильное золотое свечение -->
+  <circle cx="100" cy="60" r="35" fill="none" stroke="#F0D060" stroke-width="2" opacity="0.5">
+    <animate attributeName="r" values="35;40;35" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

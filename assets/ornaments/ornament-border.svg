@@ -1,0 +1,36 @@
+<!-- Казахский орнамент для бордера (шырдак паттерн) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 40" fill="none">
+  <!-- Повторяющийся ромбический узор -->
+  <g id="pattern">
+    <!-- Секция 1 -->
+    <path d="M 20 20 L 40 10 L 60 20 L 40 30 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 40 10 L 50 20 L 40 30 L 30 20 Z" fill="none" stroke="#F0D060" stroke-width="1"/>
+
+    <!-- Секция 2 -->
+    <path d="M 80 20 L 100 10 L 120 20 L 100 30 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 100 10 L 110 20 L 100 30 L 90 20 Z" fill="none" stroke="#F0D060" stroke-width="1"/>
+
+    <!-- Секция 3 -->
+    <path d="M 140 20 L 160 10 L 180 20 L 160 30 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 160 10 L 170 20 L 160 30 L 150 20 Z" fill="none" stroke="#F0D060" stroke-width="1"/>
+
+    <!-- Секция 4 -->
+    <path d="M 200 20 L 220 10 L 240 20 L 220 30 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 220 10 L 230 20 L 220 30 L 210 20 Z" fill="none" stroke="#F0D060" stroke-width="1"/>
+
+    <!-- Секция 5 -->
+    <path d="M 260 20 L 280 10 L 300 20 L 280 30 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 280 10 L 290 20 L 280 30 L 270 20 Z" fill="none" stroke="#F0D060" stroke-width="1"/>
+
+    <!-- Секция 6 -->
+    <path d="M 320 20 L 340 10 L 360 20 L 340 30 Z" fill="none" stroke="#D4AF37" stroke-width="2"/>
+    <path d="M 340 10 L 350 20 L 340 30 L 330 20 Z" fill="none" stroke="#F0D060" stroke-width="1"/>
+
+    <!-- Соединительные линии -->
+    <line x1="60" y1="20" x2="80" y2="20" stroke="#D4AF37" stroke-width="1"/>
+    <line x1="120" y1="20" x2="140" y2="20" stroke="#D4AF37" stroke-width="1"/>
+    <line x1="180" y1="20" x2="200" y2="20" stroke="#D4AF37" stroke-width="1"/>
+    <line x1="240" y1="20" x2="260" y2="20" stroke="#D4AF37" stroke-width="1"/>
+    <line x1="300" y1="20" x2="320" y2="20" stroke="#D4AF37" stroke-width="1"/>
+  </g>
+</svg>

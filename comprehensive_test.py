@@ -7,7 +7,7 @@ import os
 
 # Test configuration
 BASE_URL = "http://localhost:8000"
-TELEGRAM_BOT_TOKEN = "8337334846:AAE9AvClYqFXGAHJ6tGALk_U-pFPFsxOaqk"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 
 def test_landing_page():
     """Test the landing page functionality"""
@@ -142,6 +142,9 @@ def test_telegram_bot():
     print("\n=== Testing Telegram Bot ===")
     
     try:
+        if not TELEGRAM_BOT_TOKEN:
+            print("⚠ Skipping Telegram bot test: TELEGRAM_BOT_TOKEN is not set")
+            return True
         # Test if bot API is accessible
         response = requests.get(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getMe")
         assert response.status_code == 200, f"Telegram bot API returned status {response.status_code}"

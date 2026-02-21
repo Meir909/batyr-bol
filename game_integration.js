@@ -83,30 +83,76 @@ class GameIntegration {
     }
 
     async registerUser(name, email, password) {
-        const data = await this.requestJson('/api/register', {
-            method: 'POST',
-            body: { name, email, password }
-        });
-        if (!data || !data.success) {
-            throw new Error((data && data.message) || 'Ошибка регистрации');
+        try {
+            const data = await this.requestJson('/api/register', {
+                method: 'POST',
+                body: { name, email, password }
+            });
+            if (!data || !data.success) {
+                throw new Error((data && data.message) || 'Ошибка регистрации');
+            }
+            this.userProfile = { ...this.userProfile, ...data.user };
+        } catch (err) {
+            // Offline fallback: register locally via localStorage
+            if (window.location.protocol === 'file:' || err.message === 'Request timeout' || err.message.includes('Failed to fetch')) {
+                const users = JSON.parse(localStorage.getItem('batyrbol_users') || '{}');
+                if (users[email]) {
+                    throw new Error('Бұл email тіркелген / Этот email уже зарегистрирован');
+                }
+                users[email] = { name, email, password, xp: 0, level: 1, createdAt: new Date().toISOString() };
+                localStorage.setItem('batyrbol_users', JSON.stringify(users));
+                this.userProfile = {
+                    ...this.userProfile,
+                    id: email,
+                    name,
+                    email,
+                    xp: 0,
+                    level: 1,
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
+                };
+            } else {
+                throw err;
+            }
         }
-
-        this.userProfile = { ...this.userProfile, ...data.user };
         this.saveUserProfile();
+        localStorage.setItem('batyrbol_user', JSON.stringify({ name: this.userProfile.name, xp: this.userProfile.xp }));
         return true;
     }
 
     async loginUser(email, password) {
-        const data = await this.requestJson('/api/login', {
-            method: 'POST',
-            body: { email, password }
-        });
-        if (!data || !data.success) {
-            throw new Error((data && data.message) || 'Ошибка входа');
+        try {
+            const data = await this.requestJson('/api/login', {
+                method: 'POST',
+                body: { email, password }
+            });
+            if (!data || !data.success) {
+                throw new Error((data && data.message) || 'Ошибка входа');
+            }
+            this.userProfile = { ...this.userProfile, ...data.user };
+        } catch (err) {
+            // Offline fallback: login locally via localStorage
+            if (window.location.protocol === 'file:' || err.message === 'Request timeout' || err.message.includes('Failed to fetch')) {
+                const users = JSON.parse(localStorage.getItem('batyrbol_users') || '{}');
+                const user = users[email];
+                if (!user || user.password !== password) {
+                    throw new Error('Қате email немесе құпия сөз / Неверный email или пароль');
+                }
+                this.userProfile = {
+                    ...this.userProfile,
+                    id: email,
+                    name: user.name,
+                    email,
+                    xp: user.xp || 0,
+                    level: user.level || 1,
+                    lastLogin: new Date().toISOString()
+                };
+            } else {
+                throw err;
+            }
         }
-
-        this.userProfile = { ...this.userProfile, ...data.user };
         this.saveUserProfile();
+        localStorage.setItem('batyrbol_user', JSON.stringify({ name: this.userProfile.name, xp: this.userProfile.xp }));
         return true;
     }
 
@@ -282,13 +328,13 @@ class GameIntegration {
 
         // Record successful completion for clan
         const clanData = JSON.parse(localStorage.getItem('batyrbol_clan_data') || '{"readToday": []}');
-        const today = new Date().toISOString().split('T')[0];
-
-        if (!clanData.readToday.includes(today)) {
-            clanData.readToday.push(today);
-            clanData.lastReadDate = today;
+        if (!clanData.readToday.includes(this.userProfile.email)) {
+            clanData.readToday.push(this.userProfile.email);
             localStorage.setItem('batyrbol_clan_data', JSON.stringify(clanData));
         }
+
+        // Track mission completion with server
+        this.trackClanActivity(true, false);
     }
 
     checkIncompleteMission() {
@@ -305,11 +351,61 @@ class GameIntegration {
                 if (hoursSince > 1 && !missionData.completed) {
                     // Apply clan penalty
                     this.applyClanPenalty();
+                    
+                    // Track mission skip with server
+                    this.trackClanActivity(false, true);
+                    
                     localStorage.removeItem('batyrbol_current_mission');
                 }
             } catch (error) {
                 console.error('Error checking incomplete mission:', error);
             }
+        }
+    }
+
+    async trackClanActivity(missionCompleted = false, missionSkipped = false) {
+        try {
+            const userEmail = this.userProfile.email;
+            if (!userEmail) return;
+
+            const response = await this.requestJson('/api/clans/activity', {
+                method: 'POST',
+                body: {
+                    email: userEmail,
+                    mission_completed: missionCompleted,
+                    mission_skipped: missionSkipped
+                }
+            });
+
+            if (response.success) {
+                console.log('Clan activity tracked successfully');
+            }
+        } catch (error) {
+            console.error('Error tracking clan activity:', error);
+        }
+    }
+
+    async updateClanLeaderboard() {
+        try {
+            // Trigger leaderboard update on server
+            const response = await this.requestJson('/api/clans/leaderboard', {
+                method: 'GET'
+            });
+
+            if (response.success) {
+                console.log('Clan leaderboard updated successfully');
+                
+                // If user is on clan page, refresh the data
+                if (window.location.pathname.includes('clan.html') || 
+                    window.location.href.includes('clan.html')) {
+                    // Trigger refresh if clan page functions are available
+                    if (typeof loadClanLeaderboard === 'function') {
+                        loadClanLeaderboard();
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error updating clan leaderboard:', error);
         }
     }
 
@@ -943,6 +1039,9 @@ class GameIntegration {
             
             this.saveUserProfile();
             this.updateProfileInfo();
+            
+            // Update clan leaderboard after mission completion
+            this.updateClanLeaderboard();
             
             // Display results
             this.displayResults(results, totalScore, correctCount, xpGained);

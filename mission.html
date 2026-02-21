@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATYR BOL - Миссия</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                            950: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #050505;
+            color: #e4e4e7;
+        }
+
+        .heart-animation {
+            animation: heartBeat 0.3s ease-in-out;
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .heart-lost {
+            animation: heartLost 0.5s ease-in-out;
+            opacity: 0.3;
+        }
+
+        @keyframes heartLost {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(0.8) rotate(-10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+        }
+
+        .option-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #f59e0b;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+        }
+
+        .mission-text {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-gold {
+            animation: pulseGold 2s infinite;
+        }
+
+        @keyframes pulseGold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+    </style>
+</head>
+<body class="bg-black text-zinc-300 antialiased">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/70 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <img src="logo.png" alt="BATYR BOL" class="w-10 h-10 rounded-full">
+                <span class="text-lg font-semibold tracking-tighter text-white">BATYR BOL</span>
+            </div>
+            
+            <!-- Lives Display -->
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-zinc-400">Жизни:</span>
+                <div class="flex gap-1" id="hearts-container">
+                    <iconify-icon icon="lucide:heart" class="text-red-500" width="24" height="24" id="heart-1"></iconify-icon>
+                    <iconify-icon icon="lucide:heart" class="text-red-500" width="24" height="24" id="heart-2"></iconify-icon>
+                    <iconify-icon icon="lucide:heart" class="text-red-500" width="24" height="24" id="heart-3"></iconify-icon>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Level Display -->
+                <div class="flex items-center gap-2 px-3 py-1 rounded-full border border-gold-500/30 bg-gold-500/10">
+                    <iconify-icon icon="lucide:star" class="text-gold-400" width="16" height="16"></iconify-icon>
+                    <span class="text-gold-400 text-sm font-medium" id="level-display">Уровень 1</span>
+                </div>
+                
+                <!-- Exit Button -->
+                <button onclick="exitMission()" class="px-4 py-2 border border-red-500/30 bg-red-600/10 text-red-300 font-medium rounded-full hover:bg-red-600/20 transition-colors">
+                    <iconify-icon icon="lucide:x" width="16" height="16"></iconify-icon>
+                    Выйти
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <main class="pt-24 pb-12 min-h-screen">
+        <div class="max-w-4xl mx-auto px-6">
+            <!-- Character Info -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-gold-500/30 bg-gold-500/10 mb-4">
+                    <iconify-icon icon="lucide:users" class="text-gold-400" width="20" height="20"></iconify-icon>
+                    <span class="text-gold-400 font-medium" id="character-display">Абылай хан</span>
+                </div>
+                <h1 class="text-2xl font-bold text-white mb-2">Историческая миссия</h1>
+                <p class="text-zinc-500 text-sm" id="mission-rules">Помочь народу выиграть на войне, масштабировать территорию</p>
+            </div>
+
+            <!-- Mission Content -->
+            <div class="bg-zinc-900/50 border border-white/5 rounded-2xl p-8 mb-8">
+                <!-- Mission Text -->
+                <div class="mb-8">
+                    <p class="text-xl text-zinc-200 leading-relaxed mission-text" id="mission-text">
+                        Загрузка миссии...
+                    </p>
+                </div>
+
+                <!-- Options -->
+                <div class="grid gap-4" id="options-container">
+                    <!-- Options will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-700 bg-zinc-900/50">
+                    <span class="text-zinc-400 text-sm">Шаг</span>
+                    <span class="text-white font-medium" id="step-counter">1/5</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mission Failed Modal -->
+    <div id="mission-failed-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-6">
+            <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full text-center">
+                <div class="text-6xl mb-4">💔</div>
+                <h2 class="text-2xl font-bold text-white mb-2">Миссия провалена</h2>
+                <p class="text-zinc-400 mb-6">Вы потеряли все жизни. Попробуйте еще раз!</p>
+                <div class="flex gap-3">
+                    <button onclick="restartMission()" class="flex-1 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-xl transition-colors">
+                        Начать заново
+                    </button>
+                    <button onclick="exitMission()" class="flex-1 px-6 py-3 border border-zinc-700 text-zinc-300 font-medium rounded-xl hover:bg-zinc-800 transition-colors">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission Success Modal -->
+    <div id="mission-success-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-6">
+            <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full text-center">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-2xl font-bold text-white mb-2">Миссия выполнена!</h2>
+                <p class="text-zinc-400 mb-6">Вы успешно завершили миссию и получили опыт!</p>
+                <div class="mb-6">
+                    <div class="text-gold-400 text-3xl font-bold">+50 XP</div>
+                    <div class="text-zinc-500 text-sm">Опыт добавлен</div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="nextMission()" class="flex-1 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-xl transition-colors">
+                        Следующая миссия
+                    </button>
+                    <button onclick="exitMission()" class="flex-1 px-6 py-3 border border-zinc-700 text-zinc-300 font-medium rounded-xl hover:bg-zinc-800 transition-colors">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            lives: 3,
+            currentStep: 1,
+            maxSteps: 5,
+            character: '',
+            level: 1,
+            previousMissions: [],
+            currentMission: null,
+            experience: 0
+        };
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGameState();
+            startNewMission();
+        });
+
+        function loadGameState() {
+            // Load from localStorage or URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            gameState.character = urlParams.get('character') || 'Абылай хан';
+            gameState.level = parseInt(localStorage.getItem('playerLevel') || '1');
+            gameState.previousMissions = JSON.parse(localStorage.getItem('previousMissions') || '[]');
+            
+            // Update UI
+            document.getElementById('character-display').textContent = gameState.character;
+            document.getElementById('level-display').textContent = `Уровень ${gameState.level}`;
+            
+            // Update character rules
+            const characterRules = {
+                'Абылай хан': 'Помочь народу выиграть на войне, масштабировать территорию',
+                'Абай': 'Учить детей писать стихи, создавать произведения',
+                'Айтеке би': 'Справедливо судить, решать конфликты'
+            };
+            document.getElementById('mission-rules').textContent = characterRules[gameState.character];
+        }
+
+        async function startNewMission() {
+            try {
+                // Show loading state
+                document.getElementById('mission-text').textContent = 'Загрузка миссии...';
+                document.getElementById('options-container').innerHTML = '<div class="text-center text-zinc-500">Генерация контента...</div>';
+                
+                // Call API to generate mission
+                const response = await fetch('/api/mission/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        playerLevel: gameState.level,
+                        previousMissions: gameState.previousMissions,
+                        character: gameState.character
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    gameState.currentMission = data.mission;
+                    displayMission(data.mission);
+                    
+                    // Log if fallback was used
+                    if (data.fallback) {
+                        console.log('Using fallback mission content');
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to generate mission');
+                }
+            } catch (error) {
+                console.error('Error loading mission:', error);
+                document.getElementById('mission-text').textContent = 'Ошибка загрузки миссии. Попробуйте еще раз.';
+            }
+        }
+
+        function displayMission(mission) {
+            // Display mission text
+            document.getElementById('mission-text').textContent = mission.text;
+            
+            // Display options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            mission.options.forEach((option, index) => {
+                const optionCard = document.createElement('div');
+                optionCard.className = 'option-card bg-zinc-800/50 border border-white/10 rounded-xl p-4 cursor-pointer hover:bg-zinc-800/70';
+                optionCard.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full border-2 border-gold-500/30 bg-gold-500/10 flex items-center justify-center">
+                            <span class="text-gold-400 font-bold text-sm">${String.fromCharCode(65 + index)}</span>
+                        </div>
+                        <span class="text-zinc-200">${option}</span>
+                    </div>
+                `;
+                optionCard.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionCard);
+            });
+        }
+
+        function selectOption(optionIndex) {
+            const correctIndex = gameState.currentMission.correctIndex;
+            const isCorrect = optionIndex === correctIndex;
+            
+            // Disable all options
+            const options = document.querySelectorAll('.option-card');
+            options.forEach((option, index) => {
+                option.onclick = null;
+                option.style.cursor = 'not-allowed';
+                
+                if (index === correctIndex) {
+                    option.classList.add('border-green-500', 'bg-green-900/20');
+                } else if (index === optionIndex && !isCorrect) {
+                    option.classList.add('border-red-500', 'bg-red-900/20');
+                }
+            });
+            
+            // Handle result
+            setTimeout(() => {
+                if (isCorrect) {
+                    handleCorrectAnswer();
+                } else {
+                    handleWrongAnswer();
+                }
+            }, 1500);
+        }
+
+        function handleCorrectAnswer() {
+            // Restore heart if lost
+            if (gameState.lives < 3) {
+                gameState.lives++;
+                updateHearts();
+            }
+            
+            // Move to next step or complete mission
+            gameState.currentStep++;
+            
+            if (gameState.currentStep > gameState.maxSteps) {
+                completeMission();
+            } else {
+                updateStepCounter();
+                setTimeout(() => startNewMission(), 1000);
+            }
+        }
+
+        function handleWrongAnswer() {
+            // Lose heart
+            gameState.lives--;
+            updateHearts();
+            
+            if (gameState.lives <= 0) {
+                failMission();
+            } else {
+                // Continue to next step
+                gameState.currentStep++;
+                updateStepCounter();
+                setTimeout(() => startNewMission(), 1000);
+            }
+        }
+
+        function updateHearts() {
+            for (let i = 1; i <= 3; i++) {
+                const heart = document.getElementById(`heart-${i}`);
+                if (i <= gameState.lives) {
+                    heart.classList.remove('heart-lost');
+                    heart.classList.add('heart-animation');
+                    setTimeout(() => heart.classList.remove('heart-animation'), 300);
+                } else {
+                    heart.classList.add('heart-lost');
+                }
+            }
+        }
+
+        function updateStepCounter() {
+            document.getElementById('step-counter').textContent = `${gameState.currentStep}/${gameState.maxSteps}`;
+        }
+
+        function completeMission() {
+            // Add experience
+            gameState.experience += 50;
+            
+            // Save progress
+            saveGameState();
+            
+            // Show success modal
+            document.getElementById('mission-success-modal').classList.remove('hidden');
+        }
+
+        function failMission() {
+            // Show failure modal
+            document.getElementById('mission-failed-modal').classList.remove('hidden');
+        }
+
+        function restartMission() {
+            // Reset game state
+            gameState.lives = 3;
+            gameState.currentStep = 1;
+            
+            // Hide modal
+            document.getElementById('mission-failed-modal').classList.add('hidden');
+            
+            // Reset UI
+            updateHearts();
+            updateStepCounter();
+            
+            // Start new mission
+            startNewMission();
+        }
+
+        function nextMission() {
+            // Reset for next mission
+            gameState.lives = 3;
+            gameState.currentStep = 1;
+            
+            // Add to previous missions
+            gameState.previousMissions.push({
+                character: gameState.character,
+                completed: true,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Hide modal
+            document.getElementById('mission-success-modal').classList.add('hidden');
+            
+            // Reset UI
+            updateHearts();
+            updateStepCounter();
+            
+            // Start new mission
+            startNewMission();
+        }
+
+        function exitMission() {
+            // Save progress
+            saveGameState();
+            
+            // Redirect to main game page
+            window.location.href = 'igra.html';
+        }
+
+        function saveGameState() {
+            localStorage.setItem('playerLevel', gameState.level.toString());
+            localStorage.setItem('playerExperience', gameState.experience.toString());
+            localStorage.setItem('previousMissions', JSON.stringify(gameState.previousMissions));
+        }
+    </script>
+</body>
+</html>

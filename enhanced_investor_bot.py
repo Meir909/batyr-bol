@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_TELEGRAM_BOT_TOKEN')
+TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
 
 # ===== DATA =====
 users = {}
@@ -452,6 +452,8 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ===== MAIN FUNCTION =====
 
 def main():
+    if not TOKEN:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN is not set. Put it into .env or environment variables.")
     # Create the Application and pass it your bot's token
     application = Application.builder().token(TOKEN).build()
 

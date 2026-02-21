@@ -37,11 +37,64 @@ except ImportError:
 # Load environment variables
 load_dotenv()
 
-# Unified data file for both Web and Telegram
-data_file = 'unified_users.json'
-uploads_dir = 'uploads'
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
-allowed_avatar_extensions = {'.png', '.jpg', '.jpeg', '.webp', '.svg'}
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
+app.config['SESSION_TIMEOUT'] = 24 * 60 * 60  # 24 hours in seconds
+
+# Data storage
+data_file = 'unified_users.json'
+
+# Session storage (in production, use Redis or database)
+sessions = {}
+
+def generate_session_id():
+    """Generate a secure session ID"""
+    return str(uuid.uuid4())
+
+def is_session_valid(session_id):
+    """Check if session is valid and not expired"""
+    if not session_id or session_id not in sessions:
+        return False
+    
+    session_data = sessions[session_id]
+    created_at = datetime.fromisoformat(session_data['created_at'])
+    
+    # Check if session is older than 24 hours
+    if datetime.now() - created_at > timedelta(hours=24):
+        del sessions[session_id]
+        return False
+    
+    return True
+
+def create_session(email):
+    """Create a new session for user"""
+    session_id = generate_session_id()
+    sessions[session_id] = {
+        'email': email,
+        'created_at': datetime.now().isoformat(),
+        'last_activity': datetime.now().isoformat()
+    }
+    return session_id
+
+def update_session_activity(session_id):
+    """Update last activity timestamp"""
+    if session_id in sessions:
+        sessions[session_id]['last_activity'] = datetime.now().isoformat()
+
+def cleanup_expired_sessions():
+    """Remove expired sessions"""
+    current_time = datetime.now()
+    expired_sessions = []
+    
+    for session_id, session_data in sessions.items():
+        created_at = datetime.fromisoformat(session_data['created_at'])
+        if current_time - created_at > timedelta(hours=24):
+            expired_sessions.append(session_id)
+    
+    for session_id in expired_sessions:
+        del sessions[session_id]
 
 # Helper function to load users data
 def load_users():
@@ -598,7 +651,14 @@ def login_user():
                     user['password_hash'] = generate_password_hash(password)
                     user.pop('password', None)
                     save_users(all_data)
-                return jsonify({'success': True, 'user': _public_user(user)})
+                
+                # Create session
+                session_id = create_session(email)
+                return jsonify({
+                    'success': True, 
+                    'user': _public_user(user),
+                    'session_id': session_id
+                })
 
         # Hardcoded test account fallback
         if email == 'test@batyrbol.kz' and password == 'batyr123':
@@ -615,9 +675,81 @@ def login_user():
                 'completedMissions': [],
                 'achievements': []
             }
-            return jsonify({'success': True, 'user': user_data})
+            
+            # Create session for test user
+            session_id = create_session(email)
+            return jsonify({
+                'success': True, 
+                'user': user_data,
+                'session_id': session_id
+            })
         
         return jsonify({'success': False, 'message': 'Неверный email или пароль.'}), 401
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/check-session', methods=['POST'])
+def check_session():
+    """Check if session is valid"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        
+        if not session_id:
+            return jsonify({'valid': False, 'message': 'No session provided'})
+        
+        if is_session_valid(session_id):
+            session_data = sessions[session_id]
+            update_session_activity(session_id)
+            
+            # Get user data
+            all_data = load_users()
+            web_users = all_data.get('web_users', {})
+            email = session_data['email']
+            
+            if email in web_users:
+                user = _public_user(web_users[email])
+                return jsonify({
+                    'valid': True, 
+                    'user': user,
+                    'session_id': session_id
+                })
+            else:
+                # Test user fallback
+                if email == 'test@batyrbol.kz':
+                    user_data = {
+                        'id': 'test_user',
+                        'name': 'Батыр Бол',
+                        'email': 'test@batyrbol.kz',
+                        'xp': 100,
+                        'level': 5,
+                        'energy': 100,
+                        'streak': 7,
+                        'avatarUrl': None
+                    }
+                    return jsonify({
+                        'valid': True, 
+                        'user': user_data,
+                        'session_id': session_id
+                    })
+        
+        return jsonify({'valid': False, 'message': 'Session expired or invalid'})
+        
+    except Exception as e:
+        return jsonify({'valid': False, 'message': str(e)}), 500
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    """Logout user and invalidate session"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        
+        if session_id and session_id in sessions:
+            del sessions[session_id]
+        
+        return jsonify({'success': True, 'message': 'Logged out successfully'})
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -688,6 +820,243 @@ def register_user():
     except Exception as e:
         print(f"[REGISTER] Error: {str(e)}")
         return jsonify({'success': False, 'message': 'Қате пайда болды / Произошла ошибка'}), 500
+
+@app.route('/api/mission/generate', methods=['POST'])
+def generate_mission():
+    """Generate personalized mission using AI with fallback system"""
+    try:
+        data = request.get_json()
+        player_level = int(data.get('playerLevel', 1))
+        previous_missions = data.get('previousMissions', [])
+        character = data.get('character', 'Абылай хан')
+        
+        # Character-specific historical context
+        character_context = {
+            'Абылай хан': {
+                'events': ['присоединение Младшего жуза', 'войны с джунгарами', 'дипломатические переговоры'],
+                'rules': 'помочь народу выиграть на войне, масштабировать территорию, укрепить ханство'
+            },
+            'Абай': {
+                'events': ['создание стихотворений', 'реформы образования', 'просветительская деятельность'],
+                'rules': 'учить детей писать стихи, создавать произведения, развивать образование'
+            },
+            'Айтеке би': {
+                'events': ['бийские суды', 'дипломатия', 'разрешение споров'],
+                'rules': 'справедливо судить, решать конфликты, поддерживать мир'
+            }
+        }
+        
+        context = character_context.get(character, character_context['Абылай хан'])
+        
+        # Try AI generation up to 3 times
+        for attempt in range(1, 4):
+            try:
+                mission = call_ai_for_mission(player_level, previous_missions, character, context)
+                if validate_ai_response(mission):
+                    return jsonify({
+                        'success': True,
+                        'mission': mission,
+                        'attempt': attempt
+                    })
+            except Exception as e:
+                print(f"AI generation attempt {attempt} failed: {e}")
+                continue
+        
+        # Fallback content if all attempts fail
+        fallback_mission = get_fallback_mission(character)
+        return jsonify({
+            'success': True,
+            'mission': fallback_mission,
+            'fallback': True
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+def call_ai_for_mission(player_level, previous_missions, character, context):
+    """Call AI to generate mission content"""
+    import openai
+    client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    
+    # Adjust complexity based on player level
+    complexity_level = "простой" if player_level <= 2 else "сложный" if player_level <= 4 else "экспертный"
+    
+    prompt = f"""
+    Создай короткую игровую миссию для персонажа {character}.
+    
+    Контекст персонажа: {context['rules']}
+    Исторические события: {', '.join(context['events'])}
+    
+    Уровень игрока: {player_level} ({complexity_level})
+    
+    Требования:
+    1. Текст миссии: 2-3 предложения максимум
+    2. Исторически достоверные события
+    3. 3-4 варианта выбора
+    4. Один правильный ответ основан на исторических фактах
+    
+    Формат ответа (JSON):
+    {{
+        "text": "Короткий текст миссии...",
+        "options": ["Вариант 1", "Вариант 2", "Вариант 3"],
+        "correctIndex": 0,
+        "explanation": "Краткое объяснение"
+    }}
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=500,
+        temperature=0.7
+    )
+    
+    import json
+    mission_data = json.loads(response.choices[0].message.content.strip())
+    return mission_data
+
+def validate_ai_response(response):
+    """Validate AI generated response"""
+    try:
+        return (
+            isinstance(response, dict) and
+            'text' in response and
+            'options' in response and
+            'correctIndex' in response and
+            isinstance(response['options'], list) and
+            len(response['options']) >= 3 and
+            0 <= response['correctIndex'] < len(response['options']) and
+            len(response['text']) > 10
+        )
+    except:
+        return False
+
+def get_fallback_mission(character):
+    """Get fallback mission when AI fails"""
+    fallback_missions = {
+        'Абылай хан': {
+            'text': 'Джунгарские войска приближаются к границам. Какое решение примете?',
+            'options': ['Собрать войско', 'Начать переговоры', 'Обратиться за помощью'],
+            'correctIndex': 1,
+            'explanation': 'Дипломатия была ключевой стратегией Абылай хана'
+        },
+        'Абай': {
+            'text': 'Молодые поэты просят научить их мастерству. Ваш ответ?',
+            'options': ['Отказаться', 'Принять учеников', 'Организовать школу'],
+            'correctIndex': 2,
+            'explanation': 'Абай был известен своей просветительской деятельностью'
+        },
+        'Айтеке би': {
+            'text': 'Две стороны спорят за землю. Как вы рассудите?',
+            'options': ['Отдать сильному', 'Разделить поровну', 'Найти компромисс'],
+            'correctIndex': 2,
+            'explanation': 'Справедливость была главным принципом биев'
+        }
+    }
+    
+    return fallback_missions.get(character, fallback_missions['Абылай хан'])
+
+@app.route('/api/content/generate-openai', methods=['POST'])
+def generate_content_openai():
+    """Generate mission content using OpenAI GPT-4o-mini"""
+    try:
+        data = request.get_json()
+        topic = data.get('topic', '').strip()
+        level = int(data.get('level', 2))
+        api_key = data.get('api_key', '').strip()
+        
+        if not topic:
+            return jsonify({'success': False, 'message': 'Topic is required'}), 400
+        
+        # Use provided API key or default from environment
+        openai_api_key = api_key or os.getenv('OPENAI_API_KEY')
+        
+        if not openai_api_key:
+            return jsonify({
+                'success': False, 
+                'message': 'OpenAI API key not provided. Please provide API key or set OPENAI_API_KEY environment variable.'
+            }), 400
+        
+        try:
+            import openai
+            client = openai.OpenAI(api_key=openai_api_key)
+            
+            # Determine content complexity based on level
+            level_descriptions = {
+                1: "простые сказки и легенды для детей",
+                2: "основные исторические факты",
+                3: "детальная историческая информация",
+                4: "официальные документы и глубокий анализ"
+            }
+            
+            complexity = level_descriptions.get(level, "основные исторические факты")
+            
+            # Generate content using OpenAI
+            prompt = f"""
+            Создай образовательную миссию по казахской истории на тему "{topic}".
+            Уровень сложности: {level} ({complexity}).
+            
+            Требования:
+            1. Напиши текст на казахском языке (200-300 слов)
+            2. Создай 3-4 вопроса по тексту
+            3. Для каждого вопроса создай 4 варианта ответа (A, B, C, D)
+            4. Укажи правильный ответ
+            5. Добавь перевод текста на русский язык
+            
+            Формат ответа (JSON):
+            {{
+                "topic": "{topic}",
+                "text_kz": "текст на казахском",
+                "text_ru": "перевод на русский",
+                "questions_kz": ["вопрос1", "вопрос2", "вопрос3"],
+                "options_kz": [["A", "B", "C", "D"], ["A", "B", "C", "D"], ["A", "B", "C", "D"]],
+                "correct_answers": [0, 1, 2]
+            }}
+            """
+            
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Ты - эксперт по казахской истории и создатель образовательных материалов. Отвечай только в формате JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=2000,
+                temperature=0.7
+            )
+            
+            content_text = response.choices[0].message.content.strip()
+            
+            # Parse JSON response
+            try:
+                content = json.loads(content_text)
+            except json.JSONDecodeError:
+                # If JSON parsing fails, try to extract JSON from text
+                import re
+                json_match = re.search(r'\{.*\}', content_text, re.DOTALL)
+                if json_match:
+                    content = json.loads(json_match.group())
+                else:
+                    raise ValueError("Could not parse JSON response")
+            
+            return jsonify({
+                'success': True,
+                'content': content,
+                'model': 'gpt-4o-mini'
+            })
+            
+        except Exception as e:
+            print(f"[OPENAI] Error: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': f'OpenAI API error: {str(e)}'
+            }), 500
+            
+    except Exception as e:
+        print(f"[OPENAI] Generation error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Generation failed: {str(e)}'
+        }), 500
 
 @app.route('/api/content/generate', methods=['POST'])
 def generate_learning_content():
@@ -888,6 +1257,198 @@ def join_clan():
 def list_clans():
     all_data = load_users()
     return jsonify({'success': True, 'clans': all_data.get('clans', {})})
+
+@app.route('/api/clans/activity', methods=['POST'])
+def track_clan_activity():
+    """Track daily reading activity for clan members"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        mission_completed = data.get('mission_completed', False)
+        mission_skipped = data.get('mission_skipped', False)
+        
+        all_data = load_users()
+        
+        # Initialize daily activity tracking if not exists
+        if 'daily_activity' not in all_data:
+            all_data['daily_activity'] = {}
+        
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        # Track user activity for today
+        if today not in all_data['daily_activity']:
+            all_data['daily_activity'][today] = {}
+        
+        if email not in all_data['daily_activity'][today]:
+            all_data['daily_activity'][today][email] = {
+                'mission_completed': False,
+                'mission_skipped': False,
+                'timestamp': datetime.now().isoformat()
+            }
+        
+        # Update activity
+        if mission_completed:
+            all_data['daily_activity'][today][email]['mission_completed'] = True
+        elif mission_skipped:
+            all_data['daily_activity'][today][email]['mission_skipped'] = True
+        
+        save_users(all_data)
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/clans/members/status', methods=['GET'])
+def get_clan_members_status():
+    """Get reading status for all clan members today"""
+    try:
+        email = request.args.get('email')
+        
+        all_data = load_users()
+        
+        # Get user's clan
+        user_clan = None
+        if email in all_data['web_users']:
+            user_clan = all_data['web_users'][email].get('clan')
+        
+        if not user_clan or user_clan not in all_data['clans']:
+            return jsonify({'success': False, 'message': 'Клан не найден'}), 404
+        
+        # Get clan members
+        clan_members = all_data['clans'][user_clan]['members']
+        
+        # Get today's activity
+        today = datetime.now().strftime('%Y-%m-%d')
+        daily_activity = all_data.get('daily_activity', {}).get(today, {})
+        
+        # Build member status list
+        members_status = []
+        for member_email in clan_members:
+            if member_email in all_data['web_users']:
+                user = all_data['web_users'][member_email]
+                activity = daily_activity.get(member_email, {})
+                
+                members_status.append({
+                    'email': member_email,
+                    'name': user.get('name', 'Unknown'),
+                    'xp': user.get('xp', 0),
+                    'avatarUrl': user.get('avatarUrl'),
+                    'mission_completed_today': activity.get('mission_completed', False),
+                    'mission_skipped_today': activity.get('mission_skipped', False),
+                    'has_activity_today': member_email in daily_activity
+                })
+        
+        # Sort by XP (descending)
+        members_status.sort(key=lambda x: x['xp'], reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'clan_name': user_clan,
+            'members': members_status,
+            'date': today
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/clans/leaderboard', methods=['GET'])
+def get_clan_leaderboard():
+    """Get updated clan leaderboard after mission completion"""
+    try:
+        all_data = load_users()
+        clans = all_data.get('clans', {})
+        web_users = all_data.get('web_users', {})
+        
+        # Calculate total XP for each clan
+        clan_leaderboard = []
+        for clan_name, clan_data in clans.items():
+            total_xp = 0
+            member_count = 0
+            
+            for member_email in clan_data['members']:
+                if member_email in web_users:
+                    total_xp += web_users[member_email].get('xp', 0)
+                    member_count += 1
+            
+            clan_leaderboard.append({
+                'name': clan_name,
+                'total_xp': total_xp,
+                'member_count': member_count,
+                'leader': clan_data.get('leader', ''),
+                'members': clan_data['members']
+            })
+        
+        # Sort by total XP (descending)
+        clan_leaderboard.sort(key=lambda x: x['total_xp'], reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'leaderboard': clan_leaderboard
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/contact', methods=['POST'])
+def handle_contact():
+    """Handle contact form submissions and send email"""
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        message = data.get('message', '').strip()
+
+        # Validation
+        if not name or not email or not message:
+            return jsonify({'success': False, 'message': 'Барлық өрістерді толтырыңыз'}), 400
+
+        if len(name) < 2:
+            return jsonify({'success': False, 'message': 'Аты кем дегенде 2 таңбадан тұруы керек'}), 400
+
+        # Email validation
+        import re
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            return jsonify({'success': False, 'message': 'Жарамсыз email форматы'}), 400
+
+        # Log the contact message
+        print(f"[CONTACT] New message from {name} ({email}):")
+        print(f"Message: {message}")
+        
+        # Save to file for backup
+        contact_entry = {
+            'name': name,
+            'email': email,
+            'message': message,
+            'timestamp': datetime.now().isoformat(),
+            'ip': _client_ip()
+        }
+        
+        # Save to contacts file
+        contacts_file = 'contacts.json'
+        contacts = []
+        if os.path.exists(contacts_file):
+            try:
+                with open(contacts_file, 'r', encoding='utf-8') as f:
+                    contacts = json.load(f)
+            except:
+                contacts = []
+        
+        contacts.append(contact_entry)
+        
+        with open(contacts_file, 'w', encoding='utf-8') as f:
+            json.dump(contacts, f, ensure_ascii=False, indent=2)
+
+        # TODO: Send actual email to nurmiko22@gmail.com
+        # For now, just log it
+        print(f"[CONTACT] Would send email to: nurmiko22@gmail.com")
+        print(f"[CONTACT] Subject: New Contact from {name}")
+        print(f"[CONTACT] Body: From: {email}\n\n{message}")
+
+        return jsonify({'success': True, 'message': 'Хабарлама сәтті жіберілді!'})
+
+    except Exception as e:
+        print(f"[CONTACT] Error: {str(e)}")
+        return jsonify({'success': False, 'message': 'Қате пайда болды'}), 500
 
 @app.route('/api/duels/challenge', methods=['POST'])
 def challenge_duel():
