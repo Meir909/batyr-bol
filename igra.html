@@ -434,8 +434,8 @@
                 <span class="lang-kz">Дуэль</span>
               </span>
             </button>
-            <button onclick="dailyRewards.showRewardModal()"
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+            <button onclick="showMessage('Функция недоступна', 'error')"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left" title="Функция в разработке">
               <iconify-icon icon="lucide:gift" class="text-gold-400" width="20"></iconify-icon>
               <span class="text-white text-sm font-medium">
                 <span class="lang-ru">Ежедневная награда</span>
@@ -487,8 +487,8 @@
               </span>
             </button>
             <button
-              onclick="soundEffects.toggle(); this.querySelector('iconify-icon').setAttribute('icon', soundEffects.enabled ? 'lucide:volume-2' : 'lucide:volume-x')"
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left">
+              onclick="showMessage('Функция недоступна', 'error')"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-left" title="Функция в разработке">
               <iconify-icon icon="lucide:volume-2" class="text-gold-400" width="20"></iconify-icon>
               <span class="text-white text-sm font-medium">
                 <span class="lang-ru">Звуки</span>
@@ -1387,14 +1387,19 @@
         : (lang === 'kz' ? 'Қайта ойнап көріңіз' : 'Попробуйте еще раз');
 
       // Update profile with results
-      if (window.profileSystem) {
-        window.profileSystem.addXP(window.profileSystem.getProfile(), xpGained);
-        window.profileSystem.updateCharacterProgress(window.missionEngine.character, {
-          completed: isSuccess,
-          correct_answers: correctAnswers,
-          total_scenarios: totalScenarios,
-          time_elapsed: timeElapsed
-        });
+      if (window.profileSystem && window.missionEngine) {
+        const profile = window.profileSystem.getProfile();
+        const missionResult = {
+          success: isSuccess,
+          xpEarned: xpGained,
+          correctAnswers: correctAnswers,
+          totalScenarios: totalScenarios,
+          timeElapsed: timeElapsed,
+          finishedAt: new Date().toISOString()
+        };
+
+        window.profileSystem.updateCharacterProgress(profile, window.missionEngine.character, missionResult);
+        window.profileSystem.addXP(profile, xpGained);
       }
 
       // Check for achievements and show if unlocked

@@ -77,6 +77,30 @@ class ProfileSystem {
   }
 
   /**
+   * Get current user profile (convenience method)
+   */
+  getProfile() {
+    return this.loadProfile();
+  }
+
+  /**
+   * Get number of completed missions
+   */
+  getMissionsCompleted() {
+    const profile = this.loadProfile();
+    return profile.completedMissions || 0;
+  }
+
+  /**
+   * Get weak areas (areas where player struggles)
+   */
+  getWeakAreas() {
+    // Return empty array for now - can be enhanced later
+    // to track which mission types player struggles with
+    return [];
+  }
+
+  /**
    * Create new profile for new player
    */
   createNewProfile(name = 'Батыр', email = '') {
@@ -282,4 +306,4 @@ class ProfileSystem {
 }
 
 // Export for use
-window.ProfileSystem = new ProfileSystem();
+window.profileSystem = new ProfileSystem();
