@@ -15,6 +15,7 @@ class MissionEngine {
     this.startTime = null;
     this.scenarios = [];
     this.missionCharacter = null;
+    this.playerLevel = 1;  // Default player level
     this.missionRule = null;
   }
 
@@ -23,6 +24,7 @@ class MissionEngine {
    */
   async startMission(character, playerLevel, completedMissions = 0, weakAreas = []) {
     this.missionCharacter = character;
+    this.playerLevel = playerLevel;  // Save player level for later use
     this.scenarioNumber = 0;
     this.lives = this.maxLives;
     this.correctAnswers = 0;
