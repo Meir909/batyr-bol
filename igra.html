@@ -29,6 +29,7 @@
   <script src="mission_generator.js"></script>
   <script src="mission_engine.js"></script>
   <script src="profile_system.js"></script>
+  <script src="audio.js"></script>
 
   <script>
     tailwind.config = {
@@ -318,6 +319,17 @@
             <button onclick="switchLanguage('kz')" id="btn-kz-game"
               class="px-3 py-1.5 text-xs font-medium rounded-md bg-gold-500 text-black">KZ</button>
           </div>
+
+          <!-- Audio Controls -->
+          <button id="music-toggle" onclick="toggleBackgroundMusic()" class="p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
+            title="Музыка">
+            <iconify-icon icon="lucide:music" class="text-yellow-400" width="18"></iconify-icon>
+          </button>
+
+          <button id="sound-toggle" onclick="toggleGameSounds()" class="p-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-colors"
+            title="Звуки">
+            <iconify-icon icon="lucide:volume-2" class="text-cyan-400" width="18"></iconify-icon>
+          </button>
 
           <!-- Feedback Button -->
           <button onclick="openFeedbackForm()" class="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 transition-colors"
@@ -872,6 +884,13 @@
       document.getElementById('mission-game').classList.add('hidden');
       document.getElementById('mission-consequence').classList.add('hidden');
       document.getElementById('mission-result').classList.add('hidden');
+
+      // Запускаем фоновую музыку при входе в игру
+      if (window.audioManager && window.audioManager.playBackgroundMusic) {
+        setTimeout(() => {
+          window.audioManager.playBackgroundMusic();
+        }, 500);
+      }
     }
 
     function logout() {
@@ -1307,8 +1326,22 @@
       const option = window.missionEngine.currentScenarioOptions[optionIndex];
       const isCorrectAnswer = option.is_correct;
 
+      // Проигрываем звук клика кнопки
+      if (window.audioManager) {
+        window.audioManager.playButtonClick();
+      }
+
       // Process answer
       const result = window.missionEngine.processAnswer(optionIndex, isCorrectAnswer);
+
+      // Проигрываем звук правильного или неправильного ответа
+      if (window.audioManager) {
+        if (isCorrectAnswer) {
+          window.audioManager.playCorrectAnswer();
+        } else {
+          window.audioManager.playIncorrectAnswer();
+        }
+      }
 
       // Show consequence screen
       showConsequenceScreen(isCorrectAnswer, option.explanation || '', result);
@@ -1382,10 +1415,23 @@
         icon.textContent = '🏆';
         title.textContent = lang === 'kz' ? 'Миссия аяқталды!' : 'Миссия завершена!';
         title.className = 'text-3xl font-bold text-gold-400 mb-2';
+
+        // Проигрываем звук успеха и получения награды
+        if (window.audioManager) {
+          window.audioManager.playLevelComplete();
+          setTimeout(() => {
+            window.audioManager.playMedalWin();
+          }, 300);
+        }
       } else {
         icon.textContent = '💔';
         title.textContent = lang === 'kz' ? 'Миссия сәтсіз аяқталды' : 'Миссия не удалась';
         title.className = 'text-3xl font-bold text-red-400 mb-2';
+
+        // Проигрываем звук конца игры при поражении
+        if (window.audioManager) {
+          window.audioManager.playGameOver();
+        }
       }
 
       // Calculate results
@@ -1464,6 +1510,77 @@
         navigator.serviceWorker.register('/sw.js')
           .then(reg => console.log('SW registered'))
           .catch(err => console.log('SW error:', err));
+      }
+
+      // Когда пользователь взаимодействует с страницей, запускаем музыку
+      document.addEventListener('click', () => {
+        if (window.audioManager && !document.getElementById('auth').classList.contains('hidden') === false) {
+          // Пользователь на странице игры
+          if (window.audioManager.isMusicEnabled && window.audioManager.backgroundMusic?.paused) {
+            window.audioManager.playBackgroundMusic();
+          }
+        }
+      }, { once: true });
+    });
+
+    /**
+     * Переключает фоновую музыку
+     */
+    function toggleBackgroundMusic() {
+      if (!window.audioManager) return;
+
+      const isEnabled = window.audioManager.isMusicEnabled;
+      window.audioManager.toggleBackgroundMusic(!isEnabled);
+
+      const button = document.getElementById('music-toggle');
+      if (button) {
+        if (!isEnabled) {
+          button.classList.add('bg-yellow-600/50', 'border', 'border-yellow-400');
+          button.classList.remove('bg-zinc-800');
+        } else {
+          button.classList.remove('bg-yellow-600/50', 'border', 'border-yellow-400');
+          button.classList.add('bg-zinc-800');
+        }
+      }
+    }
+
+    /**
+     * Переключает игровые звуки
+     */
+    function toggleGameSounds() {
+      if (!window.audioManager) return;
+
+      const isEnabled = window.audioManager.isSoundEnabled;
+      window.audioManager.toggleSounds(!isEnabled);
+
+      const button = document.getElementById('sound-toggle');
+      if (button) {
+        if (!isEnabled) {
+          button.classList.add('bg-cyan-600/50', 'border', 'border-cyan-400');
+          button.classList.remove('bg-zinc-800');
+        } else {
+          button.classList.remove('bg-cyan-600/50', 'border', 'border-cyan-400');
+          button.classList.add('bg-zinc-800');
+        }
+      }
+    }
+
+    /**
+     * Инициализирует состояние кнопок аудио при загрузке
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.audioManager) {
+        // Обновляем кнопки музыки
+        const musicBtn = document.getElementById('music-toggle');
+        if (musicBtn && window.audioManager.isMusicEnabled) {
+          musicBtn.classList.add('bg-yellow-600/50', 'border', 'border-yellow-400');
+        }
+
+        // Обновляем кнопки звуков
+        const soundBtn = document.getElementById('sound-toggle');
+        if (soundBtn && window.audioManager.isSoundEnabled) {
+          soundBtn.classList.add('bg-cyan-600/50', 'border', 'border-cyan-400');
+        }
       }
     });
   </script>
