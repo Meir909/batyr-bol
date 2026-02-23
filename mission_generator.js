@@ -190,7 +190,13 @@ Requirements:
    * @private
    */
   _getFallbackScenario(character, scenarioNumber, language) {
-    console.log('[DEBUG] Using fallback scenario for:', character, scenarioNumber, language);
+    // Normalize character name (handle both 'Абай' and 'Абай Кунанбаев')
+    let normalizedCharacter = character;
+    if (character === 'Абай' || character === 'Абай Кунанбаев') {
+      normalizedCharacter = 'Абай';
+    }
+
+    console.log('[DEBUG] Using fallback scenario for:', normalizedCharacter, scenarioNumber, language);
 
     const fallbacks = {
       'Абылай хан': [
@@ -261,7 +267,7 @@ Requirements:
       ]
     };
 
-    const characterFallbacks = fallbacks[character] || fallbacks['Абылай хан'];
+    const characterFallbacks = fallbacks[normalizedCharacter] || fallbacks['Абылай хан'];
     const fallback = characterFallbacks[Math.min(scenarioNumber - 1, characterFallbacks.length - 1)];
 
     if (!fallback) {
