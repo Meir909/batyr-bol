@@ -1241,6 +1241,13 @@
       try {
         // Get scenario from generator
         const language = document.body.dataset.language === 'kz' ? 'kk' : 'ru';
+        console.log('[DEBUG] Loading scenario:', {
+          character: window.missionEngine.character,
+          scenarioNumber: window.missionEngine.scenarioNumber,
+          playerLevel: window.missionEngine.playerLevel,
+          language: language
+        });
+
         const scenario = await window.missionGenerator.generateScenario(
           window.missionEngine.character,
           window.missionEngine.scenarioNumber,
@@ -1248,17 +1255,30 @@
           language
         );
 
+        console.log('[DEBUG] Scenario loaded:', scenario);
+
+        if (!scenario || !scenario.scenario) {
+          throw new Error('Invalid scenario format: ' + JSON.stringify(scenario));
+        }
+
         // Hide loading
         loadingState.classList.add('hidden');
 
         // Display scenario
         const scenarioText = document.querySelector('#scenario-text p');
+        if (!scenarioText) {
+          throw new Error('Scenario text element not found');
+        }
         scenarioText.textContent = scenario.scenario;
 
         // Update progress
         document.getElementById('scenario-counter').textContent = `${window.missionEngine.scenarioNumber}/${window.missionEngine.totalScenarios}`;
 
         // Display options
+        if (!scenario.options || scenario.options.length === 0) {
+          throw new Error('No options in scenario');
+        }
+
         optionsContainer.innerHTML = scenario.options.map((option, index) => `
           <button onclick="handleOptionSelect('${String.fromCharCode(65 + index)}', ${index}, '${option.is_correct}')"
             class="p-4 text-left rounded-xl border-2 border-white/10 bg-zinc-900/50 hover:border-gold-500/50 hover:bg-gold-500/10 transition-all text-white">
@@ -1272,8 +1292,12 @@
 
       } catch (error) {
         console.error('Error loading scenario:', error);
+        console.error('Stack:', error.stack);
         loadingState.classList.add('hidden');
-        document.querySelector('#scenario-text p').textContent = 'Ошибка загрузки сценария. Пожалуйста, попробуйте еще раз.';
+        const scenarioTextEl = document.querySelector('#scenario-text p');
+        if (scenarioTextEl) {
+          scenarioTextEl.textContent = 'Ошибка загрузки сценария: ' + error.message;
+        }
       }
     }
 

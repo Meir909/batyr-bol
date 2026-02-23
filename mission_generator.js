@@ -190,6 +190,8 @@ Requirements:
    * @private
    */
   _getFallbackScenario(character, scenarioNumber, language) {
+    console.log('[DEBUG] Using fallback scenario for:', character, scenarioNumber, language);
+
     const fallbacks = {
       'Абылай хан': [
         {
@@ -262,12 +264,26 @@ Requirements:
     const characterFallbacks = fallbacks[character] || fallbacks['Абылай хан'];
     const fallback = characterFallbacks[Math.min(scenarioNumber - 1, characterFallbacks.length - 1)];
 
-    return {
+    if (!fallback) {
+      console.error('[ERROR] Fallback scenario not found for:', character, scenarioNumber);
+      // Return a default scenario if fallback not found
+      return {
+        scenario: 'Қате: сценарий жүктелген жоқ',
+        options: [{text: 'Қайта байланысуға тырысыңыз', is_correct: true, explanation: 'Сценарий жүктелмеген'}],
+        correct_answer: 'A',
+        fallback: true
+      };
+    }
+
+    const result = {
       scenario: fallback.scenario,
       options: fallback.options,
       correct_answer: fallback.correct_answer,
       fallback: true
     };
+
+    console.log('[DEBUG] Fallback scenario result:', result);
+    return result;
   }
 }
 
