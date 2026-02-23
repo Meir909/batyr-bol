@@ -11,7 +11,11 @@
       "Bash(git commit:*)",
       "Bash(curl:*)",
       "Bash(\"/c/Users/nurmi/OneDrive/Desktop/infomatrix/BATYR BOL/CONSOLE_ERRORS_FIXED.md\":*)",
-      "Bash(\"/c/Users/nurmi/OneDrive/Desktop/infomatrix/BATYR BOL/FINAL_SUMMARY.md\":*)"
+      "Bash(\"/c/Users/nurmi/OneDrive/Desktop/infomatrix/BATYR BOL/FINAL_SUMMARY.md\":*)",
+      "Bash(\"/c/Users/nurmi/OneDrive/Desktop/infomatrix/BATYR BOL/mission_generator_new.js\":*)",
+      "Bash(\"/c/Users/nurmi/OneDrive/Desktop/infomatrix/BATYR BOL/MISSION_GENERATOR_OPTIMIZATION.md\":*)",
+      "Bash(python generate_placeholders.py:*)",
+      "Bash(pip install:*)"
     ]
   }
 }
