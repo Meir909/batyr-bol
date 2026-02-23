@@ -37,8 +37,8 @@ class MissionEngine {
     };
     this.missionRule = rules[character];
 
-    // Load first scenario
-    await this.nextScenario(playerLevel, completedMissions, weakAreas);
+    // Note: First scenario will be loaded by igra.html via loadNextScenario()
+    // Don't load here to avoid issues with MissionGenerator initialization
 
     return this.currentScenario;
   }
@@ -54,17 +54,17 @@ class MissionEngine {
     this.scenarioNumber++;
 
     try {
-      // Generate scenario using MissionGenerator
-      const scenario = await window.MissionGenerator.generateScenario({
-        character: this.missionCharacter,
-        level: playerLevel,
-        scenarioNumber: this.scenarioNumber,
-        totalScenarios: this.totalScenarios,
-        previousAnswers: this.getPreviousAnswers(),
-        rule: this.missionRule,
-        completedMissions: completedMissions,
-        weakAreas: weakAreas
-      });
+      // Generate scenario using MissionGenerator instance from igra.html
+      if (!window.missionGenerator) {
+        throw new Error('MissionGenerator not initialized');
+      }
+
+      const scenario = await window.missionGenerator.generateScenario(
+        this.missionCharacter,
+        this.scenarioNumber,
+        playerLevel,
+        'ru'  // Language will be handled by igra.html
+      );
 
       this.currentScenario = scenario;
       this.scenarios.push(scenario);
@@ -79,10 +79,8 @@ class MissionEngine {
   /**
    * Process player answer
    */
-  async processAnswer(selectedAnswerId, playerLevel, completedMissions = 0, weakAreas = []) {
+  async processAnswer(optionIndex, isCorrect) {
     if (!this.currentScenario) return null;
-
-    const isCorrect = selectedAnswerId === this.currentScenario.correctAnswer;
 
     // Update stats
     if (isCorrect) {
@@ -117,10 +115,8 @@ class MissionEngine {
       return { ...result, missionEnded: true, missionSuccess: true };
     }
 
-    // Load next scenario if available
-    await this.nextScenario(playerLevel, completedMissions, weakAreas);
-
-    return { ...result, missionEnded: false, nextScenario: this.currentScenario };
+    // Note: Next scenario will be loaded by igra.html via loadNextScenario()
+    return { ...result, missionEnded: false };
   }
 
   /**
@@ -128,12 +124,12 @@ class MissionEngine {
    */
   endMission() {
     const timeSpent = Math.floor((Date.now() - this.startTime) / 1000);
-    const xpEarned = window.MissionGenerator.calculateXP(
-      this.scenarioNumber,
-      this.correctAnswers,
-      this.totalScenarios,
-      timeSpent
-    );
+
+    // Calculate XP: base 100 XP per correct answer, time bonus, life bonus
+    const baseXP = this.correctAnswers * 100;
+    const timeBonus = Math.max(0, 300 - timeSpent) > 0 ? 50 : 0;  // 50 XP bonus if done under 5 min
+    const lifeBonus = (this.lives / this.maxLives) * 50;  // Bonus for remaining lives
+    const xpEarned = Math.floor(baseXP + timeBonus + lifeBonus);
 
     const success = this.lives > 0;
 

@@ -867,14 +867,11 @@
       document.getElementById('game').classList.remove('hidden');
       updateStats();
 
-      // Проверяем, выбран ли уровень сложности
-      if (typeof gameEngine !== 'undefined') {
-        const savedLevel = localStorage.getItem('batyrbol_difficulty');
-        if (!savedLevel) {
-          // Показываем экран выбора уровня
-          setTimeout(() => gameEngine.showLevelSelection(), 300);
-        }
-      }
+      // Show mission welcome screen with character selection
+      document.getElementById('mission-welcome').classList.remove('hidden');
+      document.getElementById('mission-game').classList.add('hidden');
+      document.getElementById('mission-consequence').classList.add('hidden');
+      document.getElementById('mission-result').classList.add('hidden');
     }
 
     function logout() {
@@ -929,9 +926,13 @@
 
       // Use auth manager for login
       const result = await window.authManager.login(email, password);
-      
+
       if (result.success) {
         showMessage('Добро пожаловать!');
+        // Delay to show message, then show game
+        setTimeout(() => {
+          showGame();
+        }, 500);
       } else {
         showMessage(result.message, 'error');
       }
@@ -1164,29 +1165,29 @@
       startNewMission(character);
     }
 
-    // Mission Management
-    let currentMission = null;
-    let missionGenerator = null;
-    let missionEngine = null;
-    let profileSystem = null;
+    // Mission Management - Global variables for access from other scripts
+    window.currentMission = null;
+    window.missionGenerator = null;
+    window.missionEngine = null;
+    window.profileSystem = null;
 
     function startNewMission(character) {
       // Initialize systems if not already done
-      if (!missionGenerator) {
-        missionGenerator = new MissionGenerator();
+      if (!window.missionGenerator) {
+        window.missionGenerator = new MissionGenerator();
       }
-      if (!profileSystem) {
-        profileSystem = new ProfileSystem();
+      if (!window.profileSystem) {
+        window.profileSystem = new ProfileSystem();
       }
 
       // Get player profile
-      const playerProfile = profileSystem.getProfile();
-      const completedMissions = profileSystem.getMissionsCompleted();
-      const weakAreas = profileSystem.getWeakAreas();
+      const playerProfile = window.profileSystem.getProfile();
+      const completedMissions = window.profileSystem.getMissionsCompleted();
+      const weakAreas = window.profileSystem.getWeakAreas();
 
       // Start mission engine
-      missionEngine = new MissionEngine();
-      missionEngine.startMission(character, playerProfile.level, completedMissions, weakAreas);
+      window.missionEngine = new MissionEngine();
+      window.missionEngine.startMission(character, playerProfile.level, completedMissions, weakAreas);
 
       // Update lives display
       updateLivesDisplay();
@@ -1206,8 +1207,8 @@
 
       // Start new timer
       missionTimerInterval = setInterval(() => {
-        if (missionEngine && !document.getElementById('mission-game').classList.contains('hidden')) {
-          const elapsed = Math.floor((Date.now() - missionEngine.startTime) / 1000);
+        if (window.missionEngine && !document.getElementById('mission-game').classList.contains('hidden')) {
+          const elapsed = Math.floor((Date.now() - window.missionEngine.startTime) / 1000);
           const minutes = Math.floor(elapsed / 60);
           const seconds = elapsed % 60;
           document.getElementById('mission-timer').textContent =
@@ -1218,16 +1219,16 @@
 
     function updateLivesDisplay() {
       const livesDisplay = document.getElementById('lives-display');
-      if (livesDisplay && missionEngine) {
+      if (livesDisplay && window.missionEngine) {
         livesDisplay.innerHTML = Array.from({ length: 3 }, (_, i) => {
-          const hasLife = i < missionEngine.lives;
+          const hasLife = i < window.missionEngine.lives;
           return `<span class="text-xl">${hasLife ? '❤️' : '⭕'}</span>`;
         }).join('');
       }
     }
 
     async function loadNextScenario() {
-      if (!missionEngine || !missionGenerator) return;
+      if (!window.missionEngine || !window.missionGenerator) return;
 
       const gameScreen = document.getElementById('mission-game');
       const loadingState = document.getElementById('loading-state');
@@ -1240,10 +1241,10 @@
       try {
         // Get scenario from generator
         const language = document.body.dataset.language === 'kz' ? 'kk' : 'ru';
-        const scenario = await missionGenerator.generateScenario(
-          missionEngine.character,
-          missionEngine.scenarioNumber,
-          missionEngine.playerLevel,
+        const scenario = await window.missionGenerator.generateScenario(
+          window.missionEngine.character,
+          window.missionEngine.scenarioNumber,
+          window.missionEngine.playerLevel,
           language
         );
 
@@ -1255,7 +1256,7 @@
         scenarioText.textContent = scenario.scenario;
 
         // Update progress
-        document.getElementById('scenario-counter').textContent = `${missionEngine.scenarioNumber}/${missionEngine.totalScenarios}`;
+        document.getElementById('scenario-counter').textContent = `${window.missionEngine.scenarioNumber}/${window.missionEngine.totalScenarios}`;
 
         // Display options
         optionsContainer.innerHTML = scenario.options.map((option, index) => `
@@ -1267,7 +1268,7 @@
         `).join('');
 
         // Store correct answers for this scenario
-        missionEngine.currentScenarioOptions = scenario.options;
+        window.missionEngine.currentScenarioOptions = scenario.options;
 
       } catch (error) {
         console.error('Error loading scenario:', error);
@@ -1277,13 +1278,13 @@
     }
 
     function handleOptionSelect(optionId, optionIndex, isCorrect) {
-      if (!missionEngine) return;
+      if (!window.missionEngine) return;
 
-      const option = missionEngine.currentScenarioOptions[optionIndex];
+      const option = window.missionEngine.currentScenarioOptions[optionIndex];
       const isCorrectAnswer = option.is_correct;
 
       // Process answer
-      const result = missionEngine.processAnswer(optionIndex, isCorrectAnswer);
+      const result = window.missionEngine.processAnswer(optionIndex, isCorrectAnswer);
 
       // Show consequence screen
       showConsequenceScreen(isCorrectAnswer, option.explanation || '', result);
@@ -1317,24 +1318,27 @@
       // Update lives display
       const livesDisplay = document.getElementById('consequence-lives');
       livesDisplay.innerHTML = Array.from({ length: 3 }, (_, i) => {
-        const hasLife = i < missionEngine.lives;
+        const hasLife = i < window.missionEngine.lives;
         return `<span class="text-3xl">${hasLife ? '❤️' : '⭕'}</span>`;
       }).join('');
 
       // Continue button handler
       document.getElementById('consequence-continue-btn').onclick = () => {
         // Check if mission is complete or failed
-        if (missionEngine.lives <= 0) {
+        if (window.missionEngine.lives <= 0) {
           if (missionTimerInterval) clearInterval(missionTimerInterval);
           showResultScreen(false);
-        } else if (missionEngine.scenarioNumber >= missionEngine.totalScenarios) {
+        } else if (window.missionEngine.scenarioNumber >= window.missionEngine.totalScenarios) {
           if (missionTimerInterval) clearInterval(missionTimerInterval);
           showResultScreen(true);
         } else {
           // Load next scenario
           document.getElementById('mission-consequence').classList.add('hidden');
           document.getElementById('mission-game').classList.remove('hidden');
-          missionEngine.nextScenario();
+          // Increment scenario counter before loading next
+          if (window.missionEngine) {
+            window.missionEngine.scenarioNumber++;
+          }
           updateLivesDisplay();
           loadNextScenario();
         }
@@ -1361,7 +1365,7 @@
       }
 
       // Calculate results
-      const missionData = missionEngine.endMission();
+      const missionData = window.missionEngine.endMission();
       const xpGained = missionData.xp_earned;
       const correctAnswers = missionData.correct_answers;
       const totalScenarios = missionData.total_scenarios;
@@ -1373,7 +1377,7 @@
       const timeStr = `${minutes}:${String(seconds).padStart(2, '0')}`;
 
       // Update result display
-      document.getElementById('result-scenarios').textContent = `${totalScenarios}/${missionEngine.totalScenarios}`;
+      document.getElementById('result-scenarios').textContent = `${totalScenarios}/${window.missionEngine.totalScenarios}`;
       document.getElementById('result-correct').textContent = `${correctAnswers}/${totalScenarios}`;
       document.getElementById('result-time').textContent = timeStr;
       document.getElementById('result-xp').textContent = `+${xpGained} XP`;
@@ -1383,9 +1387,9 @@
         : (lang === 'kz' ? 'Қайта ойнап көріңіз' : 'Попробуйте еще раз');
 
       // Update profile with results
-      if (profileSystem) {
-        profileSystem.addXP(profileSystem.getProfile(), xpGained);
-        profileSystem.updateCharacterProgress(missionEngine.character, {
+      if (window.profileSystem) {
+        window.profileSystem.addXP(window.profileSystem.getProfile(), xpGained);
+        window.profileSystem.updateCharacterProgress(window.missionEngine.character, {
           completed: isSuccess,
           correct_answers: correctAnswers,
           total_scenarios: totalScenarios,
@@ -1401,7 +1405,7 @@
       document.getElementById('result-again-btn').onclick = () => {
         document.getElementById('mission-result').classList.add('hidden');
         document.getElementById('mission-game').classList.remove('hidden');
-        startNewMission(missionEngine.character);
+        startNewMission(window.missionEngine.character);
       };
     }
 
@@ -1435,79 +1439,79 @@
     });
   </script>
 
+  <!-- Character Selection Modal -->
+  <div id="character-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 hidden">
+    <div class="glass rounded-2xl max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          <span class="lang-ru">Выберите персонажа</span>
+          <span class="lang-kz">Персонажды таңдаңыз</span>
+        </h2>
+        <p class="text-zinc-400">
+          <span class="lang-ru">Каждый персонаж предлагает уникальные миссии</span>
+          <span class="lang-kz">Әрбір персонаж ерекше миссиялар ұсынады</span>
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Абылай хан -->
+        <div onclick="selectCharacter('Абылай хан')" class="character-card bg-gradient-to-br from-amber-900/20 to-amber-700/20 border border-amber-500/30 rounded-xl p-6 cursor-pointer hover:border-amber-400/60 transition-all hover:scale-105">
+          <div class="text-center">
+            <div class="text-6xl mb-4">⚔️</div>
+            <h3 class="text-xl font-bold text-amber-400 mb-2">Абылай хан</h3>
+            <p class="text-zinc-300 text-sm mb-4">
+              <span class="lang-ru">Великий хан, объединивший казахские земли</span>
+              <span class="lang-kz">Ұлы хан, қазақ жерлерін біріктірген</span>
+            </p>
+            <div class="text-xs text-zinc-400">
+              <span class="lang-ru">Военные стратегии и дипломатия</span>
+              <span class="lang-kz">Әскери стратегиялар және дипломатия</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Абай -->
+        <div onclick="selectCharacter('Абай')" class="character-card bg-gradient-to-br from-blue-900/20 to-blue-700/20 border border-blue-500/30 rounded-xl p-6 cursor-pointer hover:border-blue-400/60 transition-all hover:scale-105">
+          <div class="text-center">
+            <div class="text-6xl mb-4">📚</div>
+            <h3 class="text-xl font-bold text-blue-400 mb-2">Абай</h3>
+            <p class="text-zinc-300 text-sm mb-4">
+              <span class="lang-ru">Великий поэт и философ</span>
+              <span class="lang-kz">Ұлы ақын және философ</span>
+            </p>
+            <div class="text-xs text-zinc-400">
+              <span class="lang-ru">Литература и мудрость</span>
+              <span class="lang-kz">Әдебиет және даналық</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Айтеке би -->
+        <div onclick="selectCharacter('Айтеке би')" class="character-card bg-gradient-to-br from-green-900/20 to-green-700/20 border border-green-500/30 rounded-xl p-6 cursor-pointer hover:border-green-400/60 transition-all hover:scale-105">
+          <div class="text-center">
+            <div class="text-6xl mb-4">⚖️</div>
+            <h3 class="text-xl font-bold text-green-400 mb-2">Айтеке би</h3>
+            <p class="text-zinc-300 text-sm mb-4">
+              <span class="lang-ru">Мудрый судья и бий</span>
+              <span class="lang-kz">Данышпан би және судья</span>
+            </p>
+            <div class="text-xs text-zinc-400">
+              <span class="lang-ru">Справедливость и право</span>
+              <span class="lang-kz">Әділдік және құқық</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center gap-4">
+        <button onclick="closeCharacterModal()" class="px-6 py-3 border border-zinc-600 text-zinc-300 font-medium rounded-xl hover:bg-zinc-800 transition-colors">
+          <span class="lang-ru">Отмена</span>
+          <span class="lang-kz">Бас тарту</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
-
-<!-- Character Selection Modal -->
-<div id="character-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 hidden">
-  <div class="glass rounded-2xl max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-white mb-4">
-        <span class="lang-ru">Выберите персонажа</span>
-        <span class="lang-kz">Персонажды таңдаңыз</span>
-      </h2>
-      <p class="text-zinc-400">
-        <span class="lang-ru">Каждый персонаж предлагает уникальные миссии</span>
-        <span class="lang-kz">Әрбір персонаж ерекше миссиялар ұсынады</span>
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <!-- Абылай хан -->
-      <div onclick="selectCharacter('Абылай хан')" class="character-card bg-gradient-to-br from-amber-900/20 to-amber-700/20 border border-amber-500/30 rounded-xl p-6 cursor-pointer hover:border-amber-400/60 transition-all hover:scale-105">
-        <div class="text-center">
-          <div class="text-6xl mb-4">⚔️</div>
-          <h3 class="text-xl font-bold text-amber-400 mb-2">Абылай хан</h3>
-          <p class="text-zinc-300 text-sm mb-4">
-            <span class="lang-ru">Великий хан, объединивший казахские земли</span>
-            <span class="lang-kz">Ұлы хан, қазақ жерлерін біріктірген</span>
-          </p>
-          <div class="text-xs text-zinc-400">
-            <span class="lang-ru">Военные стратегии и дипломатия</span>
-            <span class="lang-kz">Әскери стратегиялар және дипломатия</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Абай -->
-      <div onclick="selectCharacter('Абай')" class="character-card bg-gradient-to-br from-blue-900/20 to-blue-700/20 border border-blue-500/30 rounded-xl p-6 cursor-pointer hover:border-blue-400/60 transition-all hover:scale-105">
-        <div class="text-center">
-          <div class="text-6xl mb-4">📚</div>
-          <h3 class="text-xl font-bold text-blue-400 mb-2">Абай</h3>
-          <p class="text-zinc-300 text-sm mb-4">
-            <span class="lang-ru">Великий поэт и философ</span>
-            <span class="lang-kz">Ұлы ақын және философ</span>
-          </p>
-          <div class="text-xs text-zinc-400">
-            <span class="lang-ru">Литература и мудрость</span>
-            <span class="lang-kz">Әдебиет және даналық</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Айтеке би -->
-      <div onclick="selectCharacter('Айтеке би')" class="character-card bg-gradient-to-br from-green-900/20 to-green-700/20 border border-green-500/30 rounded-xl p-6 cursor-pointer hover:border-green-400/60 transition-all hover:scale-105">
-        <div class="text-center">
-          <div class="text-6xl mb-4">⚖️</div>
-          <h3 class="text-xl font-bold text-green-400 mb-2">Айтеке би</h3>
-          <p class="text-zinc-300 text-sm mb-4">
-            <span class="lang-ru">Мудрый судья и бий</span>
-            <span class="lang-kz">Данышпан би және судья</span>
-          </p>
-          <div class="text-xs text-zinc-400">
-            <span class="lang-ru">Справедливость и право</span>
-            <span class="lang-kz">Әділдік және құқық</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex justify-center gap-4">
-      <button onclick="closeCharacterModal()" class="px-6 py-3 border border-zinc-600 text-zinc-300 font-medium rounded-xl hover:bg-zinc-800 transition-colors">
-        <span class="lang-ru">Отмена</span>
-        <span class="lang-kz">Бас тарту</span>
-      </button>
-    </div>
-  </div>
-</div>

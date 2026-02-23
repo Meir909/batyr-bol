@@ -41,16 +41,13 @@ class AuthManager {
             if (data.success) {
                 this.sessionId = data.session_id;
                 this.currentUser = data.user;
-                
+
                 // Save session to localStorage
                 localStorage.setItem('batyrbol_session_id', this.sessionId);
                 localStorage.setItem('batyrbol_user', JSON.stringify(data.user));
-                
+
                 this.updateUI();
-                
-                // Redirect to game
-                window.location.href = '/igra.html';
-                
+
                 return { success: true };
             } else {
                 return { success: false, message: data.message };
