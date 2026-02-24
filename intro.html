@@ -145,6 +145,80 @@
             transform: translateY(-2px);
             transition: all 0.3s ease;
         }
+
+        /* Typography REM System */
+        h1 { font-size: 2.5rem; line-height: 1.2; }
+        @media (min-width: 768px) {
+            h1 { font-size: 3.5rem; }
+        }
+        @media (min-width: 1200px) {
+            h1 { font-size: 4.5rem; }
+        }
+
+        h2 { font-size: 1.875rem; line-height: 1.3; }
+        @media (min-width: 640px) {
+            h2 { font-size: 2.25rem; }
+        }
+        @media (min-width: 1024px) {
+            h2 { font-size: 2.5rem; }
+        }
+
+        h3 { font-size: 1.25rem; line-height: 1.4; }
+        @media (min-width: 640px) {
+            h3 { font-size: 1.5rem; }
+        }
+
+        p { font-size: 1rem; line-height: 1.6; }
+        .subtitle { font-size: 1rem; }
+        @media (min-width: 640px) {
+            .subtitle { font-size: 1.125rem; }
+        }
+        @media (min-width: 1024px) {
+            .subtitle { font-size: 1.25rem; }
+        }
+
+        /* Small text and metadata */
+        .text-sm, small { font-size: 0.875rem; line-height: 1.5; }
+        .text-xs { font-size: 0.75rem; line-height: 1.4; }
+
+        /* Card styling */
+        .card-title { font-size: 1.125rem; line-height: 1.3; }
+        @media (min-width: 640px) {
+            .card-title { font-size: 1.25rem; }
+        }
+
+        /* Button Sizes - REM System */
+        button, a[role="button"] {
+            transition: all 0.2s ease-out;
+        }
+
+        @media (max-width: 639px) {
+            button:not(.px-3), a[role="button"]:not(.px-3) {
+                min-height: 3rem; /* 48px */
+                padding: 0.75rem 1.5rem;
+            }
+        }
+
+        @media (min-width: 640px) and (max-width: 1023px) {
+            button, a[role="button"] {
+                min-height: 3.25rem; /* 52px */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            button, a[role="button"] {
+                min-height: 3.5rem; /* 56px */
+            }
+        }
+
+        /* Button Hover Effect */
+        button:hover, a[role="button"]:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active, a[role="button"]:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body class="bg-black text-zinc-300 antialiased selection:bg-gold-500/30 selection:text-gold-200" data-language="ru">
@@ -202,40 +276,40 @@
                 <span class="lang-kz">Жаңа буын білім беру платформасы</span>
             </div>
 
-            <!-- Main Title -->
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-gradient mb-6 reveal-scale">
+            <!-- Main Title (REM: 2.5rem mobile, 3.5rem tablet, 4.5rem desktop) -->
+            <h1 class="text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] font-semibold tracking-tighter text-gradient mb-6 reveal-scale" style="line-height: 1.2;">
                 BATYR BOL
             </h1>
 
-            <!-- Subtitle -->
-            <p class="lang-ru text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal">
+            <!-- Subtitle (REM: 1rem base, adjusted per breakpoint) -->
+            <p class="lang-ru text-base md:text-lg lg:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal" style="line-height: 1.6;">
                 Изучай историю Казахстана и развивай язык через эпические игровые миссии. Стань настоящим батыром своей эпохи.
             </p>
-            <p class="lang-kz text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal">
+            <p class="lang-kz text-base md:text-lg lg:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed reveal" style="line-height: 1.6;">
                 Қазақстан тарихын зерттеп, эпикалық ойын тапсырмалары арқылы тілді дамыт. Өз заманыңның нағыз батыры бол.
             </p>
 
-            <!-- CTA Buttons -->
+            <!-- CTA Buttons (REM: 48px mobile, 52px tablet, 56px desktop) -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
-                <a href="igra.html" onclick="navigateToGame(event)" class="px-8 py-3 bg-white text-black font-medium rounded-full hover:scale-105 transition-transform glow-on-hover inline-flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                <a href="igra.html" onclick="navigateToGame(event)" class="px-6 sm:px-8 lg:px-10 py-3 sm:py-3.5 lg:py-3.5 bg-white text-black font-semibold rounded-full hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl glow-on-hover inline-flex items-center gap-2 whitespace-nowrap cursor-pointer text-sm sm:text-base" style="min-height: 3rem;">
                     <span class="lang-ru">Начать играть в браузере</span>
                     <span class="lang-kz">Браузерде ойнауды бастау</span>
                     <iconify-icon icon="lucide:play" width="18" height="18" stroke-width="1.5"></iconify-icon>
                 </a>
             </div>
-            
+
             <!-- Feedback Button -->
-            <div class="mt-6 flex justify-center">
-                <button onclick="openFeedbackForm()" class="px-6 py-2 border border-blue-500/30 bg-blue-600/10 text-blue-300 font-medium rounded-full flex items-center gap-2 hover:bg-blue-600/20 transition-colors">
+            <div class="mt-8 flex justify-center">
+                <button onclick="openFeedbackForm()" class="px-6 sm:px-7 lg:px-8 py-2.5 sm:py-3 border border-blue-500/30 bg-blue-600/10 text-blue-300 font-medium rounded-full flex items-center gap-2 hover:bg-blue-600/20 hover:-translate-y-0.5 transition-all duration-200 text-sm sm:text-base" style="min-height: 2.75rem;">
                     <iconify-icon icon="lucide:message-square" width="16" height="16"></iconify-icon>
                     <span class="lang-ru">Обратная связь</span>
                     <span class="lang-kz">Кері байланыс</span>
                 </button>
             </div>
-            
+
             <!-- Additional Navigation -->
             <div class="mt-8 flex justify-center">
-                <button onclick="scrollToSection('about')" class="px-8 py-3 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2 hover:bg-white/10 transition-colors">
+                <button onclick="scrollToSection('about')" class="px-6 sm:px-8 lg:px-10 py-3 sm:py-3.5 border border-white/10 bg-white/5 text-white font-medium rounded-full flex items-center gap-2 hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-200 text-sm sm:text-base" style="min-height: 2.75rem;">
                     <iconify-icon icon="lucide:info" width="18" height="18"></iconify-icon>
                     <span class="lang-ru">Узнать больше</span>
                     <span class="lang-kz">Көбірек білу</span>
@@ -306,7 +380,7 @@
     <section id="about" class="py-24 bg-pattern relative">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-4">
                     <span class="lang-ru">О Проекте</span>
                     <span class="lang-kz">Жоба туралы</span>
                 </h2>
@@ -321,7 +395,7 @@
                 <div class="rounded-2xl bg-zinc-900/40 border border-white/5 overflow-hidden hover:scale-105 transition-transform">
                     <img src="assets/images/features/game-learning.jpg" alt="Game Learning" class="w-full h-48 object-cover">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <h3 class="card-title font-medium text-zinc-200 mb-2">
                             <span class="lang-ru">Обучение через игру</span>
                             <span class="lang-kz">Ойын арқылы оқу</span>
                         </h3>
@@ -336,7 +410,7 @@
                 <div class="rounded-2xl bg-zinc-900/40 border border-white/5 overflow-hidden hover:scale-105 transition-transform">
                     <img src="assets/images/features/history-heroes.jpg" alt="History Heroes" class="w-full h-48 object-cover">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <h3 class="card-title font-medium text-zinc-200 mb-2">
                             <span class="lang-ru">История и Герои</span>
                             <span class="lang-kz">Тарих және Батырлар</span>
                         </h3>
@@ -351,7 +425,7 @@
                 <div class="rounded-2xl bg-zinc-900/40 border border-white/5 overflow-hidden hover:scale-105 transition-transform">
                     <img src="assets/images/features/kazakh-language.jpg" alt="Kazakh Language" class="w-full h-48 object-cover">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <h3 class="card-title font-medium text-zinc-200 mb-2">
                             <span class="lang-ru">Казахский язык</span>
                             <span class="lang-kz">Қазақ тілі</span>
                         </h3>
@@ -366,7 +440,7 @@
                 <div class="rounded-2xl bg-zinc-900/40 border border-white/5 overflow-hidden hover:scale-105 transition-transform">
                     <img src="assets/images/features/missions-ratings.jpg" alt="Missions Ratings" class="w-full h-48 object-cover">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-zinc-200 mb-2">
+                        <h3 class="card-title font-medium text-zinc-200 mb-2">
                             <span class="lang-ru">Миссии и Рейтинги</span>
                             <span class="lang-kz">Миссиялар мен Рейтинг</span>
                         </h3>
@@ -383,7 +457,7 @@
     <section id="features" class="py-24 border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-4">
                     <span class="lang-ru">Глубокое обучение</span>
                     <span class="lang-kz">Терең оқыту</span>
                 </h2>
@@ -460,7 +534,7 @@
     <!-- Target Audience Section -->
     <section class="py-24 border-t border-white/5">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-12 text-center">
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-12 text-center">
                 <span class="lang-ru">Для кого создан BATYR BOL?</span>
                 <span class="lang-kz">BATYR BOL кімге арналған?</span>
             </h2>
@@ -518,7 +592,7 @@
     <section class="py-24 bg-zinc-950 border-y border-white/5">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-4">
                     <span class="lang-ru">Мир игры и эпохи</span>
                     <span class="lang-kz">Ойын әлемі мен кезеңдер</span>
                 </h2>
@@ -602,7 +676,7 @@
         <div class="absolute bottom-1/4 right-0 w-64 h-64 bg-zinc-700/10 rounded-full blur-[80px]"></div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-16 text-center">
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-16 text-center">
                 <span class="lang-ru">Как это работает?</span>
                 <span class="lang-kz">Бұл қалай жұмыс істейді?</span>
             </h2>
@@ -615,7 +689,7 @@
                         <div class="mb-4 text-gold-400">
                             <iconify-icon icon="lucide:user-plus" width="24" height="24"></iconify-icon>
                         </div>
-                        <h4 class="text-lg font-medium text-white mb-2">
+                        <h4 class="card-title font-medium text-white mb-2">
                             <span class="lang-ru">Выбери батыра</span>
                             <span class="lang-kz">Батырды таңда</span>
                         </h4>
@@ -633,7 +707,7 @@
                         <div class="mb-4 text-gold-400">
                             <iconify-icon icon="lucide:swords" width="24" height="24"></iconify-icon>
                         </div>
-                        <h4 class="text-lg font-medium text-white mb-2">
+                        <h4 class="card-title font-medium text-white mb-2">
                             <span class="lang-ru">Выполняй миссии</span>
                             <span class="lang-kz">Миссияларды орында</span>
                         </h4>
@@ -651,7 +725,7 @@
                         <div class="mb-4 text-gold-400">
                             <iconify-icon icon="lucide:book-open" width="24" height="24"></iconify-icon>
                         </div>
-                        <h4 class="text-lg font-medium text-white mb-2">
+                        <h4 class="card-title font-medium text-white mb-2">
                             <span class="lang-ru">Изучай культуру</span>
                             <span class="lang-kz">Мәдениетті зертте</span>
                         </h4>
@@ -669,7 +743,7 @@
                         <div class="mb-4 text-gold-400">
                             <iconify-icon icon="lucide:medal" width="24" height="24"></iconify-icon>
                         </div>
-                        <h4 class="text-lg font-medium text-white mb-2">
+                        <h4 class="card-title font-medium text-white mb-2">
                             <span class="lang-ru">Получай достижения</span>
                             <span class="lang-kz">Жетістіктерге жет</span>
                         </h4>
@@ -687,7 +761,7 @@
     <section class="py-24 border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-4">
                     <span class="lang-ru">Прогресс и мотивация</span>
                     <span class="lang-kz">Прогресс пен мотивация</span>
                 </h2>
@@ -765,7 +839,7 @@
     <section id="values" class="py-24 border-t border-white/5">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-6">
                     <span class="lang-ru">Наши ценности</span>
                     <span class="lang-kz">Біздің құндылықтар</span>
                 </h2>
@@ -819,7 +893,7 @@
     <section class="py-24 bg-zinc-950 border-y border-white/5">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-4">
                     <span class="lang-ru">Для родителей</span>
                     <span class="lang-kz">Ата-аналарға</span>
                 </h2>
@@ -902,7 +976,7 @@
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                 <div>
-                    <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-2">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-2">
                         <span class="lang-ru">Дорожная карта</span>
                         <span class="lang-kz">Жоспар</span>
                     </h2>
@@ -957,7 +1031,7 @@
                 <span class="lang-kz">Ерте қол жеткізу</span>
             </div>
             
-            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white" style="line-height: 1.3;" mb-4">
                 <span class="lang-ru">Станьте одним из первых батыров</span>
                 <span class="lang-kz">Алғашқы батырлардың бірі болыңыз</span>
             </h2>

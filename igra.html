@@ -175,6 +175,61 @@
     .float {
       animation: float 3s ease-in-out infinite;
     }
+
+    /* Typography REM System */
+    h1 { font-size: 2.5rem; line-height: 1.2; }
+    @media (min-width: 768px) { h1 { font-size: 3.5rem; } }
+    @media (min-width: 1200px) { h1 { font-size: 4.5rem; } }
+
+    h2 { font-size: 1.875rem; line-height: 1.3; }
+    @media (min-width: 640px) { h2 { font-size: 2.25rem; } }
+    @media (min-width: 1024px) { h2 { font-size: 2.5rem; } }
+
+    h3 { font-size: 1.25rem; line-height: 1.4; }
+    @media (min-width: 640px) { h3 { font-size: 1.5rem; } }
+
+    p { font-size: 1rem; line-height: 1.6; }
+    .text-sm, small { font-size: 0.875rem; line-height: 1.5; }
+    .text-xs { font-size: 0.75rem; line-height: 1.4; }
+
+    /* Button Sizes - Responsive */
+    button, a[role="button"], input[type="submit"] {
+      transition: all 0.2s ease-out;
+    }
+
+    @media (max-width: 639px) {
+      button:not(.px-3):not(.px-4),
+      a[role="button"]:not(.px-3):not(.px-4),
+      input[type="submit"] {
+        min-height: 3rem; /* 48px */
+        padding: 0.75rem 1.5rem;
+      }
+    }
+
+    @media (min-width: 640px) and (max-width: 1023px) {
+      button:not(.px-3):not(.px-4),
+      a[role="button"]:not(.px-3):not(.px-4),
+      input[type="submit"] {
+        min-height: 3.25rem; /* 52px */
+      }
+    }
+
+    @media (min-width: 1024px) {
+      button:not(.px-3):not(.px-4),
+      a[role="button"]:not(.px-3):not(.px-4),
+      input[type="submit"] {
+        min-height: 3.5rem; /* 56px */
+      }
+    }
+
+    /* Form inputs responsive sizing */
+    input, textarea, select {
+      transition: all 0.2s ease-out;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 
@@ -210,12 +265,12 @@
         <!-- Tabs -->
         <div class="flex gap-2 mb-8 p-1 bg-zinc-900/50 rounded-xl">
           <button onclick="showTab('login')" id="tab-login"
-            class="flex-1 py-2.5 text-sm font-medium rounded-lg bg-gold-500 text-black transition-all">
+            class="flex-1 py-2.5 text-sm font-medium rounded-lg bg-gold-500 text-black transition-all hover:-translate-y-0.5 active:scale-95 min-h-[44px]">
             <span class="lang-ru">Вход</span>
             <span class="lang-kz">Кіру</span>
           </button>
           <button onclick="showTab('register')" id="tab-register"
-            class="flex-1 py-2.5 text-sm font-medium rounded-lg text-zinc-400 transition-all">
+            class="flex-1 py-2.5 text-sm font-medium rounded-lg text-zinc-400 transition-all hover:-translate-y-0.5 active:scale-95 min-h-[44px]">
             <span class="lang-ru">Регистрация</span>
             <span class="lang-kz">Тіркелу</span>
           </button>
@@ -244,7 +299,7 @@
               <span class="lang-kz">Email</span>
             </label>
             <input type="email" id="login-email" required
-              class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+              class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors min-h-[48px] sm:min-h-[52px] lg:min-h-[56px]"
               placeholder="test@batyrbol.kz" value="test@batyrbol.kz" readonly>
           </div>
           <div>
@@ -253,10 +308,10 @@
               <span class="lang-kz">Құпия сөз</span>
             </label>
             <input type="password" id="login-password" required
-              class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors"
+              class="w-full px-4 py-3.5 bg-zinc-900/50 border border-white/10 rounded-xl text-white placeholder-zinc-600 focus:border-gold-500/50 focus:outline-none transition-colors min-h-[48px] sm:min-h-[52px] lg:min-h-[56px]"
               placeholder="batyr123" value="batyr123" readonly>
           </div>
-          <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base font-medium">
+          <button type="submit" class="w-full py-4 btn-primary rounded-xl text-base font-medium min-h-[48px] sm:min-h-[52px] lg:min-h-[56px] transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
             <span class="lang-ru">🎮 Войти в игру</span>
             <span class="lang-kz">🎮 Ойынға кіру</span>
           </button>
@@ -279,7 +334,7 @@
               <span class="lang-kz">🔒 Жаңа аккаунттарды жасау уақытша қол жетімсіз</span>
             </div>
             <button type="button" onclick="showTab('login')"
-              class="px-6 py-3 bg-gold-500 text-black rounded-lg font-medium hover:bg-gold-400 transition-colors">
+              class="px-6 py-3 bg-gold-500 text-black rounded-lg font-medium hover:bg-gold-400 transition-all hover:-translate-y-0.5 active:scale-95 min-h-[48px] sm:min-h-[52px] lg:min-h-[56px]">
               <span class="lang-ru">🔄 Перейти ко входу</span>
               <span class="lang-kz">🔄 Кіруге өту</span>
             </button>
@@ -290,9 +345,9 @@
       <!-- Language Switch -->
       <div class="flex justify-center gap-2 mt-8">
         <button onclick="switchLanguage('ru')" id="btn-ru"
-          class="px-4 py-2 text-sm font-medium rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors">RU</button>
+          class="px-4 py-2 text-sm font-medium rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors hover:-translate-y-0.5 active:scale-95">RU</button>
         <button onclick="switchLanguage('kz')" id="btn-kz"
-          class="px-4 py-2 text-sm font-medium rounded-lg bg-gold-500 text-black">KZ</button>
+          class="px-4 py-2 text-sm font-medium rounded-lg bg-gold-500 text-black transition-all hover:-translate-y-0.5 active:scale-95">KZ</button>
       </div>
     </div>
   </section>
@@ -392,7 +447,7 @@
                   class="absolute -bottom-1 -right-1 w-7 h-7 bg-gold-500 rounded-lg flex items-center justify-center text-black text-xs font-bold"
                   id="user-level-badge">1</div>
               </div>
-              <h3 id="user-name" class="text-white font-bold text-lg mt-4">Батыр</h3>
+              <h3 id="user-name" class="text-white font-bold text-base sm:text-lg mt-4">Батыр</h3>
               <p class="text-gold-400 text-sm mt-1">
                 <span class="lang-ru">Уровень</span>
                 <span class="lang-kz">Деңгей</span>
@@ -546,18 +601,18 @@
               class="absolute top-0 right-0 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
             </div>
             <div class="relative">
-              <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
+              <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">
                 <span class="lang-ru">Добро пожаловать, Батыр!</span>
                 <span class="lang-kz">Қош келдің, Батыр!</span>
               </h2>
-              <p class="text-zinc-400 mb-6 max-w-xl">
+              <p class="text-sm sm:text-base text-zinc-400 mb-6 max-w-xl">
                 <span class="lang-ru">Изучай историю Казахстана через увлекательные миссии и становись настоящим героем
                   степи.</span>
                 <span class="lang-kz">Қызықты миссиялар арқылы Қазақстан тарихын үйреніп, даланың нағыз батыры
                   бол.</span>
               </p>
               <button id="missions-btn" onclick="openCharacterSelection()"
-                class="btn-primary px-8 py-4 rounded-xl text-base flex items-center gap-3 pulse-gold">
+                class="btn-primary px-8 py-4 rounded-xl text-base flex items-center gap-3 pulse-gold min-h-[48px] sm:min-h-[52px] lg:min-h-[56px] transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
                 <iconify-icon icon="lucide:play" width="20"></iconify-icon>
                 <span class="lang-ru">Начать миссию</span>
                 <span class="lang-kz">Миссияны бастау</span>
@@ -598,7 +653,7 @@
 
             <!-- Scenario Text -->
             <div id="scenario-text" class="mb-8 p-6 bg-zinc-900/50 rounded-xl border border-white/10 min-h-[150px]">
-              <p class="text-lg text-white leading-relaxed"></p>
+              <p class="text-base sm:text-lg text-white leading-relaxed"></p>
             </div>
 
             <!-- Options -->
@@ -622,8 +677,8 @@
           <div id="mission-consequence" class="hidden glass rounded-2xl p-8">
             <div class="text-center mb-8">
               <div id="consequence-icon" class="text-6xl mb-4"></div>
-              <h3 id="consequence-title" class="text-2xl font-bold text-white mb-4"></h3>
-              <p id="consequence-text" class="text-lg text-zinc-300 leading-relaxed"></p>
+              <h3 id="consequence-title" class="text-xl sm:text-2xl font-bold text-white mb-4"></h3>
+              <p id="consequence-text" class="text-base sm:text-lg text-zinc-300 leading-relaxed"></p>
             </div>
 
             <!-- Updated Lives Display -->
@@ -636,7 +691,7 @@
             </div>
 
             <!-- Continue Button -->
-            <button id="consequence-continue-btn" class="w-full py-4 btn-primary rounded-xl text-base font-medium">
+            <button id="consequence-continue-btn" class="w-full py-4 btn-primary rounded-xl text-base font-medium min-h-[48px] sm:min-h-[52px] lg:min-h-[56px] transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
               <span class="lang-ru">Продолжить</span>
               <span class="lang-kz">Жалғастыру</span>
             </button>
@@ -645,9 +700,9 @@
           <!-- Result Screen -->
           <div id="mission-result" class="hidden glass rounded-2xl p-8">
             <div class="text-center mb-8">
-              <div id="result-icon" class="text-7xl mb-4"></div>
-              <h2 id="result-title" class="text-3xl font-bold text-white mb-2"></h2>
-              <p id="result-subtitle" class="text-zinc-400 mb-8"></p>
+              <div id="result-icon" class="text-6xl sm:text-7xl mb-4"></div>
+              <h2 id="result-title" class="text-2xl sm:text-3xl font-bold text-white mb-2"></h2>
+              <p id="result-subtitle" class="text-sm sm:text-base text-zinc-400 mb-8"></p>
             </div>
 
             <!-- Stats -->
@@ -689,12 +744,12 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex gap-4">
-              <button id="result-again-btn" class="flex-1 py-4 btn-primary rounded-xl text-base font-medium">
+            <div class="flex gap-4 flex-col sm:flex-row">
+              <button id="result-again-btn" class="flex-1 py-4 btn-primary rounded-xl text-base font-medium min-h-[48px] sm:min-h-[52px] lg:min-h-[56px] transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
                 <span class="lang-ru">🎮 Играть ещё</span>
                 <span class="lang-kz">🎮 Тағы ойна</span>
               </button>
-              <button onclick="closeCharacterModal(); document.getElementById('mission-welcome').classList.remove('hidden')" class="flex-1 py-4 border border-zinc-600 text-white rounded-xl text-base font-medium hover:bg-zinc-800 transition-colors">
+              <button onclick="closeCharacterModal(); document.getElementById('mission-welcome').classList.remove('hidden')" class="flex-1 py-4 border border-zinc-600 text-white rounded-xl text-base font-medium hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-0.5 active:scale-95 min-h-[48px] sm:min-h-[52px] lg:min-h-[56px]">
                 <span class="lang-ru">🏠 На главную</span>
                 <span class="lang-kz">🏠 Басты бетке</span>
               </button>
