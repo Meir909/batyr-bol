@@ -230,6 +230,103 @@
     input:focus, textarea:focus, select:focus {
       transform: translateY(-1px);
     }
+
+    /* Enhanced Animations for Game Screen */
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(100vh) rotateZ(360deg);
+        opacity: 0;
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      animation: confetti-fall 3s ease-in forwards;
+    }
+
+    /* Pulse animation for timer urgency */
+    @keyframes pulse-urgent {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        color: #ef4444;
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+    }
+
+    .timer-urgent {
+      animation: pulse-urgent 1s infinite;
+    }
+
+    /* Success celebration animation */
+    @keyframes celebrate {
+      0% { transform: scale(0.8) rotateZ(0deg); opacity: 0; }
+      50% { transform: scale(1.1) rotateZ(5deg); }
+      100% { transform: scale(1) rotateZ(0deg); opacity: 1; }
+    }
+
+    .celebrate {
+      animation: celebrate 0.6s ease-out;
+    }
+
+    /* Shake animation for incorrect answer */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    /* Glow effect for selected answer */
+    @keyframes glow-pulse {
+      0%, 100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+      }
+    }
+
+    .glow-pulse {
+      animation: glow-pulse 0.8s ease-in-out;
+    }
+
+    /* Card slide-in animation */
+    @keyframes slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide-in {
+      animation: slide-in 0.5s ease-out;
+    }
+
+    /* Scale animation for modal entrance */
+    @keyframes scale-in {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .scale-in {
+      animation: scale-in 0.3s ease-out;
+    }
   </style>
 </head>
 
@@ -1732,6 +1829,116 @@
       </div>
     </div>
   </div>
+
+  <script>
+    /* Confetti Animation Function */
+    function createConfetti() {
+      const confettiCount = 60;
+      const colors = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'];
+
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = '-10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = Math.random() * 10 + 5 + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        confetti.style.opacity = Math.random() * 0.8 + 0.2;
+        confetti.style.zIndex = '9999';
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    /* Shake animation for containers */
+    function shakeElement(element) {
+      element.classList.add('shake');
+      setTimeout(() => element.classList.remove('shake'), 400);
+    }
+
+    /* Celebrate animation for success */
+    function celebrateElement(element) {
+      element.classList.add('celebrate');
+      setTimeout(() => element.classList.remove('celebrate'), 600);
+    }
+
+    /* Add urgency to timer when < 10 seconds */
+    function updateTimerUrgency(seconds) {
+      const timerElement = document.getElementById('mission-timer');
+      if (timerElement) {
+        if (seconds < 10 && seconds > 0) {
+          timerElement.classList.add('timer-urgent');
+        } else {
+          timerElement.classList.remove('timer-urgent');
+        }
+      }
+    }
+
+    /* Enhance modal with entrance animation */
+    function showCharacterModal() {
+      const modal = document.getElementById('character-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('scale-in');
+        setTimeout(() => modal.classList.remove('scale-in'), 300);
+      }
+    }
+
+    /* Add confetti on mission success (override or enhance existing function) */
+    const originalShowResult = window.showResult;
+    window.showResult = function(success) {
+      if (success) {
+        createConfetti();
+        const resultIcon = document.getElementById('result-icon');
+        if (resultIcon) {
+          celebrateElement(resultIcon);
+        }
+      }
+      if (originalShowResult) originalShowResult(success);
+    };
+
+    /* Add slide-in animation to game screens */
+    function animateScreenChange() {
+      const gameScreen = document.getElementById('game');
+      if (gameScreen) {
+        const activeScreen = gameScreen.querySelector('[class*="mission-"]:not(.hidden)');
+        if (activeScreen) {
+          activeScreen.classList.add('slide-in');
+        }
+      }
+    }
+
+    /* Initialize animations on page load */
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add entrance animations to all glass cards
+      const cards = document.querySelectorAll('.glass');
+      cards.forEach((card, index) => {
+        card.style.animationDelay = index * 0.1 + 's';
+        card.classList.add('slide-in');
+      });
+
+      // Add glow pulse to important buttons
+      const importantButtons = document.querySelectorAll('#missions-btn, #result-again-btn');
+      importantButtons.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+          this.classList.add('glow-pulse');
+        });
+        btn.addEventListener('mouseleave', function() {
+          this.classList.remove('glow-pulse');
+        });
+      });
+    });
+
+    // Override timer update to add urgency effect
+    const originalUpdateTimer = window.updateTimer;
+    window.updateTimer = function(seconds) {
+      updateTimerUrgency(seconds);
+      if (originalUpdateTimer) originalUpdateTimer(seconds);
+    };
+  </script>
 
 </body>
 

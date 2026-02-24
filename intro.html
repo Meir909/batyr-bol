@@ -219,6 +219,98 @@
         button:active, a[role="button"]:active {
             transform: scale(0.98);
         }
+
+        /* Enhanced Card Hover Effects */
+        .card-hover {
+            transition: all 0.3s ease-out;
+            position: relative;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        /* Confetti Animation */
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotateZ(360deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            animation: confetti-fall 3s ease-in forwards;
+        }
+
+        /* Pulse Animation for Success */
+        @keyframes pulse-success {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+        }
+
+        .pulse-success {
+            animation: pulse-success 2s infinite;
+        }
+
+        /* Glow on hover for important elements */
+        .glow-on-hover {
+            transition: all 0.3s ease-out;
+        }
+
+        .glow-on-hover:hover {
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+            transform: scale(1.05);
+        }
+
+        /* Scale pulse for attention */
+        @keyframes scale-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .scale-pulse {
+            animation: scale-pulse 2s ease-in-out infinite;
+        }
+
+        /* Smooth page transitions */
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fade-in 0.6s ease-out;
+        }
+
+        /* Card entrance animation */
+        @keyframes card-entrance {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card-entrance {
+            animation: card-entrance 0.5s ease-out;
+        }
     </style>
 </head>
 <body class="bg-black text-zinc-300 antialiased selection:bg-gold-500/30 selection:text-gold-200" data-language="ru">
@@ -1300,6 +1392,45 @@
             `;
         });
 
+        // Confetti Animation Function
+        function createConfetti() {
+            const confettiCount = 50;
+            const colors = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.opacity = Math.random() * 0.8 + 0.2;
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // Add entrance animation to cards
+        function addCardEntranceAnimation() {
+            const cards = document.querySelectorAll('.glass, .rounded-2xl');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = index * 0.1 + 's';
+                card.classList.add('card-entrance');
+            });
+        }
+
+        // Enhanced hover effects for cards
+        function enhanceCardHovers() {
+            const cards = document.querySelectorAll('.glass, .card-hover, [class*="rounded"]');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transition = 'all 0.3s ease-out';
+                });
+            });
+        }
+
         // Auth check and redirect logic
         document.addEventListener('DOMContentLoaded', function() {
             // Wait for auth manager to initialize
@@ -1321,6 +1452,18 @@
                         });
                         observer.observe(element);
                     });
+
+                    // Add entrance animations to cards
+                    addCardEntranceAnimation();
+                    enhanceCardHovers();
+
+                    // Add confetti on button click
+                    const playButton = document.querySelector('a[href="igra.html"]');
+                    if (playButton) {
+                        playButton.addEventListener('click', function(e) {
+                            createConfetti();
+                        });
+                    }
                 }
             }, 1000);
         });
